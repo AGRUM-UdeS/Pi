@@ -50,3 +50,11 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+.vscode/c_cpp_properties.json
+.vscode/settings.json
+.vscode/extensions.json
+build/.cmake/api/v1/query/client-vscode/query.json
+build/CMakeCache.txt
+build/CMakeFiles/3.25.1/CMakeSystem.cmake
+build/CMakeFiles/cmake.check_cache
+build/CMakeFiles/CMakeOutput.log
