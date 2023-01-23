@@ -1,10 +1,15 @@
 add_executable(agrum
         main.c
+        interface.c
+        )
+
+target_include_directories(agrum PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}
         )
 
 target_link_libraries(agrum
         pico_stdlib              # for core functionality
-        pico_cyw43_arch_none     # we need Wifi to access the GPIO, but we don't need anything else
+        pico_cyw43_arch_lwip_threadsafe_background
         )
 
 # enable usb output, disable uart output
