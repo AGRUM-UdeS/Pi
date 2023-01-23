@@ -8,20 +8,24 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 
+#include "interface.h"
+
 int main() {
     stdio_init_all();
-    if (cyw43_arch_init()) {
-        printf("WiFi init failed");
-        return -1;
-    }
+
+    // Delay to let the developer open Putty
+    sleep_ms(5000);
+
+    wifi_connect();
+
     while (true) {
         static uint16_t i = 0;
         i++;
         printf("Hello, world! (%u)\n", i);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-        sleep_ms(500);
+        sleep_ms(1000);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
-        sleep_ms(500);
+        sleep_ms(1000);
     }
     return 0;
 }
