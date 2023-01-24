@@ -9,6 +9,7 @@
 #include "pico/cyw43_arch.h"
 
 #include "interface.h"
+#include "agrum_mqtt.h"
 
 int main() {
     stdio_init_all();
@@ -17,6 +18,9 @@ int main() {
     sleep_ms(5000);
 
     wifi_connect();
+
+    mqtt_connect();
+    printf("MQTT END\n");
 
     while (true) {
         static uint16_t i = 0;

@@ -1,15 +1,22 @@
+set(CMAKE_BINARY_DIR ../../build)
+
 add_executable(agrum
         main.c
         interface.c
+        agrum_mqtt.c
+        ../../pico-sdk/lib/lwip/src/apps/mqtt/mqtt.c
         )
 
 target_include_directories(agrum PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/..
+        ${CMAKE_CURRENT_LIST_DIR}/src
         )
 
 target_link_libraries(agrum
         pico_stdlib              # for core functionality
         pico_cyw43_arch_lwip_threadsafe_background
+        pico_lwip
         )
 
 # enable usb output, disable uart output
