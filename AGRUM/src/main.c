@@ -10,6 +10,9 @@
 
 #include "wifi.h"
 #include "ThingsBoard.h"
+#include "interface.h"
+#include "actuator.h"
+#include "measure.h"
 
 int main() {
     stdio_init_all();
@@ -28,6 +31,11 @@ int main() {
         sleep_ms(5000);
 
         ThingsBoard_publish("temperature", 4.20);
+
+        static measure_t measurements;
+
+        actuator_sm(measurements);
+
     }
     return 0;
 }
