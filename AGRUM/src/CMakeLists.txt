@@ -1,5 +1,3 @@
-set(CMAKE_BINARY_DIR ../../build)
-
 add_executable(agrum
         main.c
         interface.c

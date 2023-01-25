@@ -1,22 +1,60 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "agrum_mqtt.h"
 
-/** thingsboard.cloud = 44.193.166.37 */
-#define LWIP_MQTT_IPADDR_INIT = IPADDR4_INIT_BYTES(44, 193, 166, 37);
 #define MQTT_PORT       LWIP_IANA_PORT_MQTT
+#define THINGSBOARD_HOSTNAME "thingsboard.cloud"
+#define KEEP_ALIVE_TIMEOUT 3600
 
-static ip_addr_t mqtt_ip LWIP_MQTT_IPADDR_INIT;
 static mqtt_client_t* mqtt_client;
+static ip_addr_t tb_ipaddr;
+static bool host_name_is_resolved = false;
 
+void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
+{
+    if (ipaddr == NULL) {
+        // Failed to resolve hostname
+        printf("Error resolving hostname: %s\n", name);
+    } else {
+        // Hostname was resolved successfully
+        printf("IP address for %s: %d.%d.%d.%d\n", name,
+               ip4_addr1(ipaddr), ip4_addr2(ipaddr),
+               ip4_addr3(ipaddr), ip4_addr4(ipaddr));
+        tb_ipaddr = *ipaddr;
+        host_name_is_resolved = true;
+    }
+}
 
+static void get_ip_addr(const char *hostname)
+{
+    ip_addr_t ip_addr, dns_server;
+    IP4_ADDR(&dns_server, 8, 8, 8, 8);
+
+    dns_setserver(0, &dns_server);
+
+    err_t err = dns_gethostbyname(hostname, &ip_addr, dns_callback, NULL);
+    if (err == ERR_OK) {
+        // IP address was resolved successfully
+        printf("IP address: %d.%d.%d.%d\n",
+               ip4_addr1(&ip_addr), ip4_addr2(&ip_addr),
+               ip4_addr3(&ip_addr), ip4_addr4(&ip_addr));
+        tb_ipaddr = ip_addr;
+        host_name_is_resolved = true;
+    } else if (err == ERR_INPROGRESS) {
+        printf("Resolving '%s' hostname...\n", hostname);
+    }
+}
+
+// {clientId:"e45ded90-982b-11ed-a183-5d40b1136f31",userName:"TLvbrgj6h79B31uhKF6Z",password:"CitronPresse65"} //
 static const struct mqtt_connect_client_info_t mqtt_client_info =
 {
+  //"RaspberryPiPicoW", /* Client id */
   "e45ded90-982b-11ed-a183-5d40b1136f31", /* Client id */
   "TLvbrgj6h79B31uhKF6Z", /* user, or access token in our case */
   "CitronPresse65", /* pass */
-  100,  /* keep alive */
+  KEEP_ALIVE_TIMEOUT,  /* keep alive */
   NULL, /* will_topic */
   NULL, /* will_msg */
   0,    /* will_qos */
@@ -78,37 +116,41 @@ void mqtt_connect(void) {
 
     mqtt_client = mqtt_client_new();
 
-    printf("Setting callback fct..\n");
-
     mqtt_set_inpub_callback(mqtt_client,
         mqtt_incoming_publish_cb,
         mqtt_incoming_data_cb,
         LWIP_CONST_CAST(void*, &mqtt_client_info));
 
-    printf("Client connecting..\n");
+    get_ip_addr(THINGSBOARD_HOSTNAME);
+
+    printf("Wating for hostname to be resolved...\n");
+
+    while (!host_name_is_resolved){}
 
     err_t ret = mqtt_client_connect(mqtt_client,
-          &mqtt_ip, MQTT_PORT,
+          &tb_ipaddr, MQTT_PORT,
           mqtt_connection_cb, LWIP_CONST_CAST(void*, &mqtt_client_info),
           &mqtt_client_info);
 
-    printf("Client connected?..(%u)\n", ret);
-
+    printf("Client connected! (%u)\n", ret);
 }
 
 void tb_pub(void) {
     printf("Trying to publish data to thingsboard...\n");
 
-    const char* pld = "30";
-    u16_t sz = sizeof(*pld);
+    if (mqtt_client_is_connected(mqtt_client)) {
+        u16_t pld = 30;
+        u16_t sz = sizeof(pld);
 
-    err_t ret = mqtt_publish(mqtt_client,
-                    "eau", pld,
-                    sz, 0,
-                    0, NULL,
-                    LWIP_CONST_CAST(void*, &mqtt_client_info));
+        err_t ret = mqtt_publish(mqtt_client,
+                        "eau", &pld,
+                        sz, 0,
+                        0, NULL,
+                        LWIP_CONST_CAST(void*, &mqtt_client_info));
 
-    printf("Client connected?..(%u)\n", ret);
-
+        printf("Message published! (%u)\n", ret);
+    } else {
+        printf("Client not connected...\n");
+    }
 }
 

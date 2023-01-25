@@ -20,16 +20,14 @@ int main() {
     wifi_connect();
 
     mqtt_connect();
-    printf("MQTT END\n");
 
     while (true) {
-        static uint16_t i = 0;
-        i++;
-        printf("Hello, world! (%u)\n", i);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
         sleep_ms(1000);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
         sleep_ms(1000);
+
+        tb_pub();
     }
     return 0;
 }
