@@ -19,7 +19,7 @@ int main() {
 
     wifi_connect();
 
-    mqtt_connect();
+    thinsboard_connect();
 
     while (true) {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
@@ -27,7 +27,7 @@ int main() {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
         sleep_ms(1000);
 
-        tb_pub();
+        thinsboard_pub();
     }
     return 0;
 }

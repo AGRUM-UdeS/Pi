@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "agrum_mqtt.h"
+#include "lwipopts.h"
 
 #define MQTT_PORT       LWIP_IANA_PORT_MQTT
 #define THINGSBOARD_HOSTNAME "thingsboard.cloud"
@@ -27,7 +28,7 @@ void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
     }
 }
 
-static void get_ip_addr(const char *hostname)
+static void resolve_hostname(const char *hostname)
 {
     ip_addr_t ip_addr, dns_server;
     IP4_ADDR(&dns_server, 8, 8, 8, 8);
@@ -47,21 +48,16 @@ static void get_ip_addr(const char *hostname)
     }
 }
 
-// {clientId:"e45ded90-982b-11ed-a183-5d40b1136f31",userName:"TLvbrgj6h79B31uhKF6Z",password:"CitronPresse65"} //
 static const struct mqtt_connect_client_info_t mqtt_client_info =
 {
-  //"RaspberryPiPicoW", /* Client id */
-  "e45ded90-982b-11ed-a183-5d40b1136f31", /* Client id */
-  "TLvbrgj6h79B31uhKF6Z", /* user, or access token in our case */
-  "CitronPresse65", /* pass */
+  "RaspberryPiPicoW", /* Client id */
+  "RaspberryPiPicoW", /* user, or access token in our case */
+  "RaspberryPiPicoW", /* pass */
   KEEP_ALIVE_TIMEOUT,  /* keep alive */
   NULL, /* will_topic */
   NULL, /* will_msg */
   0,    /* will_qos */
   0     /* will_retain */
-#if LWIP_ALTCP && LWIP_ALTCP_TLS
-  , NULL
-#endif
 };
 
 static void
@@ -82,13 +78,13 @@ static void mqtt_connection_cb(mqtt_client_t *client,
 
   if (status == MQTT_CONNECT_ACCEPTED) {
     mqtt_sub_unsub(client,
-            "topic_qos1", 1,
-            mqtt_request_cb, LWIP_CONST_CAST(void*, client_info),
-            1);
+          "topic_qos1", 1,
+          mqtt_request_cb, LWIP_CONST_CAST(void*, client_info),
+          1);
     mqtt_sub_unsub(client,
-            "topic_qos0", 0,
-            mqtt_request_cb, LWIP_CONST_CAST(void*, client_info),
-            1);
+          "topic_qos0", 0,
+          mqtt_request_cb, LWIP_CONST_CAST(void*, client_info),
+          1);
   }
 }
 
@@ -99,7 +95,7 @@ mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t flags)
   LWIP_UNUSED_ARG(data);
 
   LWIP_PLATFORM_DIAG(("MQTT client \"%s\" data cb: len %d, flags %d\n", client_info->client_id,
-          (int)len, (int)flags));
+        (int)len, (int)flags));
 }
 
 static void
@@ -108,49 +104,54 @@ mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len)
   const struct mqtt_connect_client_info_t* client_info = (const struct mqtt_connect_client_info_t*)arg;
 
   LWIP_PLATFORM_DIAG(("MQTT client \"%s\" publish cb: topic %s, len %d\n", client_info->client_id,
-          topic, (int)tot_len));
+        topic, (int)tot_len));
 }
 
-void mqtt_connect(void) {
-    printf("Trying to connect to thingsboard...\n");
+void thinsboard_connect(void) {
+  printf("Trying to connect to thingsboard...\n");
 
-    mqtt_client = mqtt_client_new();
+  mqtt_client = mqtt_client_new();
 
-    mqtt_set_inpub_callback(mqtt_client,
+  mqtt_set_inpub_callback(mqtt_client,
         mqtt_incoming_publish_cb,
         mqtt_incoming_data_cb,
         LWIP_CONST_CAST(void*, &mqtt_client_info));
 
-    get_ip_addr(THINGSBOARD_HOSTNAME);
+  resolve_hostname(THINGSBOARD_HOSTNAME);
 
-    printf("Wating for hostname to be resolved...\n");
+  printf("Wating for hostname to be resolved...\n");
 
-    while (!host_name_is_resolved){}
+  while (!host_name_is_resolved){}
 
-    err_t ret = mqtt_client_connect(mqtt_client,
-          &tb_ipaddr, MQTT_PORT,
-          mqtt_connection_cb, LWIP_CONST_CAST(void*, &mqtt_client_info),
-          &mqtt_client_info);
+  err_t ret = mqtt_client_connect(mqtt_client,
+        &tb_ipaddr, MQTT_PORT,
+        mqtt_connection_cb, LWIP_CONST_CAST(void*, &mqtt_client_info),
+        &mqtt_client_info);
 
-    printf("Client connected! (%u)\n", ret);
+  printf("Client connected! (%u)\n", ret);
 }
 
-void tb_pub(void) {
-    printf("Trying to publish data to thingsboard...\n");
+void thinsboard_pub(void) {
+  printf("Trying to publish data to thingsboard...\n");
 
-    if (mqtt_client_is_connected(mqtt_client)) {
-        u16_t pld = 30;
-        u16_t sz = sizeof(pld);
+  if (mqtt_client_is_connected(mqtt_client)) {
+    u16_t pld = 30;
+    u16_t sz = sizeof(pld);
 
-        err_t ret = mqtt_publish(mqtt_client,
-                        "eau", &pld,
-                        sz, 0,
-                        0, NULL,
-                        LWIP_CONST_CAST(void*, &mqtt_client_info));
+    err_t ret = mqtt_publish(mqtt_client,
+          "eau", &pld,
+          sz, 0,
+          0, NULL,
+          LWIP_CONST_CAST(void*, &mqtt_client_info));
 
-        printf("Message published! (%u)\n", ret);
-    } else {
-        printf("Client not connected...\n");
-    }
+    printf("Message published! (%u)\n", ret);
+  } else {
+    printf("Client not connected...\n");
+  }
+}
+
+void thinsboard_disconnect(void) 
+{
+  mqtt_disconnect(mqtt_client);
 }
 

@@ -4,7 +4,9 @@
 #include "lwip/apps/mqtt.h"
 #include "lwip/dns.h"
 
-void mqtt_connect(void);
-void tb_pub(void);
+void thinsboard_connect(void);
+void thinsboard_pub(void);
+void thinsboard_disconnect(void);
+
 
 #endif
