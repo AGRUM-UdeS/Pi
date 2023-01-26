@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "agrum_mqtt.h"
 #include "lwipopts.h"
@@ -77,14 +78,7 @@ static void mqtt_connection_cb(mqtt_client_t *client,
   LWIP_PLATFORM_DIAG(("MQTT client \"%s\" connection cb: status %d\n", client_info->client_id, (int)status));
 
   if (status == MQTT_CONNECT_ACCEPTED) {
-    mqtt_sub_unsub(client,
-          "topic_qos1", 1,
-          mqtt_request_cb, LWIP_CONST_CAST(void*, client_info),
-          1);
-    mqtt_sub_unsub(client,
-          "topic_qos0", 0,
-          mqtt_request_cb, LWIP_CONST_CAST(void*, client_info),
-          1);
+    // Do other things like sub to a topic
   }
 }
 
@@ -128,23 +122,28 @@ void thinsboard_connect(void) {
         mqtt_connection_cb, LWIP_CONST_CAST(void*, &mqtt_client_info),
         &mqtt_client_info);
 
-  printf("Client connected! (%u)\n", ret);
+  printf("Your pi is now connected to thingsboard! (%u)\n", ret);
 }
 
 void thinsboard_pub(void) {
-  printf("Trying to publish data to thingsboard...\n");
+  printf("Trying to publish data to your dashboard...\n");
 
   if (mqtt_client_is_connected(mqtt_client)) {
-    u16_t pld = 30;
-    u16_t sz = sizeof(pld);
+    unsigned char payload[64];
+    unsigned char topic[] = "temperature";
+    unsigned char value_string[8];
+    static float value = -5.1;
+
+    snprintf(value_string, sizeof(value_string), "%.2f", value++);
+    snprintf(payload, sizeof(payload), "{\"%s\":%s}", topic, value_string);
 
     err_t ret = mqtt_publish(mqtt_client,
-          "eau", &pld,
-          sz, 0,
+          "v1/devices/me/telemetry", &payload,
+          strlen(payload), 0,
           0, NULL,
           LWIP_CONST_CAST(void*, &mqtt_client_info));
 
-    printf("Message published! (%u)\n", ret);
+    printf("Value '%s' published to topic '%s'. (%u)\n", value_string, topic, ret);
   } else {
     printf("Client not connected...\n");
   }
