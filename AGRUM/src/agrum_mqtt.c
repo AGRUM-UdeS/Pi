@@ -10,6 +10,9 @@
 #define THINGSBOARD_HOSTNAME "thingsboard.cloud"
 #define KEEP_ALIVE_TIMEOUT 3600
 
+#define MAX_TIMEOUT 0xFFFFFFFF
+#define MAX_LEN (8)
+
 static mqtt_client_t* mqtt_client;
 static ip_addr_t tb_ipaddr;
 static bool host_name_is_resolved = false;
@@ -129,12 +132,16 @@ void thinsboard_pub(void) {
   printf("Trying to publish data to your dashboard...\n");
 
   if (mqtt_client_is_connected(mqtt_client)) {
+    unsigned char value_string[MAX_LEN];
+    printf("Input a number:\n");
+    char c = (char)getchar_timeout_us(MAX_TIMEOUT);
+    printf("\nReceived number: %c\n", c);
+
+    int value = atoi(&c);
     unsigned char payload[64];
     unsigned char topic[] = "temperature";
-    unsigned char value_string[8];
-    static float value = -5.1;
 
-    snprintf(value_string, sizeof(value_string), "%.2f", value++);
+    snprintf(value_string, sizeof(value_string), "%d", value);
     snprintf(payload, sizeof(payload), "{\"%s\":%s}", topic, value_string);
 
     err_t ret = mqtt_publish(mqtt_client,
