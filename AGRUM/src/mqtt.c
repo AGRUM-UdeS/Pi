@@ -63,6 +63,12 @@ static void mqtt_connection_cb(mqtt_client_t *client,
 
   LWIP_PLATFORM_DIAG(("MQTT client \"%s\" connection cb: status %d\n", client_info->client_id, (int)status));
 
+  if (mqtt_client_is_connected(client)) {
+    printf("Your pi is now connected to thingsboard!(%u)\n", (int)status);
+  } else {
+    printf("Your pi is NOT connected to thingsboard...(%u)\n", (int)status);
+  }
+
   if (status == MQTT_CONNECT_ACCEPTED) {
     // Do other things like sub to a topic
   }
@@ -106,11 +112,7 @@ err_t mqtt_connect(mqtt_client_t* mqtt_client, const struct mqtt_connect_client_
         mqtt_connection_cb, LWIP_CONST_CAST(void*, client_info),
         client_info);
 
-  if (mqtt_client_is_connected(mqtt_client)) {
-    printf("Your pi is now connected to thingsboard! (%u)\n", ret);
-  } else {
-    printf("Your pi is NOT connected to thingsboard... (%u)\n", ret);
-  }
+  while (mqtt_client_is_connected(mqtt_client)) {}
 
   return ret;
 }
