@@ -1,7 +1,8 @@
 add_executable(agrum
         main.c
-        interface.c
-        agrum_mqtt.c
+        wifi.c
+        mqtt.c
+        ThingsBoard.c
         ../../pico-sdk/lib/lwip/src/apps/mqtt/mqtt.c
         )
 

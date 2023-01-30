@@ -8,8 +8,8 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 
-#include "interface.h"
-#include "agrum_mqtt.h"
+#include "wifi.h"
+#include "ThingsBoard.h"
 
 int main() {
     stdio_init_all();
@@ -19,7 +19,7 @@ int main() {
 
     wifi_connect();
 
-    thinsboard_connect();
+    ThingsBoard_connect();
 
     while (true) {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
@@ -27,7 +27,7 @@ int main() {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
         sleep_ms(5000);
 
-        thinsboard_pub();
+        ThingsBoard_publish("Temperature", 2.46);
     }
     return 0;
 }
