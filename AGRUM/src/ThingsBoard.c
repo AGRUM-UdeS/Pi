@@ -22,7 +22,7 @@ static const struct mqtt_connect_client_info_t mqtt_client_info =
 THINGSBOARD_STATUS ThingsBoard_connect(void) {
   printf("Trying to connect to thingsboard...\n");
   err_t connect_status = mqtt_connect(mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
-  printf("Your pi is now connected to thingsboard! (%u)\n", connect_status);
+  // printf("Your pi is now connected to thingsboard! (%u)\n", connect_status);
 
   return THINGSBOARD_OK;
 }

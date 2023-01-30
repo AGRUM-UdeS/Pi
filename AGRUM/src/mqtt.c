@@ -106,6 +106,12 @@ err_t mqtt_connect(mqtt_client_t* mqtt_client, const struct mqtt_connect_client_
         mqtt_connection_cb, LWIP_CONST_CAST(void*, client_info),
         client_info);
 
+  if (mqtt_client_is_connected(mqtt_client)) {
+    printf("Your pi is now connected to thingsboard! (%u)\n", ret);
+  } else {
+    printf("Your pi is NOT connected to thingsboard... (%u)\n", ret);
+  }
+
   return ret;
 }
 
