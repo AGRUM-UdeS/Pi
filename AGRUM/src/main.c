@@ -10,7 +10,6 @@
 
 #include "wifi.h"
 #include "ThingsBoard.h"
-#include "interface.h"
 #include "actuator.h"
 #include "measure.h"
 
