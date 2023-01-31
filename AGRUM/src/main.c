@@ -8,7 +8,8 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 
-#include "interface.h"
+#include "wifi.h"
+#include "ThingsBoard.h"
 
 int main() {
     stdio_init_all();
@@ -18,14 +19,15 @@ int main() {
 
     wifi_connect();
 
+    ThingsBoard_connect();
+
     while (true) {
-        static uint16_t i = 0;
-        i++;
-        printf("Hello, world! (%u)\n", i);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-        sleep_ms(1000);
+        sleep_ms(5000);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
-        sleep_ms(1000);
+        sleep_ms(5000);
+
+        ThingsBoard_publish("temperature", 4.20);
     }
     return 0;
 }

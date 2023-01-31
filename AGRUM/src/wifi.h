@@ -1,5 +1,5 @@
-#ifndef INTTERFACE_H
-#define INTTERFACE_H
+#ifndef WIFI_H
+#define WIFI_H
 
 typedef enum {
     WIFI_DISCONNECTED,
