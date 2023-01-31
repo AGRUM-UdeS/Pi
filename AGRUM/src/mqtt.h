@@ -4,6 +4,6 @@
 #include "lwip/apps/mqtt.h"
 #include "lwip/dns.h"
 
-err_t mqtt_connect(mqtt_client_t* mqtt_client, const struct mqtt_connect_client_info_t* client_info, const char *hostname);
+err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client_info_t* client_info, const char *hostname);
 
 #endif

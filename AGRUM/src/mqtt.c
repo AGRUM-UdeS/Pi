@@ -93,10 +93,10 @@ mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len)
         topic, (int)tot_len));
 }
 
-err_t mqtt_connect(mqtt_client_t* mqtt_client, const struct mqtt_connect_client_info_t* client_info, const char *hostname) {
-  mqtt_client = mqtt_client_new();
+err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client_info_t* client_info, const char *hostname) {
+  *mqtt_client = mqtt_client_new();
 
-  mqtt_set_inpub_callback(mqtt_client,
+  mqtt_set_inpub_callback(*mqtt_client,
         mqtt_incoming_publish_cb,
         mqtt_incoming_data_cb,
         LWIP_CONST_CAST(void*, client_info));
@@ -107,12 +107,10 @@ err_t mqtt_connect(mqtt_client_t* mqtt_client, const struct mqtt_connect_client_
 
   while (!host_name_is_resolved){}
 
-  err_t ret = mqtt_client_connect(mqtt_client,
+  err_t ret = mqtt_client_connect(*mqtt_client,
         &mqtt_ipaddr, MQTT_PORT,
         mqtt_connection_cb, LWIP_CONST_CAST(void*, client_info),
         client_info);
-
-  while (mqtt_client_is_connected(mqtt_client)) {}
 
   return ret;
 }

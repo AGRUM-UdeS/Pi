@@ -1,4 +1,3 @@
-
 #include "ThingsBoard.h"
 
 static mqtt_client_t* mqtt_client;
@@ -20,17 +19,14 @@ static const struct mqtt_connect_client_info_t mqtt_client_info =
 
 
 THINGSBOARD_STATUS ThingsBoard_connect(void) {
-  printf("Trying to connect to thingsboard...\n");
-  err_t connect_status = mqtt_connect(mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
-  // printf("Your pi is now connected to thingsboard! (%u)\n", connect_status);
-
-  return THINGSBOARD_OK;
+  err_t connect_status = mqtt_connect(&mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
+  
+  return (ThingsBoard_is_connected() ? THINGSBOARD_CONNECTED : THINGSBOARD_DISCONNECTED);
 }
 
 THINGSBOARD_STATUS ThingsBoard_publish(unsigned char* topic, float value) {
-  printf("Trying to publish data to your dashboard...\n");
-
   if (ThingsBoard_is_connected()) {
+    // Creating the string that ThingsBoard will understand
     unsigned char payload[64];
     snprintf(payload, sizeof(payload), "{\"%s\":%.2f}", topic, value);
 
@@ -42,10 +38,10 @@ THINGSBOARD_STATUS ThingsBoard_publish(unsigned char* topic, float value) {
 
     printf("Value '%.2f' published to topic '%s'. (%u)\n", value, topic, ret);
     
-    return THINGSBOARD_OK;
+    return ret == 0 ? THINGSBOARD_OK : THINGSBOARD_FAILED;
   } else {
     printf("Client not connected...\n");
-    return THINGSBOARD_FAILED;
+    return THINGSBOARD_DISCONNECTED;
   }
 }
 

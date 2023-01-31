@@ -27,7 +27,7 @@ int main() {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
         sleep_ms(5000);
 
-        ThingsBoard_publish("Temperature", 2.46);
+        ThingsBoard_publish("temperature", 4.20);
     }
     return 0;
 }
