@@ -41,11 +41,11 @@ int main() {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
         sleep_ms(5000);
 
-        measure_sm(&measurements);
+        measure_state_t measure_state = measure_sm(&measurements);
 
-        actuator_sm(measurements);
+        actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
 
-        thingsboard_sm(measurements);
+        thingsboard_sm(measurements, actuator_status);
     }
     return 0;
 }

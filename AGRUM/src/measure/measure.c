@@ -2,10 +2,10 @@
 
 // The main state machine dealing with the measurements
 measure_state_t measure_sm(measure_t* measurements) {
-    static measure_state_t measure_state = IDLE;
+    static measure_state_t measure_state = MEASURE_IDLE;
 
     switch (measure_state) {
-    case IDLE:
+    case MEASURE_IDLE:
         // wait for time to measure
         break;
 
@@ -19,7 +19,7 @@ measure_state_t measure_sm(measure_t* measurements) {
 
         break;
 
-    case ERROR:
+    case MEASURE_ERROR:
         // Manage errors
 
         break;

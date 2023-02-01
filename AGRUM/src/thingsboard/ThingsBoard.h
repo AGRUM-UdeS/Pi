@@ -6,14 +6,22 @@
 
 #include "mqtt.h"
 #include "measure.h"
+#include "actuator.h"
 
-typedef enum {
+typedef enum _thingsboard_state_t{
+    THINGSBOARD_IDLE,
+    THINGSBOARD_SEND_DATA,
+    THINGSBOARD_READ_DATA,
+    THINGSBOARD_CONNECTING,
+    THINGSBOARD_ERROR
+} thingsboard_state_t;
+
+typedef enum _thingsboard_status_t{
     THINGSBOARD_OK,
     THINGSBOARD_DISCONNECTED,
-    THINGSBOARD_CONNECTING,
     THINGSBOARD_CONNECTED,
     THINGSBOARD_FAILED
-} thingsboard_state_t;
+} thingsboard_status_t;
 
 thingsboard_state_t ThingsBoard_connect(void);
 thingsboard_state_t ThingsBoard_publish(unsigned char* topic, float value);
@@ -23,6 +31,6 @@ thingsboard_state_t ThingsBoard_disconnect(void);
 bool ThingsBoard_is_connected(void);
 
 // The main state machine dealing with thingsboard
-thingsboard_state_t thingsboard_sm(measure_t measurements);
+thingsboard_state_t thingsboard_sm(measure_t measurements, actuator_status_t actuator_status);
 
 #endif

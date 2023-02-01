@@ -65,8 +65,35 @@ bool ThingsBoard_is_connected(void) {
     }
 }
 
-thingsboard_state_t thingsboard_sm(measure_t measurements) {
+thingsboard_state_t thingsboard_sm(measure_t measurements, actuator_status_t actuator_status) {
+    // thingsboard_state represente the state of the state machine
     static thingsboard_state_t thingsboard_state;
+
+    // thingsboard_status represent the status of
+    // the connection to thingsboard
+    static thingsboard_status_t thingsboard_status;
+
+    switch (thingsboard_state) {
+    case THINGSBOARD_IDLE:
+
+        break;
+
+    case THINGSBOARD_CONNECTING:
+
+        break;
+
+    case THINGSBOARD_SEND_DATA:
+
+        break;
+
+    case THINGSBOARD_READ_DATA:
+
+        break;
+
+    case THINGSBOARD_ERROR:
+
+        break;
+    }
 
 
     return thingsboard_state;

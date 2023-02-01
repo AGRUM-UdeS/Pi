@@ -20,11 +20,11 @@ typedef struct measure_t {
   data_t current_pv[NUMBER_OF_PV_ARRAY];
 } measure_t;
 
-typedef enum {
-  IDLE,
+typedef enum _measure_state_t{
+  MEASURE_IDLE,
   MEASURING,
   MESURE_DONE,
-  ERROR
+  MEASURE_ERROR
 } measure_state_t;
 
 measure_state_t measure_sm(measure_t* measurements);

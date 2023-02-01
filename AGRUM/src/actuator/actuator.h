@@ -8,8 +8,17 @@
 #include "valve.h"
 #include "motor.h"
 
+typedef enum _actuator_state_t{
+  ACTUATOR_IDLE,
+  MOVING_MOTOR,
+  CALIBRATING_MOTOR,
+  PUMPING_WATER,
+  IRRIGATING,
+  ACTUATOR_ERROR
+} actuator_state_t;
 
-typedef struct actuator_state_t {
+
+typedef struct actuator_status_t {
     led_state_t empty_barrel_led_state;
     led_state_t error_led_state;
     led_state_t measure_led_state;
@@ -18,8 +27,8 @@ typedef struct actuator_state_t {
     valve_state_t valve_state;
 
     motor_state_t motor_state;
-} actuator_state_t;
+} actuator_status_t;
 
-actuator_state_t actuator_sm(measure_t measurements);
+actuator_status_t actuator_sm(measure_t measurements, const measure_state_t measure_state);
 
 #endif
