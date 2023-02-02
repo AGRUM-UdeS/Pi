@@ -18,13 +18,13 @@ static const struct mqtt_connect_client_info_t mqtt_client_info =
 };
 
 
-THINGSBOARD_STATUS ThingsBoard_connect(void) {
+thingsboard_state_t ThingsBoard_connect(void) {
   err_t connect_status = mqtt_connect(&mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
   
   return (ThingsBoard_is_connected() ? THINGSBOARD_CONNECTED : THINGSBOARD_DISCONNECTED);
 }
 
-THINGSBOARD_STATUS ThingsBoard_publish(unsigned char* topic, float value) {
+thingsboard_state_t ThingsBoard_publish(unsigned char* topic, float value) {
   if (ThingsBoard_is_connected()) {
     // Creating the string that ThingsBoard will understand
     unsigned char payload[64];
@@ -45,15 +45,15 @@ THINGSBOARD_STATUS ThingsBoard_publish(unsigned char* topic, float value) {
   }
 }
 
-THINGSBOARD_STATUS ThingsBoard_subscribe(void) {
+thingsboard_state_t ThingsBoard_subscribe(void) {
 
 }
 
-THINGSBOARD_STATUS ThingsBoard_unsubscribe(void) {
+thingsboard_state_t ThingsBoard_unsubscribe(void) {
 
 }
 
-THINGSBOARD_STATUS ThingsBoard_disconnect(void) {
+thingsboard_state_t ThingsBoard_disconnect(void) {
   mqtt_disconnect(mqtt_client);
 }
 
@@ -63,4 +63,38 @@ bool ThingsBoard_is_connected(void) {
     } else {
         return false;
     }
+}
+
+thingsboard_state_t thingsboard_sm(measure_t measurements, actuator_status_t actuator_status) {
+    // thingsboard_state represente the state of the state machine
+    static thingsboard_state_t thingsboard_state;
+
+    // thingsboard_status represent the status of
+    // the connection to thingsboard
+    static thingsboard_status_t thingsboard_status;
+
+    switch (thingsboard_state) {
+    case THINGSBOARD_IDLE:
+
+        break;
+
+    case THINGSBOARD_CONNECTING:
+
+        break;
+
+    case THINGSBOARD_SEND_DATA:
+
+        break;
+
+    case THINGSBOARD_READ_DATA:
+
+        break;
+
+    case THINGSBOARD_ERROR:
+
+        break;
+    }
+
+
+    return thingsboard_state;
 }

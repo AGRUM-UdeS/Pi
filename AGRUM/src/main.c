@@ -10,24 +10,42 @@
 
 #include "wifi.h"
 #include "ThingsBoard.h"
+#include "actuator.h"
+#include "measure.h"
 
-int main() {
+
+void init(void) {
+    // Init RP2040 peripherals
     stdio_init_all();
 
     // Delay to let the developer open Putty
     sleep_ms(5000);
 
+    /* Establish wifi connection
+    SSID and Password are defined */
     wifi_connect();
 
+    // Establish TCP/IP and MQTT connection
     ThingsBoard_connect();
+}
+
+int main() {
+    
+    init();
 
     while (true) {
+        static measure_t measurements;
+
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
         sleep_ms(5000);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
         sleep_ms(5000);
 
-        ThingsBoard_publish("temperature", 4.20);
+        measure_state_t measure_state = measure_sm(&measurements);
+
+        actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
+
+        thingsboard_sm(measurements, actuator_status);
     }
     return 0;
 }
