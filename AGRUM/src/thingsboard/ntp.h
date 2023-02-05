@@ -19,7 +19,7 @@ typedef struct NTP_T_ {
     alarm_id_t ntp_resend_alarm;
 } NTP_T;
 
-void run_ntp_test(void);
+void get_time_ntp(void);
 
 
 #endif

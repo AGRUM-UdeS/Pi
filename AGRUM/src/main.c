@@ -29,7 +29,7 @@ void init(void) {
     // Establish TCP/IP and MQTT connection
     ThingsBoard_connect();
 
-    run_ntp_test();
+    get_time_ntp();
 }
 
 int main() {

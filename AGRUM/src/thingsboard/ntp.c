@@ -13,6 +13,8 @@
 #define NTP_TEST_TIME (30 * 1000)
 #define NTP_RESEND_TIME (10 * 1000)
 
+#define MONTREAL_TIME_ZONE 18000
+
 // Called with results of operation
 static void ntp_result(NTP_T* state, int status, time_t *result) {
     if (status == 0 && result) {
@@ -81,7 +83,7 @@ static void ntp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_ad
         pbuf_copy_partial(p, seconds_buf, sizeof(seconds_buf), 40);
         uint32_t seconds_since_1900 = seconds_buf[0] << 24 | seconds_buf[1] << 16 | seconds_buf[2] << 8 | seconds_buf[3];
         uint32_t seconds_since_1970 = seconds_since_1900 - NTP_DELTA;
-        time_t epoch = seconds_since_1970;
+        time_t epoch = seconds_since_1970 - MONTREAL_TIME_ZONE;
         ntp_result(state, 0, &epoch);
     } else {
         printf("invalid ntp response\n");
@@ -108,43 +110,31 @@ static NTP_T* ntp_init(void) {
 }
 
 // Runs ntp test forever
-void run_ntp_test(void) {
+void get_time_ntp(void) {
     NTP_T *state = ntp_init();
     if (!state)
         return;
-    while(true) {
-        if (absolute_time_diff_us(get_absolute_time(), state->ntp_test_time) < 0 && !state->dns_request_sent) {
+    if (absolute_time_diff_us(get_absolute_time(), state->ntp_test_time) < 0 && !state->dns_request_sent) {
 
-            // Set alarm in case udp requests are lost
-            state->ntp_resend_alarm = add_alarm_in_ms(NTP_RESEND_TIME, ntp_failed_handler, state, true);
+        // Set alarm in case udp requests are lost
+        state->ntp_resend_alarm = add_alarm_in_ms(NTP_RESEND_TIME, ntp_failed_handler, state, true);
 
-            // cyw43_arch_lwip_begin/end should be used around calls into lwIP to ensure correct locking.
-            // You can omit them if you are in a callback from lwIP. Note that when using pico_cyw_arch_poll
-            // these calls are a no-op and can be omitted, but it is a good practice to use them in
-            // case you switch the cyw43_arch type later.
-            cyw43_arch_lwip_begin();
-            int err = dns_gethostbyname(NTP_SERVER, &state->ntp_server_address, ntp_dns_found, state);
-            cyw43_arch_lwip_end();
+        // cyw43_arch_lwip_begin/end should be used around calls into lwIP to ensure correct locking.
+        // You can omit them if you are in a callback from lwIP. Note that when using pico_cyw_arch_poll
+        // these calls are a no-op and can be omitted, but it is a good practice to use them in
+        // case you switch the cyw43_arch type later.
+        cyw43_arch_lwip_begin();
+        int err = dns_gethostbyname(NTP_SERVER, &state->ntp_server_address, ntp_dns_found, state);
+        cyw43_arch_lwip_end();
 
-            state->dns_request_sent = true;
-            if (err == ERR_OK) {
-                ntp_request(state); // Cached result
-            } else if (err != ERR_INPROGRESS) { // ERR_INPROGRESS means expect a callback
-                printf("dns request failed\n");
-                ntp_result(state, -1, NULL);
-            }
+        state->dns_request_sent = true;
+        if (err == ERR_OK) {
+            ntp_request(state); // Cached result
+        } else if (err != ERR_INPROGRESS) { // ERR_INPROGRESS means expect a callback
+            printf("dns request failed\n");
+            ntp_result(state, -1, NULL);
         }
-#if PICO_CYW43_ARCH_POLL
-        // if you are using pico_cyw43_arch_poll, then you must poll periodically from your
-        // main loop (not from a timer) to check for WiFi driver or lwIP work that needs to be done.
-        cyw43_arch_poll();
-        sleep_ms(1);
-#else
-        // if you are not using pico_cyw43_arch_poll, then WiFI driver and lwIP work
-        // is done via interrupt in the background. This sleep is just an example of some (blocking)
-        // work you might be doing.
-        sleep_ms(1000);
-#endif
     }
+
     free(state);
 }
