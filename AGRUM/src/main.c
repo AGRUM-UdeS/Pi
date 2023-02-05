@@ -15,6 +15,12 @@
 #include "ntp.h"
 
 
+void heartbeat_led(void) {
+    static bool led_state = false;
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_state);
+    led_state = !led_state;
+}
+
 void init(void) {
     // Init RP2040 peripherals
     stdio_init_all();
@@ -30,6 +36,19 @@ void init(void) {
     ThingsBoard_connect();
 
     get_time_ntp();
+    printf("Waiting for RTC to initialize");
+    while (!ntp_is_initialized()) {
+        printf(".");
+        sleep_ms(500);
+    }
+    printf("\nRTC initialized!\n");
+
+    // datetime_t t;
+    // rtc_get_datetime(&t);
+    // char datetime_buf[256];
+    // char *datetime_str = &datetime_buf[0];
+    // datetime_to_str(datetime_str, sizeof(datetime_buf), &t);
+    // printf("\r%s      ", datetime_str);
 }
 
 int main() {
@@ -39,16 +58,14 @@ int main() {
     while (true) {
         static measure_t measurements;
 
-        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-        sleep_ms(5000);
-        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
-        sleep_ms(5000);
-
         measure_state_t measure_state = measure_sm(&measurements);
 
         actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
 
         thingsboard_sm(measurements, actuator_status);
+
+        printf("LOOP\n");
+        sleep_ms(1000);
     }
     return 0;
 }

@@ -15,12 +15,47 @@
 
 #define MONTREAL_TIME_ZONE 18000
 
+static datetime_t rtc_init_time;
+
+static bool got_rtc_time = false;
+
+bool ntp_is_initialized(void) {
+    return got_rtc_time;
+}
+
+void set_RTC_time(void) {
+    rtc_set_datetime(&rtc_init_time);
+    // clk_sys is >2000x faster than clk_rtc, so datetime is not updated immediately when rtc_get_datetime() is called.
+    // tbe delay is up to 3 RTC clock cycles (which is 64us with the default clock settings)
+    sleep_us(64);
+}
+
 // Called with results of operation
 static void ntp_result(NTP_T* state, int status, time_t *result) {
     if (status == 0 && result) {
         struct tm *utc = gmtime(result);
-        printf("got ntp response: %02d/%02d/%04d %02d:%02d:%02d\n", utc->tm_mday, utc->tm_mon + 1, utc->tm_year + 1900,
-               utc->tm_hour, utc->tm_min, utc->tm_sec);
+        // printf("got ntp response: %02d/%02d/%04d %02d:%02d:%02d\n", utc->tm_mday, utc->tm_mon + 1, utc->tm_year + 1900,
+        //        utc->tm_hour, utc->tm_min, utc->tm_sec);
+
+        int d = utc->tm_mday;
+        int m = utc->tm_mon;
+        int y = utc->tm_year;
+
+        rtc_init_time.year  = utc->tm_year + 1900;
+        rtc_init_time.month = utc->tm_mon + 1;
+        rtc_init_time.day   = utc->tm_mday;
+        rtc_init_time.dotw  = (d += m < 3 ? y-- : y - 2, 23*m/9 + d + 4 + y/4- y/100 + y/400)%7; // 0 is Sunday, so 5 is Friday
+        rtc_init_time.hour  = utc->tm_hour;
+        rtc_init_time.min   = utc->tm_min;
+        rtc_init_time.sec   = utc->tm_sec;
+
+        printf("Setting RTC time: %02d/%02d/%04d %02d:%02d:%02d\n",
+                rtc_init_time.day, rtc_init_time.month, rtc_init_time.year,
+                rtc_init_time.hour, rtc_init_time.min, rtc_init_time.sec);
+
+        printf("TEST 0\n");
+        set_RTC_time();
+        printf("TEST 1\n");
     }
 
     if (state->ntp_resend_alarm > 0) {
@@ -85,9 +120,12 @@ static void ntp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_ad
         uint32_t seconds_since_1970 = seconds_since_1900 - NTP_DELTA;
         time_t epoch = seconds_since_1970 - MONTREAL_TIME_ZONE;
         ntp_result(state, 0, &epoch);
+        got_rtc_time = true;
+        printf("TEST 2\n");
     } else {
         printf("invalid ntp response\n");
         ntp_result(state, -1, NULL);
+        got_rtc_time = false;
     }
     pbuf_free(p);
 }
@@ -106,35 +144,35 @@ static NTP_T* ntp_init(void) {
         return NULL;
     }
     udp_recv(state->ntp_pcb, ntp_recv, state);
+    printf("TEST 3\n");
     return state;
 }
 
 // Runs ntp test forever
 void get_time_ntp(void) {
+    // Initialize the real time clock
+    rtc_init();
+
     NTP_T *state = ntp_init();
     if (!state)
         return;
-    if (absolute_time_diff_us(get_absolute_time(), state->ntp_test_time) < 0 && !state->dns_request_sent) {
 
-        // Set alarm in case udp requests are lost
-        state->ntp_resend_alarm = add_alarm_in_ms(NTP_RESEND_TIME, ntp_failed_handler, state, true);
+    // cyw43_arch_lwip_begin/end should be used around calls into lwIP to ensure correct locking.
+    // You can omit them if you are in a callback from lwIP. Note that when using pico_cyw_arch_poll
+    // these calls are a no-op and can be omitted, but it is a good practice to use them in
+    // case you switch the cyw43_arch type later.
+    cyw43_arch_lwip_begin();
+    int err = dns_gethostbyname(NTP_SERVER, &state->ntp_server_address, ntp_dns_found, state);
+    cyw43_arch_lwip_end();
 
-        // cyw43_arch_lwip_begin/end should be used around calls into lwIP to ensure correct locking.
-        // You can omit them if you are in a callback from lwIP. Note that when using pico_cyw_arch_poll
-        // these calls are a no-op and can be omitted, but it is a good practice to use them in
-        // case you switch the cyw43_arch type later.
-        cyw43_arch_lwip_begin();
-        int err = dns_gethostbyname(NTP_SERVER, &state->ntp_server_address, ntp_dns_found, state);
-        cyw43_arch_lwip_end();
-
-        state->dns_request_sent = true;
-        if (err == ERR_OK) {
-            ntp_request(state); // Cached result
-        } else if (err != ERR_INPROGRESS) { // ERR_INPROGRESS means expect a callback
-            printf("dns request failed\n");
-            ntp_result(state, -1, NULL);
-        }
+    state->dns_request_sent = true;
+    if (err == ERR_OK) {
+        ntp_request(state); // Cached result
+    } else if (err != ERR_INPROGRESS) { // ERR_INPROGRESS means expect a callback
+        printf("dns request failed\n");
+        ntp_result(state, -1, NULL);
     }
 
     free(state);
+    printf("TEST 4\n");
 }
