@@ -11,6 +11,7 @@ add_executable(agrum
         thingsboard/wifi.c
         thingsboard/mqtt.c
         thingsboard/ThingsBoard.c
+        thingsboard/ntp.c
         ../../pico-sdk/lib/lwip/src/apps/mqtt/mqtt.c
         measure/measure.c
         actuator/actuator.c

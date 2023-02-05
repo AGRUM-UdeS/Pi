@@ -12,6 +12,7 @@
 #include "ThingsBoard.h"
 #include "actuator.h"
 #include "measure.h"
+#include "ntp.h"
 
 
 void init(void) {
@@ -27,6 +28,8 @@ void init(void) {
 
     // Establish TCP/IP and MQTT connection
     ThingsBoard_connect();
+
+    run_ntp_test();
 }
 
 int main() {
