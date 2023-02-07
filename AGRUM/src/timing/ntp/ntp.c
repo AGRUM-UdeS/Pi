@@ -31,7 +31,7 @@ struct tm get_utc(void) {
 static void ntp_result(NTP_T* state, int status, time_t *result) {
     if (status == 0 && result) {
         utc = gmtime(result);
-        printf("got ntp response: %02d/%02d/%04d %02d:%02d:%02d\n", utc->tm_mday, utc->tm_mon + 1, utc->tm_year + 1900,
+        printf("Time from server: %02d/%02d/%04d %02d:%02d:%02d\n", utc->tm_mday, utc->tm_mon + 1, utc->tm_year + 1900,
                utc->tm_hour, utc->tm_min, utc->tm_sec);
     }
 

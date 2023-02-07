@@ -30,30 +30,30 @@ void init(void) {
 
     /* Establish wifi connection
     SSID and Password are defined */
+    printf("\n---------- Connecting to the wifi\n\n");
     wifi_connect();
 
     // Establish TCP/IP and MQTT connection
-    printf("Establishing ThingsBoard connection...\n");
+    printf("\n-------- Establishing ThingsBoard connection\n");
     ThingsBoard_connect();
     while (!(ThingsBoard_is_connected())) {
         tight_loop_contents();
     }
 
-    printf("Getting current date & time...\n");
-    get_time_ntp();
-    while (!(ntp_time_received())) {
-        tight_loop_contents();
-    }
+    // Getting date&time from an official server
+    // Then saving it into the RTC
+    printf("\n-------- Getting current date & time\n");
+    init_RTC();
 
-    set_RTC_time(get_utc());
+    sleep_ms(5000);
 
 
-    // datetime_t t;
-    // rtc_get_datetime(&t);
-    // char datetime_buf[256];
-    // char *datetime_str = &datetime_buf[0];
-    // datetime_to_str(datetime_str, sizeof(datetime_buf), &t);
-    // printf("\r%s      ", datetime_str);
+    datetime_t t;
+    rtc_get_datetime(&t);
+    char datetime_buf[256];
+    char *datetime_str = &datetime_buf[0];
+    datetime_to_str(datetime_str, sizeof(datetime_buf), &t);
+    printf("\r%s      \n", datetime_str);
 }
 
 int main() {
@@ -61,15 +61,14 @@ int main() {
     init();
 
     while (true) {
-        printf("LOOP\n");
-        // static measure_t measurements;
+        static measure_t measurements;
 
-        // measure_state_t measure_state = measure_sm(&measurements);
+        measure_state_t measure_state = measure_sm(&measurements);
 
-        // actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
+        actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
 
-        // thingsboard_sm(measurements, actuator_status);
-        sleep_ms(1000);
+        thingsboard_sm(measurements, actuator_status);
+        sleep_ms(100);
     }
     return 0;
 }

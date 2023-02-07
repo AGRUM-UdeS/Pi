@@ -60,7 +60,7 @@ static void mqtt_connection_cb(mqtt_client_t *client,
   const struct mqtt_connect_client_info_t* client_info = (const struct mqtt_connect_client_info_t*)arg;
   LWIP_UNUSED_ARG(client);
 
-  LWIP_PLATFORM_DIAG(("MQTT client \"%s\" connection cb: status %d\n", client_info->client_id, (int)status));
+  LWIP_PLATFORM_DIAG(("MQTT client \"%s\" connection status: %d\n", client_info->client_id, (int)status));
 
   if (mqtt_client_is_connected(client)) {
     // printf("Your pi is now connected to thingsboard!(%u)\n", (int)status);

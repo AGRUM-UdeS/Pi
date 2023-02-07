@@ -7,10 +7,8 @@
 #include "pico/util/datetime.h"
 #include "ntp.h"
 
-bool set_RTC_time(struct tm utc);
-
+void init_RTC(void);
 bool get_RTC_time(datetime_t* datetime);
-
-bool is_RTC_init(void);
+bool RTC_initialized(void);
 
 #endif

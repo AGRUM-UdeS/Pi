@@ -2,33 +2,45 @@
 
 static bool is_init = false;
 
-bool set_RTC_time(struct tm utc) {
-    datetime_t* rtc_init_time;
+static datetime_t utc_to_datetime(struct tm utc) {
+    datetime_t datetime;
+    
+    datetime.year  = utc.tm_year + 1900;
+    datetime.month = utc.tm_mon + 1;
+    datetime.day   = utc.tm_mday;
+    datetime.dotw  = utc.tm_wday;
+    datetime.hour  = utc.tm_hour;
+    datetime.min   = utc.tm_min;
+    datetime.sec   = utc.tm_sec;
 
-    rtc_init_time->year  = utc.tm_year + 1900;
-    rtc_init_time->month = utc.tm_mon + 1;
-    rtc_init_time->day   = utc.tm_mday;
-    rtc_init_time->dotw  = 0; // dont use day of the week
-    rtc_init_time->hour  = utc.tm_hour;
-    rtc_init_time->min   = utc.tm_min;
-    rtc_init_time->sec   = utc.tm_sec;
+    return datetime;
+}
 
+static void set_RTC_time(datetime_t rtc_time) {
     // Initialize the real time clock
     if (!is_init) {
         rtc_init();
         is_init = true;
     }
 
-    bool ret = rtc_set_datetime(rtc_init_time);
+    rtc_set_datetime(&rtc_time);
+
     // clk_sys is >2000x faster than clk_rtc, so datetime is not updated immediately when rtc_get_datetime() is called.
     // tbe delay is up to 3 RTC clock cycles (which is 64us with the default clock settings)
     sleep_us(64);
+}
 
-    return ret;
+void init_RTC(void) {
+    get_time_ntp();
+    while (!(ntp_time_received())) {
+        tight_loop_contents();
+    }
+
+    set_RTC_time(utc_to_datetime(get_utc()));
 }
 
 bool get_RTC_time(datetime_t* datetime) {
-    if (!is_init) {
+    if (!(RTC_initialized())) {
         return false;
     } else {
         rtc_get_datetime(datetime);
@@ -36,7 +48,7 @@ bool get_RTC_time(datetime_t* datetime) {
     }
 }
 
-bool is_RTC_init(void) {
+bool RTC_initialized(void) {
     return is_init;
 }
 
