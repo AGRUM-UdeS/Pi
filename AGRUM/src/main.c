@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define CYW43_ARCH_DEBUG_ENABLED 0
+
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
@@ -33,15 +35,18 @@ void init(void) {
     wifi_connect();
 
     // Establish TCP/IP and MQTT connection
+    printf("Establishing ThingsBoard connection...\n");
     ThingsBoard_connect();
-
-    get_time_ntp();
-    printf("Waiting for RTC to initialize");
-    while (!(ntp_is_initialized())) {
-        printf(".");
-        sleep_ms(500);
+    while (!(ThingsBoard_is_connected())) {
+        tight_loop_contents();
     }
-    printf("\nRTC initialized!\n");
+
+    printf("Getting current date & time...\n");
+    get_time_ntp();
+    while (!(is_RTC_init())) {
+        tight_loop_contents();
+    }
+
 
     // datetime_t t;
     // rtc_get_datetime(&t);
@@ -56,16 +61,15 @@ int main() {
     init();
 
     while (true) {
-        static measure_t measurements;
-
-        measure_state_t measure_state = measure_sm(&measurements);
-
-        actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
-
-        thingsboard_sm(measurements, actuator_status);
-
         printf("LOOP\n");
-        sleep_ms(1000);
+        // static measure_t measurements;
+
+        // measure_state_t measure_state = measure_sm(&measurements);
+
+        // actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
+
+        // thingsboard_sm(measurements, actuator_status);
+        sleep_ms(10);
     }
     return 0;
 }

@@ -47,16 +47,24 @@ static void ntp_result(NTP_T* state, int status, time_t *result) {
                 rtc_init_time->hour, rtc_init_time->min, rtc_init_time->sec);
 
         printf("TEST 0\n");
-        set_RTC_time(&rtc_init_time);
-        printf("TEST 1\n");
+        if (set_RTC_time(&rtc_init_time)) {
+            printf("TEST 1\n");
+        } else {
+            printf("TEST rateeee\n");
+        }
+        printf("RTC initialized!\n");
     }
 
+    printf("RTC initialized!!!\n");
+
     if (state->ntp_resend_alarm > 0) {
+        printf("resend alarm\n");
         cancel_alarm(state->ntp_resend_alarm);
         state->ntp_resend_alarm = 0;
     }
     state->ntp_test_time = make_timeout_time_ms(NTP_TEST_TIME);
     state->dns_request_sent = false;
+    printf("fini\n");
 }
 
 static int64_t ntp_failed_handler(alarm_id_t id, void *user_data);
@@ -90,7 +98,7 @@ static void ntp_dns_found(const char *hostname, const ip_addr_t *ipaddr, void *a
     NTP_T *state = (NTP_T*)arg;
     if (ipaddr) {
         state->ntp_server_address = *ipaddr;
-        printf("ntp address %s\n", ip4addr_ntoa(ipaddr));
+        // printf("ntp address %s\n", ip4addr_ntoa(ipaddr));
         ntp_request(state);
     } else {
         printf("ntp dns request failed\n");
@@ -114,7 +122,6 @@ static void ntp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_ad
         time_t epoch = seconds_since_1970 - MONTREAL_TIME_ZONE;
         ntp_result(state, 0, &epoch);
         got_rtc_time = true;
-        printf("TEST 2\n");
     } else {
         printf("invalid ntp response\n");
         ntp_result(state, -1, NULL);
@@ -137,7 +144,6 @@ static NTP_T* ntp_init(void) {
         return NULL;
     }
     udp_recv(state->ntp_pcb, ntp_recv, state);
-    printf("TEST 3\n");
     return state;
 }
 
@@ -164,5 +170,4 @@ void get_time_ntp(void) {
     }
 
     free(state);
-    printf("TEST 4\n");
 }
