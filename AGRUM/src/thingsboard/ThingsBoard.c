@@ -20,6 +20,10 @@ static const struct mqtt_connect_client_info_t mqtt_client_info =
 
 thingsboard_state_t ThingsBoard_connect(void) {
   err_t connect_status = mqtt_connect(&mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
+
+  while (!(ThingsBoard_is_connected())) {
+    tight_loop_contents();
+  }
   
   return (ThingsBoard_is_connected() ? THINGSBOARD_CONNECTED : THINGSBOARD_DISCONNECTED);
 }
@@ -67,7 +71,7 @@ bool ThingsBoard_is_connected(void) {
 
 thingsboard_state_t thingsboard_sm(measure_t measurements, actuator_status_t actuator_status) {
     // thingsboard_state represente the state of the state machine
-    static thingsboard_state_t thingsboard_state;
+    static thingsboard_state_t thingsboard_state = THINGSBOARD_IDLE;
 
     // thingsboard_status represent the status of
     // the connection to thingsboard

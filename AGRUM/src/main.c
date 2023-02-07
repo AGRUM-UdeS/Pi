@@ -30,30 +30,17 @@ void init(void) {
 
     /* Establish wifi connection
     SSID and Password are defined */
-    printf("\n---------- Connecting to the wifi\n\n");
+    printf("---------- Connecting to the wifi\n\n");
     wifi_connect();
 
     // Establish TCP/IP and MQTT connection
     printf("\n-------- Establishing ThingsBoard connection\n");
     ThingsBoard_connect();
-    while (!(ThingsBoard_is_connected())) {
-        tight_loop_contents();
-    }
 
     // Getting date&time from an official server
     // Then saving it into the RTC
     printf("\n-------- Getting current date & time\n");
     init_RTC();
-
-    sleep_ms(5000);
-
-
-    datetime_t t;
-    rtc_get_datetime(&t);
-    char datetime_buf[256];
-    char *datetime_str = &datetime_buf[0];
-    datetime_to_str(datetime_str, sizeof(datetime_buf), &t);
-    printf("\r%s      \n", datetime_str);
 }
 
 int main() {

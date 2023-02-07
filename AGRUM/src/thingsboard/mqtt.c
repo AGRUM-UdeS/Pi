@@ -11,6 +11,7 @@
 static ip_addr_t mqtt_ipaddr;
 
 static bool host_name_is_resolved = false;
+static bool is_thingsboard_connected = false;
 
 void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
 {
@@ -63,9 +64,11 @@ static void mqtt_connection_cb(mqtt_client_t *client,
   LWIP_PLATFORM_DIAG(("MQTT client \"%s\" connection status: %d\n", client_info->client_id, (int)status));
 
   if (mqtt_client_is_connected(client)) {
+    is_thingsboard_connected = true;
     // printf("Your pi is now connected to thingsboard!(%u)\n", (int)status);
   } else {
-    printf("Your pi is NOT connected to thingsboard...(%u)\n", (int)status);
+    is_thingsboard_connected = false;
+    printf("Your pi has disconnected to thingsboard...(%u)\n", (int)status);
   }
 
   if (status == MQTT_CONNECT_ACCEPTED) {
@@ -112,3 +115,6 @@ err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client
   return ret;
 }
 
+bool thingsboard_is_connected(void) {
+  return is_thingsboard_connected;
+}
