@@ -15,16 +15,17 @@
 
 #define MONTREAL_TIME_ZONE 18000
 
-static datetime_t rtc_init_time;
-
 static bool got_rtc_time = false;
 
 bool ntp_is_initialized(void) {
     return got_rtc_time;
 }
 
-void set_RTC_time(void) {
-    rtc_set_datetime(&rtc_init_time);
+void set_RTC_time(datetime_t* rtc_init_time) {
+    // Initialize the real time clock
+    rtc_init();
+
+    rtc_set_datetime(rtc_init_time);
     // clk_sys is >2000x faster than clk_rtc, so datetime is not updated immediately when rtc_get_datetime() is called.
     // tbe delay is up to 3 RTC clock cycles (which is 64us with the default clock settings)
     sleep_us(64);
@@ -41,6 +42,8 @@ static void ntp_result(NTP_T* state, int status, time_t *result) {
         int m = utc->tm_mon;
         int y = utc->tm_year;
 
+        datetime_t rtc_init_time;
+
         rtc_init_time.year  = utc->tm_year + 1900;
         rtc_init_time.month = utc->tm_mon + 1;
         rtc_init_time.day   = utc->tm_mday;
@@ -54,7 +57,7 @@ static void ntp_result(NTP_T* state, int status, time_t *result) {
                 rtc_init_time.hour, rtc_init_time.min, rtc_init_time.sec);
 
         printf("TEST 0\n");
-        set_RTC_time();
+        set_RTC_time(&rtc_init_time);
         printf("TEST 1\n");
     }
 
@@ -150,9 +153,6 @@ static NTP_T* ntp_init(void) {
 
 // Runs ntp test forever
 void get_time_ntp(void) {
-    // Initialize the real time clock
-    rtc_init();
-
     NTP_T *state = ntp_init();
     if (!state)
         return;

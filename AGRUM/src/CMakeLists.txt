@@ -6,12 +6,15 @@ include_directories(actuator/pump)
 include_directories(actuator/valve)
 include_directories(thingsboard)
 
+include_directories(timing)
+include_directories(timing/ntp)
+include_directories(timing/rtc)
+
 add_executable(agrum
         main.c
         thingsboard/wifi.c
         thingsboard/mqtt.c
         thingsboard/ThingsBoard.c
-        thingsboard/ntp.c
         ../../pico-sdk/lib/lwip/src/apps/mqtt/mqtt.c
         measure/measure.c
         actuator/actuator.c
@@ -19,6 +22,7 @@ add_executable(agrum
         actuator/motor/motor.c
         actuator/pump/pump.c
         actuator/valve/valve.c
+        timing/ntp/ntp.c
         )
 
 target_include_directories(agrum PRIVATE
