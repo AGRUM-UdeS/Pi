@@ -15,56 +15,32 @@
 
 #define MONTREAL_TIME_ZONE 18000
 
-static bool got_rtc_time = false;
+static bool utc_time_received = false;
 
-bool ntp_is_initialized(void) {
-    return got_rtc_time;
+static struct tm *utc;
+
+bool ntp_time_received(void) {
+    return utc_time_received;
+}
+
+struct tm get_utc(void) {
+    return *utc;
 }
 
 // Called with results of operation
 static void ntp_result(NTP_T* state, int status, time_t *result) {
     if (status == 0 && result) {
-        struct tm *utc = gmtime(result);
-        // printf("got ntp response: %02d/%02d/%04d %02d:%02d:%02d\n", utc->tm_mday, utc->tm_mon + 1, utc->tm_year + 1900,
-        //        utc->tm_hour, utc->tm_min, utc->tm_sec);
-
-        int d = utc->tm_mday;
-        int m = utc->tm_mon;
-        int y = utc->tm_year;
-
-        datetime_t* rtc_init_time;
-
-        rtc_init_time->year  = utc->tm_year + 1900;
-        rtc_init_time->month = utc->tm_mon + 1;
-        rtc_init_time->day   = utc->tm_mday;
-        rtc_init_time->dotw  = (d += m < 3 ? y-- : y - 2, 23*m/9 + d + 4 + y/4- y/100 + y/400)%7; // 0 is Sunday, so 5 is Friday
-        rtc_init_time->hour  = utc->tm_hour;
-        rtc_init_time->min   = utc->tm_min;
-        rtc_init_time->sec   = utc->tm_sec;
-
-        printf("Setting RTC time: %02d/%02d/%04d %02d:%02d:%02d\n",
-                rtc_init_time->day, rtc_init_time->month, rtc_init_time->year,
-                rtc_init_time->hour, rtc_init_time->min, rtc_init_time->sec);
-
-        printf("TEST 0\n");
-        if (set_RTC_time(&rtc_init_time)) {
-            printf("TEST 1\n");
-        } else {
-            printf("TEST rateeee\n");
-        }
-        printf("RTC initialized!\n");
+        utc = gmtime(result);
+        printf("got ntp response: %02d/%02d/%04d %02d:%02d:%02d\n", utc->tm_mday, utc->tm_mon + 1, utc->tm_year + 1900,
+               utc->tm_hour, utc->tm_min, utc->tm_sec);
     }
 
-    printf("RTC initialized!!!\n");
-
     if (state->ntp_resend_alarm > 0) {
-        printf("resend alarm\n");
         cancel_alarm(state->ntp_resend_alarm);
         state->ntp_resend_alarm = 0;
     }
     state->ntp_test_time = make_timeout_time_ms(NTP_TEST_TIME);
     state->dns_request_sent = false;
-    printf("fini\n");
 }
 
 static int64_t ntp_failed_handler(alarm_id_t id, void *user_data);
@@ -121,11 +97,11 @@ static void ntp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_ad
         uint32_t seconds_since_1970 = seconds_since_1900 - NTP_DELTA;
         time_t epoch = seconds_since_1970 - MONTREAL_TIME_ZONE;
         ntp_result(state, 0, &epoch);
-        got_rtc_time = true;
+        utc_time_received = true;
     } else {
         printf("invalid ntp response\n");
         ntp_result(state, -1, NULL);
-        got_rtc_time = false;
+        utc_time_received = false;
     }
     pbuf_free(p);
 }

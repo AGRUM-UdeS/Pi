@@ -24,8 +24,9 @@ typedef struct NTP_T_ {
     alarm_id_t ntp_resend_alarm;
 } NTP_T;
 
-bool ntp_is_initialized(void);
+bool ntp_time_received(void);
 void get_time_ntp(void);
+struct tm get_utc(void);
 
 
 #endif

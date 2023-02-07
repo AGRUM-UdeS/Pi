@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define CYW43_ARCH_DEBUG_ENABLED 0
-
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
@@ -43,9 +41,11 @@ void init(void) {
 
     printf("Getting current date & time...\n");
     get_time_ntp();
-    while (!(is_RTC_init())) {
+    while (!(ntp_time_received())) {
         tight_loop_contents();
     }
+
+    set_RTC_time(get_utc());
 
 
     // datetime_t t;
@@ -69,7 +69,7 @@ int main() {
         // actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
 
         // thingsboard_sm(measurements, actuator_status);
-        sleep_ms(10);
+        sleep_ms(1000);
     }
     return 0;
 }
