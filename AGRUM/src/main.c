@@ -37,7 +37,7 @@ void init(void) {
 
     get_time_ntp();
     printf("Waiting for RTC to initialize");
-    while (!ntp_is_initialized()) {
+    while (!(ntp_is_initialized())) {
         printf(".");
         sleep_ms(500);
     }

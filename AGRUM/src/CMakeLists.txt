@@ -23,6 +23,8 @@ add_executable(agrum
         actuator/pump/pump.c
         actuator/valve/valve.c
         timing/ntp/ntp.c
+        timing/rtc/rtc.c
+        timing/timing.c
         )
 
 target_include_directories(agrum PRIVATE

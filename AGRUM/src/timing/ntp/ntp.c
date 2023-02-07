@@ -21,16 +21,6 @@ bool ntp_is_initialized(void) {
     return got_rtc_time;
 }
 
-void set_RTC_time(datetime_t* rtc_init_time) {
-    // Initialize the real time clock
-    rtc_init();
-
-    rtc_set_datetime(rtc_init_time);
-    // clk_sys is >2000x faster than clk_rtc, so datetime is not updated immediately when rtc_get_datetime() is called.
-    // tbe delay is up to 3 RTC clock cycles (which is 64us with the default clock settings)
-    sleep_us(64);
-}
-
 // Called with results of operation
 static void ntp_result(NTP_T* state, int status, time_t *result) {
     if (status == 0 && result) {
@@ -42,19 +32,19 @@ static void ntp_result(NTP_T* state, int status, time_t *result) {
         int m = utc->tm_mon;
         int y = utc->tm_year;
 
-        datetime_t rtc_init_time;
+        datetime_t* rtc_init_time;
 
-        rtc_init_time.year  = utc->tm_year + 1900;
-        rtc_init_time.month = utc->tm_mon + 1;
-        rtc_init_time.day   = utc->tm_mday;
-        rtc_init_time.dotw  = (d += m < 3 ? y-- : y - 2, 23*m/9 + d + 4 + y/4- y/100 + y/400)%7; // 0 is Sunday, so 5 is Friday
-        rtc_init_time.hour  = utc->tm_hour;
-        rtc_init_time.min   = utc->tm_min;
-        rtc_init_time.sec   = utc->tm_sec;
+        rtc_init_time->year  = utc->tm_year + 1900;
+        rtc_init_time->month = utc->tm_mon + 1;
+        rtc_init_time->day   = utc->tm_mday;
+        rtc_init_time->dotw  = (d += m < 3 ? y-- : y - 2, 23*m/9 + d + 4 + y/4- y/100 + y/400)%7; // 0 is Sunday, so 5 is Friday
+        rtc_init_time->hour  = utc->tm_hour;
+        rtc_init_time->min   = utc->tm_min;
+        rtc_init_time->sec   = utc->tm_sec;
 
         printf("Setting RTC time: %02d/%02d/%04d %02d:%02d:%02d\n",
-                rtc_init_time.day, rtc_init_time.month, rtc_init_time.year,
-                rtc_init_time.hour, rtc_init_time.min, rtc_init_time.sec);
+                rtc_init_time->day, rtc_init_time->month, rtc_init_time->year,
+                rtc_init_time->hour, rtc_init_time->min, rtc_init_time->sec);
 
         printf("TEST 0\n");
         set_RTC_time(&rtc_init_time);

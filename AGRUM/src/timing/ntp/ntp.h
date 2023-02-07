@@ -14,6 +14,7 @@
 #include "lwip/udp.h"
 
 #include "hardware/rtc.h"
+#include "timing/rtc/rtc.h"
 
 typedef struct NTP_T_ {
     ip_addr_t ntp_server_address;
