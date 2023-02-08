@@ -11,6 +11,7 @@
 static ip_addr_t mqtt_ipaddr;
 
 static bool host_name_is_resolved = false;
+static bool is_thingsboard_connected = false;
 
 void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
 {
@@ -19,9 +20,9 @@ void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
         printf("Error resolving hostname: %s\n", name);
     } else {
         // Hostname was resolved successfully
-        printf("IP address for %s: %d.%d.%d.%d\n", name,
-               ip4_addr1(ipaddr), ip4_addr2(ipaddr),
-               ip4_addr3(ipaddr), ip4_addr4(ipaddr));
+        // printf("IP address for %s: %d.%d.%d.%d\n", name,
+        //        ip4_addr1(ipaddr), ip4_addr2(ipaddr),
+        //        ip4_addr3(ipaddr), ip4_addr4(ipaddr));
         mqtt_ipaddr = *ipaddr;
         host_name_is_resolved = true;
     }
@@ -33,8 +34,9 @@ static void resolve_hostname(const char *hostname)
     IP4_ADDR(&dns_server, 8, 8, 8, 8);
 
     dns_setserver(0, &dns_server);
-
+    cyw43_arch_lwip_begin();
     err_t err = dns_gethostbyname(hostname, &ip_addr, dns_callback, NULL);
+    cyw43_arch_lwip_end();
     if (err == ERR_OK) {
         // IP address was resolved successfully
         printf("IP address: %d.%d.%d.%d\n",
@@ -42,8 +44,6 @@ static void resolve_hostname(const char *hostname)
                ip4_addr3(&ip_addr), ip4_addr4(&ip_addr));
         mqtt_ipaddr = ip_addr;
         host_name_is_resolved = true;
-    } else if (err == ERR_INPROGRESS) {
-        printf("Resolving '%s' hostname...\n", hostname);
     }
 }
 
@@ -61,12 +61,14 @@ static void mqtt_connection_cb(mqtt_client_t *client,
   const struct mqtt_connect_client_info_t* client_info = (const struct mqtt_connect_client_info_t*)arg;
   LWIP_UNUSED_ARG(client);
 
-  LWIP_PLATFORM_DIAG(("MQTT client \"%s\" connection cb: status %d\n", client_info->client_id, (int)status));
+  LWIP_PLATFORM_DIAG(("MQTT client \"%s\" connection status: %d\n", client_info->client_id, (int)status));
 
   if (mqtt_client_is_connected(client)) {
-    printf("Your pi is now connected to thingsboard!(%u)\n", (int)status);
+    is_thingsboard_connected = true;
+    // printf("Your pi is now connected to thingsboard!(%u)\n", (int)status);
   } else {
-    printf("Your pi is NOT connected to thingsboard...(%u)\n", (int)status);
+    is_thingsboard_connected = false;
+    printf("Your pi has disconnected to thingsboard...(%u)\n", (int)status);
   }
 
   if (status == MQTT_CONNECT_ACCEPTED) {
@@ -103,8 +105,6 @@ err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client
 
   resolve_hostname(hostname);
 
-  printf("Wating for hostname to be resolved...\n");
-
   while (!host_name_is_resolved){}
 
   err_t ret = mqtt_client_connect(*mqtt_client,
@@ -115,3 +115,6 @@ err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client
   return ret;
 }
 
+bool thingsboard_is_connected(void) {
+  return is_thingsboard_connected;
+}
