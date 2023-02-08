@@ -9,6 +9,7 @@
 #include "motor.h"
 
 typedef enum _actuator_state_t{
+  ACTUATOR_INIT,
   ACTUATOR_IDLE,
   MOVING_MOTOR,
   CALIBRATING_MOTOR,

@@ -14,14 +14,6 @@
 #include "measure.h"
 #include "ntp.h"
 
-#define HEARTBEAT_LED_PERIOD_US (-500 * 1000)
-
-bool heartbeat_led(repeating_timer_t *rt) {
-    static bool led_state = false;
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_state);
-    led_state = !led_state;
-    return true;
-}
 
 void init(void) {
     // Init RP2040 peripherals
@@ -48,12 +40,6 @@ void init(void) {
 int main() {
     
     init();
-
-    repeating_timer_t timer;
-    // negative timeout means exact delay (rather than delay between callbacks)
-    if (!add_repeating_timer_us(HEARTBEAT_LED_PERIOD_US, heartbeat_led, NULL, &timer)) {
-        printf("Failed to add timer\n");
-    }
 
     while (true) {
 
