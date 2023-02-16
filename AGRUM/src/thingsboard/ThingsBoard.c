@@ -91,7 +91,7 @@ thingsboard_state_t thingsboard_sm(measure_t measurements, actuator_status_t act
             thingsboard_state = THINGSBOARD_IDLE;
             printf("Reconnected to ThingsBoard\n");
         } else {
-          printf("Failed to reconnect to ThingsBoard\n");
+            printf("Failed to reconnect to ThingsBoard\n");
         }
 
         break;
