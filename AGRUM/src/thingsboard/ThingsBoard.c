@@ -79,10 +79,20 @@ thingsboard_state_t thingsboard_sm(measure_t measurements, actuator_status_t act
 
     switch (thingsboard_state) {
     case THINGSBOARD_IDLE:
+        if (!ThingsBoard_is_connected()) {
+            thingsboard_state = THINGSBOARD_CONNECTING;
+            printf("Disconnected from ThingsBoard\n");
+        }
 
         break;
 
     case THINGSBOARD_CONNECTING:
+        if (ThingsBoard_connect() == THINGSBOARD_CONNECTED) {
+            thingsboard_state = THINGSBOARD_IDLE;
+            printf("Reconnected to ThingsBoard\n");
+        } else {
+          printf("Failed to reconnect to ThingsBoard\n");
+        }
 
         break;
 
