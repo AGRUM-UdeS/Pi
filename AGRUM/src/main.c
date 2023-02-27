@@ -35,6 +35,8 @@ void init(void) {
     // Then saving it into the RTC
     printf("\n-------- Getting current date & time\n");
     init_RTC();
+
+    init_i2c();
 }
 
 int main() {

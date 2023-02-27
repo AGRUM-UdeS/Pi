@@ -6,6 +6,7 @@ include_directories(actuator/pump)
 include_directories(actuator/valve)
 include_directories(thingsboard)
 
+include_directories(IO_expender)
 include_directories(timing)
 include_directories(timing/ntp)
 include_directories(timing/rtc)
@@ -22,6 +23,8 @@ add_executable(agrum
         actuator/motor/motor.c
         actuator/pump/pump.c
         actuator/valve/valve.c
+        IO_expender/PI4IOE5V9554.c
+        IO_expender/I2C_wrapper.c
         timing/ntp/ntp.c
         timing/rtc/rtc.c
         timing/timing.c
@@ -38,6 +41,7 @@ target_link_libraries(agrum
         pico_cyw43_arch_lwip_threadsafe_background
         pico_lwip
         hardware_rtc
+        hardware_i2c
         )
 
 # enable usb output, disable uart output
