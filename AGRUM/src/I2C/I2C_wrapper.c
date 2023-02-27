@@ -11,4 +11,5 @@ void init_i2c(void) {
     gpio_pull_up(i2c_SDA_pin);
     gpio_pull_up(i2c_SCL_pin);
     printf("I2C initialized\n");
+    // Add IO extender interupt pin
 }

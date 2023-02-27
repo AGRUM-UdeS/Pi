@@ -23,8 +23,9 @@ add_executable(agrum
         actuator/motor/motor.c
         actuator/pump/pump.c
         actuator/valve/valve.c
-        IO_expender/PI4IOE5V9554.c
-        IO_expender/I2C_wrapper.c
+        I2C/PI4IOE5V9554.c
+        I2C/ADS7828.c
+        I2C/I2C_wrapper.c
         timing/ntp/ntp.c
         timing/rtc/rtc.c
         timing/timing.c

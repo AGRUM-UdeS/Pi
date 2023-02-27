@@ -19,4 +19,7 @@ typedef enum _IO_status_t{
   IO_error
 } IO_status_t;
 
+IO_status_t IO_read_pin(uint8_t address, uint8_t* received_data);
+IO_status_t IO_write_pin(uint8_t address, uint8_t pin);
+
 #endif
