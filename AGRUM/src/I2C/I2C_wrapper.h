@@ -5,4 +5,6 @@
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 
+void init_i2c(void);
+
 #endif

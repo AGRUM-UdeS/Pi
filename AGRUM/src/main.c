@@ -13,6 +13,7 @@
 #include "actuator.h"
 #include "measure.h"
 #include "ntp.h"
+#include "I2C_wrapper.h"
 
 
 void init(void) {
@@ -36,6 +37,7 @@ void init(void) {
     printf("\n-------- Getting current date & time\n");
     init_RTC();
 
+    // Init I2C and assign right pins
     init_i2c();
 }
 

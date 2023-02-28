@@ -6,7 +6,7 @@ include_directories(actuator/pump)
 include_directories(actuator/valve)
 include_directories(thingsboard)
 
-include_directories(IO_expender)
+include_directories(I2C)
 include_directories(timing)
 include_directories(timing/ntp)
 include_directories(timing/rtc)
@@ -25,6 +25,7 @@ add_executable(agrum
         actuator/valve/valve.c
         I2C/PI4IOE5V9554.c
         I2C/ADS7828.c
+        I2C/SHT.c
         I2C/I2C_wrapper.c
         timing/ntp/ntp.c
         timing/rtc/rtc.c
