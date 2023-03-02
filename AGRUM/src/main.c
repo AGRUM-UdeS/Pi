@@ -39,6 +39,9 @@ void init(void) {
 
     // Init I2C and assign right pins
     init_i2c();
+
+    // Init PWM and assign right pins
+    init_pwm();
 }
 
 int main() {

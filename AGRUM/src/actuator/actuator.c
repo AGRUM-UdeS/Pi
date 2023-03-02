@@ -17,7 +17,7 @@ actuator_status_t actuator_sm(const measure_t measurements, const measure_state_
         break;
 
     case ACTUATOR_IDLE:
-
+        pwm_test();
         break;
 
     case MOVING_MOTOR:
