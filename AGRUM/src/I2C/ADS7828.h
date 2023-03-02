@@ -4,6 +4,8 @@
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
 
+#define ADC_BUF_LEN 2
+
 typedef enum _ADC_status_t{
   ADC_ok,
   ADC_timeout,
@@ -26,5 +28,7 @@ typedef enum _ADC_status_t{
 #define ADC_read_pin_6 (0xD0)
 #define ADC_read_pin_7 (0xE0)
 #define ADC_read_pin_8 (0xF0)
+
+ADC_status_t ADC_read_pin(uint8_t address, uint8_t pin_to_read, uint8_t* received_byte);
 
 #endif

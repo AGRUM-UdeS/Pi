@@ -45,6 +45,10 @@ int main() {
     
     init();
 
+    uint8_t received_byte[ADC_BUF_LEN];
+
+    ADC_status_t status = ADC_read_pin(ADC_address_0, ADC_read_pin_1, received_byte);
+
     while (true) {
 
         static measure_t measurements;

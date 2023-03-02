@@ -1,7 +1,7 @@
 #include "I2C_wrapper.h"
 
-#define i2c_SDA_pin 11
-#define i2c_SCL_pin 12
+#define i2c_SDA_pin 8
+#define i2c_SCL_pin 9
 #define i2c_baudrate (100*1000)
 
 void init_i2c(void) {

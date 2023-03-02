@@ -22,7 +22,7 @@ ADC_status_t ADC_read_pin(uint8_t address, uint8_t pin_to_read, uint8_t* receive
     i2c_write_blocking_until(i2c0, address, &pin_to_read, (size_t)1, false, ADC_i2c_timeout);
     
     // Read the bytes from the ADC
-    int nb = i2c_read_blocking_until(i2c0, address, received_byte, (size_t)2, false, ADC_i2c_timeout);
+    int nb = i2c_read_blocking_until(i2c0, address, received_byte, (size_t)ADC_BUF_LEN, false, ADC_i2c_timeout);
 
     return return_ADC_status(nb);
 }
