@@ -44,6 +44,7 @@ target_link_libraries(agrum
         pico_lwip
         hardware_rtc
         hardware_i2c
+        hardware_pwm
         )
 
 # enable usb output, disable uart output
