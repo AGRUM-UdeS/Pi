@@ -57,3 +57,4 @@ build/
 AGRUM/build/
 AGRUM/.vscode/settings.json
 .vscode/AGRUM.code-workspace
+AGRUM/.vscode/
