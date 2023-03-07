@@ -79,11 +79,15 @@ thingsboard_state_t thingsboard_sm(measure_t measurements, actuator_status_t act
 
     switch (thingsboard_state) {
     case THINGSBOARD_IDLE:
+      if (!ThingsBoard_is_connected()) {
+        thingsboard_state = THINGSBOARD_CONNECTING;
+      }
 
         break;
 
     case THINGSBOARD_CONNECTING:
-
+      ThingsBoard_connect();
+      thingsboard_state = THINGSBOARD_IDLE;
         break;
 
     case THINGSBOARD_SEND_DATA:
