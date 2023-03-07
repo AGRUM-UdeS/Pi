@@ -15,6 +15,8 @@
 #include "ntp.h"
 #include "I2C_wrapper.h"
 
+#define CONNECT_MAX_TRY 5
+
 
 void init(void) {
     // Init RP2040 peripherals
@@ -26,7 +28,10 @@ void init(void) {
     /* Establish wifi connection
     SSID and Password are defined */
     printf("---------- Connecting to the wifi\n\n");
-    wifi_connect();
+    static uint8_t connect_try = 0;
+    while ((wifi_connect() != WIFI_CONNECTED) && (connect_try < CONNECT_MAX_TRY)) {
+        connect_try++;
+    }
 
     // Establish TCP/IP and MQTT connection
     printf("\n-------- Establishing ThingsBoard connection\n");
