@@ -13,6 +13,6 @@ typedef enum motor_state_t {
 } motor_state_t; 
 
 void init_pwm(void);
-void pwm_test(void);
+void rotate_pv(uint16_t angle, bool clockwise);
 
 #endif
