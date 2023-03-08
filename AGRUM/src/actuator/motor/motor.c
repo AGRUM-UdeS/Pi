@@ -34,9 +34,9 @@ void init_pwm(void) {
 
     // Load the configuration into our PWM slice and start the pwm
     pwm_init(slice_1, &config, true);
-    pwm_init(slice_1, &config, true);
-    pwm_init(slice_1, &config, true);
-    pwm_init(slice_1, &config, true);
+    pwm_init(slice_2, &config, true);
+    pwm_init(slice_3, &config, true);
+    pwm_init(slice_4, &config, true);
 
     // Set the max pwm duty cycle
     pwm_set_wrap(slice_1, MAX_DUTY_CYCLE);
