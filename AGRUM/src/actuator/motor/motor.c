@@ -29,7 +29,7 @@ void init_pwm(void) {
 
     // Get default config
     pwm_config config = pwm_get_default_config();
-    // Set divider, reduces counter clock to sysclock/this value
+    // Set divider, reduces counter clock to 1 MHz
     pwm_config_set_clkdiv(&config, 125);
 
     // Load the configuration into our PWM slice and start the pwm
@@ -38,7 +38,7 @@ void init_pwm(void) {
     pwm_init(slice_1, &config, true);
     pwm_init(slice_1, &config, true);
 
-    // Set 256 as 100% duty cycle
+    // Set the max pwm duty cycle
     pwm_set_wrap(slice_1, MAX_DUTY_CYCLE);
     pwm_set_wrap(slice_2, MAX_DUTY_CYCLE);
     pwm_set_wrap(slice_3, MAX_DUTY_CYCLE);
@@ -46,6 +46,7 @@ void init_pwm(void) {
 }
 
 int64_t stop_rotation(__unused alarm_id_t id, __unused void *user_data) {
+    // Set all duty cycle to 0
     pwm_set_gpio_level(pul_1_pin, NO_PWM);
     pwm_set_gpio_level(pul_2_pin, NO_PWM);
     pwm_set_gpio_level(pul_3_pin, NO_PWM);
@@ -59,7 +60,8 @@ void rotate_pv(uint16_t angle, bool clockwise) {
     } else {
         // Set dir pin
     }
-
+    
+    // Start moving the motor
     pwm_set_gpio_level(pul_1_pin, DUTY_CYCLE);
     pwm_set_gpio_level(pul_2_pin, DUTY_CYCLE);
     pwm_set_gpio_level(pul_3_pin, DUTY_CYCLE);
