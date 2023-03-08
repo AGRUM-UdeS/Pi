@@ -20,9 +20,12 @@ WIFI_STATUS wifi_connect(void) {
     cyw43_arch_enable_sta_mode();
 
     if (cyw43_arch_wifi_connect_timeout_ms(SSID, PASSWORD, CYW43_AUTH_WPA2_AES_PSK, WIFI_CONNECTION_TIMEOUT_MS)) {
-        printf("Failed to connect.\n");
-        return WIFI_FAILED;
+        printf("Failed to connect. Retrying...\n");
+        if (cyw43_arch_wifi_connect_timeout_ms(SSID, PASSWORD, CYW43_AUTH_WPA2_AES_PSK, WIFI_CONNECTION_TIMEOUT_MS)) {
+            printf("Failed to connect. Aborting\n");
+            return WIFI_FAILED;
         }
+    }
     printf("Connected to the wifi.\n");
     return WIFI_CONNECTED;
 }

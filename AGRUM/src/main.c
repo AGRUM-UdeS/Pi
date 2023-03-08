@@ -28,10 +28,7 @@ void init(void) {
     /* Establish wifi connection
     SSID and Password are defined */
     printf("---------- Connecting to the wifi\n\n");
-    static uint8_t connect_try = 0;
-    while ((wifi_connect() != WIFI_CONNECTED) && (connect_try < CONNECT_MAX_TRY)) {
-        connect_try++;
-    }
+    wifi_connect();
 
     // Establish TCP/IP and MQTT connection
     printf("\n-------- Establishing ThingsBoard connection\n");
