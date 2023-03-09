@@ -1,5 +1,4 @@
 #include "weather.h"
-#include "secret.h"
 
 #define HTTP_PORT   HTTP_DEFAULT_PORT
 #define BUF_SIZE 2048

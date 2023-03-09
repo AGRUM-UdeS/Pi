@@ -13,6 +13,7 @@
 #include "lwipopts.h"
 
 #include "lwip/apps/http_client.h"
+#include "secret.h"
 
 void init_weather(void);
 

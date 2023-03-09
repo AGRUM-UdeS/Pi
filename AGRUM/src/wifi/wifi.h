@@ -1,6 +1,12 @@
 #ifndef WIFI_H
 #define WIFI_H
 
+#include <stdio.h>
+#include "pico/stdlib.h"
+#include "pico/cyw43_arch.h"
+
+#include "secret.h"
+
 typedef enum {
     WIFI_DISCONNECTED,
     WIFI_CONNECTING,

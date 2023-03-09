@@ -17,6 +17,7 @@ add_executable(agrum
         wifi/mqtt.c
         wifi/ThingsBoard.c
         wifi/weather.c
+        wifi/secret.c
         ../../pico-sdk/lib/lwip/src/apps/mqtt/mqtt.c
         ../../pico-sdk/lib/lwip/src/apps/http/http_client.c
         measure/measure.c
@@ -38,7 +39,6 @@ target_include_directories(agrum PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
         ${CMAKE_CURRENT_LIST_DIR}/..
         ${CMAKE_CURRENT_LIST_DIR}/src
-        ${CMAKE_CURRENT_LIST_DIR}/src/wifi
         )
 
 target_link_libraries(agrum
