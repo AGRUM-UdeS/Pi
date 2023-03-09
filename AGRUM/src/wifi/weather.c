@@ -1,4 +1,5 @@
 #include "weather.h"
+#include "secret.h"
 
 #define HTTP_PORT   HTTP_DEFAULT_PORT
 #define BUF_SIZE 2048
@@ -9,12 +10,6 @@ static struct pbuf* weather_buf;
 
 const char* WEATHER_REQUEST = 
 "api.openweathermap.org";
-
-const char* MONTREAL_WEATHER_FORECAST = 
-"/data/2.5/forecast?q=Montreal,CA&APPID=45434aa4f2caabb67c33bfa9e83fc0f8&units=metric";
-
-const char* MONTREAL_WEATHER = 
-"/data/2.5/weather?q=Montreal,CA&APPID=45434aa4f2caabb67c33bfa9e83fc0f8&units=metric";
 
 void httpc_result_cb(void *arg, httpc_result_t httpc_result, 
                         u32_t rx_content_len, u32_t srv_res, err_t err) {
@@ -58,11 +53,11 @@ void init_weather(void) {
     }
     struct pbuf* buf = weather_buf;
 
-    printf("Body received (%d), %x, %x\n", buf->tot_len, buf->type_internal, buf->flags);
-    printf("Body : %s\n", buf->payload);
+    printf("Packet received len:(%d), type:(%x), %x\n", buf->tot_len, buf->type_internal, buf->flags);
+    printf("Weather data : %s\n", buf->payload);
     while (buf->next) {
         buf = buf->next;
-        printf("Body : %s\n", buf->payload);
+        printf("%s\n", buf->payload);
     }
     printf("\nFINISH\n");
 
