@@ -14,6 +14,7 @@
 #include "measure.h"
 #include "ntp.h"
 #include "I2C_wrapper.h"
+#include "weather.h"
 
 #define CONNECT_MAX_TRY 5
 
@@ -44,6 +45,10 @@ void init(void) {
 
     // Init PWM and assign right pins
     init_pwm();
+
+    // Get weather data
+    printf("\n-------- Getting weather data\n");
+    init_weather();
 }
 
 int main() {
@@ -52,14 +57,15 @@ int main() {
 
     while (true) {
 
-        static measure_t measurements;
+        // static measure_t measurements;
 
-        measure_state_t measure_state = measure_sm(&measurements);
+        // measure_state_t measure_state = measure_sm(&measurements);
 
-        actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
+        // actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
 
-        thingsboard_sm(measurements, actuator_status);
-        sleep_ms(100);
+        // thingsboard_sm(measurements, actuator_status);
+        sleep_ms(10);
+
     }
     return 0;
 }
