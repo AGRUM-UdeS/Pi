@@ -16,5 +16,6 @@
 #include "secret.h"
 
 void init_weather(void);
+void print_weather(void);
 
 #endif

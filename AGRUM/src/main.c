@@ -64,6 +64,9 @@ int main() {
         actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
 
         thingsboard_sm(measurements, actuator_status);
+
+        print_weather();
+        
         sleep_ms(100);
 
     }
