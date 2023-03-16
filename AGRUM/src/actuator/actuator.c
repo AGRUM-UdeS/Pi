@@ -13,15 +13,15 @@ actuator_status_t actuator_sm(const measure_t measurements, const measure_state_
     case ACTUATOR_INIT:
         init_heartbeat_led();
 
-        actuator_state = ACTUATOR_IDLE;
+        actuator_state = MOVING_MOTOR;
         break;
 
     case ACTUATOR_IDLE:
-
         break;
 
     case MOVING_MOTOR:
-
+        rotate_pv(5,true);
+        actuator_state = ACTUATOR_IDLE;
         break;
 
     case CALIBRATING_MOTOR:

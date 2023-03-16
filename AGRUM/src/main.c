@@ -15,6 +15,8 @@
 #include "ntp.h"
 #include "I2C_wrapper.h"
 
+#define CONNECT_MAX_TRY 5
+
 
 void init(void) {
     // Init RP2040 peripherals
@@ -39,6 +41,9 @@ void init(void) {
 
     // Init I2C and assign right pins
     init_i2c();
+
+    // Init PWM and assign right pins
+    init_pwm();
 }
 
 int main() {
