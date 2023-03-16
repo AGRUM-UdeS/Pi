@@ -62,16 +62,15 @@ void weather_forecast_request(void) {
 }
 
 void weather_current_request(void) {
+    printf("Requesting current weather data\n");
     httpc_connection_t settings;
     settings.result_fn = httpc_result_cb;
     settings.headers_done_fn = httpc_headers_cb;
-    
-    current_weather_is_received = false;
 
     httpc_get_file_dns(WEATHER_REQUEST, HTTP_PORT, MONTREAL_WEATHER, &settings, current_weather_cb, NULL, NULL);
 }
 
-void print_weather(void) {
+void print_weather_forecast(void) {
     static uint16_t i = 0;
 
     if ((!weather_forecast_is_received) || ((i >= nb_packet) && (nb_packet != 0))) {
@@ -91,4 +90,23 @@ void print_weather(void) {
     if (i >= BUF_NB) {
         i = 0;
     }
+}
+
+void print_current_weather(void) {
+    static uint16_t i = 0;
+
+    if (!current_weather_is_received) {
+        return;
+    }
+    current_weather_is_received = false;
+
+    struct pbuf* buf = current_weather_buf;
+
+    // char* ptr = strstr(buf->payload, "\"temp\":");
+    // char num[] = {(char)(*(ptr+7)), (char)(*(ptr+8)), (char)(*(ptr+9)), 
+    //                 (char)(*(ptr+10)), (char)(*(ptr+11)), (char)(*(ptr+12)), '\0'};
+    // printf("\n\nCurrent temp is %s", num);
+    // printf(" => %f\n\n", atof(num));
+
+    printf("%s", buf->payload);
 }

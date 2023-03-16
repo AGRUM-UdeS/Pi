@@ -16,8 +16,6 @@
 #include "I2C_wrapper.h"
 #include "weather.h"
 
-#define CONNECT_MAX_TRY 5
-
 
 void init(void) {
     // Init RP2040 peripherals
@@ -47,8 +45,8 @@ void init(void) {
     init_pwm();
 
     // Get weather data
-    printf("\n-------- Getting weather data\n");
-    weather_forecast_request();
+    // printf("\n-------- Getting weather data\n");
+    // weather_current_request();
 }
 
 int main() {
@@ -65,7 +63,7 @@ int main() {
 
         thingsboard_sm(measurements, actuator_status);
 
-        print_weather();
+        // print_current_weather();
 
         sleep_ms(100);
 
