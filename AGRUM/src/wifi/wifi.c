@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include "pico/stdlib.h"
-#include "pico/cyw43_arch.h"
-
 #include "wifi.h"
+
 
 #define WIFI_CONNECTION_MAX_RETRY 10
 #define WIFI_CONNECTION_TIMEOUT_MS 10000

@@ -105,7 +105,9 @@ err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client
 
   resolve_hostname(hostname);
 
-  while (!host_name_is_resolved){}
+  while (!host_name_is_resolved) {
+    tight_loop_contents();
+  }
 
   err_t ret = mqtt_client_connect(*mqtt_client,
         &mqtt_ipaddr, MQTT_PORT,
