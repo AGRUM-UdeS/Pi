@@ -48,7 +48,7 @@ void init(void) {
 
     // Get weather data
     printf("\n-------- Getting weather data\n");
-    init_weather();
+    weather_forecast_request();
 }
 
 int main() {
@@ -66,7 +66,7 @@ int main() {
         thingsboard_sm(measurements, actuator_status);
 
         print_weather();
-        
+
         sleep_ms(100);
 
     }

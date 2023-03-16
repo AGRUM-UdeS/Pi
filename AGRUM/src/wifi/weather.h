@@ -15,7 +15,8 @@
 #include "lwip/apps/http_client.h"
 #include "secret.h"
 
-void init_weather(void);
+void weather_forecast_request(void);
+void weather_current_request(void);
 void print_weather(void);
 
 #endif
