@@ -47,6 +47,7 @@ void init_pwm(void) {
 
 int64_t stop_rotation(__unused alarm_id_t id, __unused void *user_data) {
     // Set all duty cycle to 0
+    printf("Stop moving!\n");
     pwm_set_gpio_level(pul_1_pin, NO_PWM);
     pwm_set_gpio_level(pul_2_pin, NO_PWM);
     pwm_set_gpio_level(pul_3_pin, NO_PWM);
@@ -62,6 +63,7 @@ void rotate_pv(uint16_t angle, bool clockwise) {
     }
     
     // Start moving the motor
+    printf("Start moving!\n");
     pwm_set_gpio_level(pul_1_pin, DUTY_CYCLE);
     pwm_set_gpio_level(pul_2_pin, DUTY_CYCLE);
     pwm_set_gpio_level(pul_3_pin, DUTY_CYCLE);

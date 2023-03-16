@@ -58,5 +58,6 @@ AGRUM/build/
 AGRUM/.vscode/settings.json
 .vscode/AGRUM.code-workspace
 AGRUM/.vscode/
-AGRUM/src/wifi/secret.h
 AGRUM/src/wifi/secret.c
+AGRUM/src/wifi/secret.h
+
