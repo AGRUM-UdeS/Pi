@@ -7,10 +7,6 @@
 #define WIFI_CONNECTION_MAX_RETRY 10
 #define WIFI_CONNECTION_TIMEOUT_MS 10000
 
-// Define WiFi credentials
-const char *SSID = "TP-Link_98C4";
-const char *PASSWORD = "58601976";
-
 WIFI_STATUS wifi_connect(void) {
     if (cyw43_arch_init_with_country(CYW43_COUNTRY_CANADA)) {
         printf("Failed to initialise\n");

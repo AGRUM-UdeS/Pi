@@ -4,7 +4,7 @@ include_directories(actuator/led)
 include_directories(actuator/motor)
 include_directories(actuator/pump)
 include_directories(actuator/valve)
-include_directories(thingsboard)
+include_directories(wifi)
 
 include_directories(I2C)
 include_directories(timing)
@@ -13,9 +13,10 @@ include_directories(timing/rtc)
 
 add_executable(agrum
         main.c
-        thingsboard/wifi.c
-        thingsboard/mqtt.c
-        thingsboard/ThingsBoard.c
+        wifi/wifi.c
+        wifi/mqtt.c
+        wifi/ThingsBoard.c
+        wifi/secret.c
         ../../pico-sdk/lib/lwip/src/apps/mqtt/mqtt.c
         measure/measure.c
         actuator/actuator.c

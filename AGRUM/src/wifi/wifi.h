@@ -1,6 +1,8 @@
 #ifndef WIFI_H
 #define WIFI_H
 
+#include "secret.h"
+
 typedef enum {
     WIFI_DISCONNECTED,
     WIFI_CONNECTING,
