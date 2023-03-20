@@ -41,9 +41,11 @@ target_include_directories(agrum PRIVATE
 target_link_libraries(agrum
         pico_stdlib              # for core functionality
         pico_cyw43_arch_lwip_threadsafe_background
+        
         hardware_i2c
         hardware_pwm
         hardware_rtc
+
         pico_lwip
         pico_lwip_http
         )
