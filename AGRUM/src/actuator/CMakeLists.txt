@@ -24,13 +24,3 @@ target_link_libraries(actuator
         hardware_i2c
         hardware_pwm
         )
-
-# enable usb output, disable uart output
-pico_enable_stdio_usb(actuator 1)
-pico_enable_stdio_uart(actuator 0)
-
-# create map/bin/hex file etc.
-pico_add_extra_outputs(actuator)
-
-# add url via pico_set_program_url
-# example_auto_set_url(picow_blink)

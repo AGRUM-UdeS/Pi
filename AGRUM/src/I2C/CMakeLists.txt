@@ -13,13 +13,3 @@ target_link_libraries(I2C_wrapper
         pico_stdlib              # for core functionality
         hardware_i2c
         )
-
-# enable usb output, disable uart output
-pico_enable_stdio_usb(I2C_wrapper 1)
-pico_enable_stdio_uart(I2C_wrapper 0)
-
-# create map/bin/hex file etc.
-pico_add_extra_outputs(I2C_wrapper)
-
-# add url via pico_set_program_url
-# example_auto_set_url(picow_blink)

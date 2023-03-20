@@ -1,7 +1,5 @@
 #include "motor.h"
 
-#include "hardware/pwm.h"
-
 #define pul_1_pin 12
 #define pul_2_pin 13
 #define pul_3_pin 14

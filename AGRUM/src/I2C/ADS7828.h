@@ -3,6 +3,8 @@
 
 #include "pico/stdlib.h"
 
+#include "hardware/i2c.h"
+
 #define ADC_BUF_LEN 2
 
 typedef enum _ADC_status_t{

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
+#include "hardware/pwm.h"
 
 typedef enum motor_state_t {
   MOTOR_ON_CLOCKWISE,

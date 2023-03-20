@@ -1,7 +1,5 @@
 #include "SHT.h"
 
-#include "hardware/i2c.h"
-
 const absolute_time_t ABSOLUTE_TIME_INITIALIZED_VAR(SHT_i2c_timeout, 10000); // 10 ms
 #define STH1_BUF_LEN 4
 

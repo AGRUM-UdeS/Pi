@@ -3,6 +3,8 @@
 
 #include "pico/stdlib.h"
 
+#include "hardware/i2c.h"
+
 #define SHT3_address (0x44)
 #define SHT1_address (0x00)
 

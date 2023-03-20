@@ -1,7 +1,5 @@
 #include "ADS7828.h"
 
-#include "hardware/i2c.h"
-
 const absolute_time_t ABSOLUTE_TIME_INITIALIZED_VAR(ADC_i2c_timeout, 10000); // 10 ms
 
 static ADC_status_t return_ADC_status(int value){

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
+#include "hardware/i2c.h"
+
 #include "PI4IOE5V9554.h"
 #include "ADS7828.h"
 #include "SHT.h"

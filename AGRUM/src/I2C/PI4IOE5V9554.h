@@ -3,6 +3,8 @@
 
 #include "pico/stdlib.h"
 
+#include "hardware/i2c.h"
+
 #define IO_address_0 (0x20)
 #define IO_address_1 (0x21)
 #define IO_address_2 (0x22)
