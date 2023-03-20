@@ -1,16 +1,3 @@
-include_directories(measure)
-include_directories(actuator)
-include_directories(actuator/led)
-include_directories(actuator/motor)
-include_directories(actuator/pump)
-include_directories(actuator/valve)
-include_directories(wifi)
-
-include_directories(I2C)
-include_directories(timing)
-include_directories(timing/ntp)
-include_directories(timing/rtc)
-
 add_subdirectory(actuator)
 add_subdirectory(I2C)
 add_subdirectory(measure)
@@ -19,35 +6,22 @@ add_subdirectory(wifi)
 
 add_executable(agrum
         main.c
-        measure/measure.c
-        actuator/actuator.c
-        actuator/led/led.c
-        actuator/motor/motor.c
-        actuator/pump/pump.c
-        actuator/valve/valve.c
-        I2C/PI4IOE5V9554.c
-        I2C/ADS7828.c
-        I2C/SHT.c
-        I2C/I2C_wrapper.c
-        timing/ntp/ntp.c
-        timing/rtc/rtc.c
-        timing/timing.c
         )
 
 target_include_directories(agrum PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
         ${CMAKE_CURRENT_LIST_DIR}/..
         ${CMAKE_CURRENT_LIST_DIR}/src
+        ${CMAKE_CURRENT_LIST_DIR}/src/measure
+        ${CMAKE_CURRENT_LIST_DIR}/src/actuator
+        ${CMAKE_CURRENT_LIST_DIR}/src/I2C
+        ${CMAKE_CURRENT_LIST_DIR}/src/timing
+        ${CMAKE_CURRENT_LIST_DIR}/src/wifi
         )
 
 target_link_libraries(agrum
         pico_stdlib              # for core functionality
         pico_cyw43_arch_lwip_threadsafe_background
-        pico_lwip
-        pico_lwip_http
-        hardware_rtc
-        hardware_i2c
-        hardware_pwm
         )
 
 # enable usb output, disable uart output

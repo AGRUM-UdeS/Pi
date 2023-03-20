@@ -6,7 +6,7 @@ add_executable(timing
 
 target_include_directories(timing PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/..
+        ${CMAKE_CURRENT_LIST_DIR}/src/timing
         )
 
 target_link_libraries(timing

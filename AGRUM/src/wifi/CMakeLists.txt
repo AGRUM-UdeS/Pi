@@ -8,9 +8,8 @@ add_executable(wifi
         ../../../pico-sdk/lib/lwip/src/apps/http/http_client.c
         )
 
-target_include_directories(wifi PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/..
+target_include_directories(wifi PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/src/wifi
         )
 
 target_link_libraries(wifi
