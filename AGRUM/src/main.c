@@ -11,6 +11,7 @@
 #include "wifi/wifi.h"
 #include "wifi/ThingsBoard.h"
 #include "actuator/actuator.h"
+#include "actuator/motor/motor.h"
 #include "measure/measure.h"
 #include "timing/ntp/ntp.h"
 #include "I2C/I2C_wrapper.h"
