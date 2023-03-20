@@ -1,7 +1,6 @@
 #ifndef SHT_H
 #define SHT_H
 
-#include "hardware/i2c.h"
 #include "pico/stdlib.h"
 
 #define SHT3_address (0x44)

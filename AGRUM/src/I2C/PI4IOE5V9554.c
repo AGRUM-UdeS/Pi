@@ -1,5 +1,7 @@
 #include "PI4IOE5V9554.h"
 
+#include "hardware/i2c.h"
+
 const absolute_time_t ABSOLUTE_TIME_INITIALIZED_VAR(IO_i2c_timeout, 10000); // 10 ms
 
 static IO_status_t return_IO_status(int value){

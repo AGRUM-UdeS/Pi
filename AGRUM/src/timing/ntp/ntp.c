@@ -6,6 +6,8 @@
 
 #include "ntp.h"
 
+#include "hardware/rtc.h"
+
 #define NTP_SERVER "north-america.pool.ntp.org"
 #define NTP_MSG_LEN 48
 #define NTP_PORT 123

@@ -1,9 +1,8 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
-#include "pico/stdlib.h"
-#include "hardware/pwm.h"
 #include <stdio.h>
+#include "pico/stdlib.h"
 
 
 typedef enum motor_state_t {

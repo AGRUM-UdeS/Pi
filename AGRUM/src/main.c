@@ -12,7 +12,7 @@
 #include "wifi/ThingsBoard.h"
 #include "actuator/actuator.h"
 #include "measure/measure.h"
-#include "timing/ntp/"
+#include "timing/ntp/ntp.h"
 #include "I2C/I2C_wrapper.h"
 #include "wifi/weather.h"
 
@@ -61,7 +61,7 @@ int main() {
 
         actuator_status_t actuator_status = actuator_sm(measurements, measure_state);
 
-        thingsboard_sm(measurements, actuator_status);
+        thingsboard_sm();
 
         // print_current_weather();
 

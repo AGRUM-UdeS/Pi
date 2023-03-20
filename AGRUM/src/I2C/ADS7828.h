@@ -1,7 +1,6 @@
 #ifndef ADS7828_H
 #define ADS7828_H
 
-#include "hardware/i2c.h"
 #include "pico/stdlib.h"
 
 #define ADC_BUF_LEN 2

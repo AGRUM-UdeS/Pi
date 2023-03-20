@@ -1,5 +1,7 @@
 #include "rtc.h"
 
+#include "hardware/rtc.h"
+
 static bool is_init = false;
 
 static datetime_t utc_to_datetime(struct tm utc) {

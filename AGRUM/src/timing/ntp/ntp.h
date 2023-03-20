@@ -13,7 +13,6 @@
 #include "lwip/pbuf.h"
 #include "lwip/udp.h"
 
-#include "hardware/rtc.h"
 #include "timing/rtc/rtc.h"
 
 typedef struct NTP_T_ {
