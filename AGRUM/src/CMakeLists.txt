@@ -11,15 +11,14 @@ include_directories(timing)
 include_directories(timing/ntp)
 include_directories(timing/rtc)
 
+add_subdirectory(actuator)
+add_subdirectory(I2C)
+add_subdirectory(measure)
+add_subdirectory(timing)
+add_subdirectory(wifi)
+
 add_executable(agrum
         main.c
-        wifi/wifi.c
-        wifi/mqtt.c
-        wifi/ThingsBoard.c
-        wifi/weather.c
-        wifi/secret.c
-        ../../pico-sdk/lib/lwip/src/apps/mqtt/mqtt.c
-        ../../pico-sdk/lib/lwip/src/apps/http/http_client.c
         measure/measure.c
         actuator/actuator.c
         actuator/led/led.c
