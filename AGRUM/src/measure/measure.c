@@ -3,12 +3,12 @@
 // The main state machine dealing with the measurements
 measure_state_t measure_sm(measure_t* measurements) {
     static measure_state_t measure_state = MEASURE_IDLE;
-    uint8_t buf[1];
+    uint8_t value= 34;
 
     switch (measure_state) {
     case MEASURE_IDLE:
-        IO_read_port(IO_address_0, buf);
-        printf("Received buf: 0x%x\n", buf[0]);
+        IO_read_pin(IO_address_0, 0, &value);
+        printf("Received value: %x\n", value);
         measure_state = MESURE_DONE;
         // wait for time to measure
         break;

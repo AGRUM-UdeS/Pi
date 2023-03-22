@@ -19,15 +19,6 @@
 #define IO_POLARITY_INV   (0x2)
 #define IO_PIN_DIR        (0x3)
 
-#define IO_MASK_1         (0x01)
-#define IO_MASK_2         (0x02)
-#define IO_MASK_3         (0x04)
-#define IO_MASK_4         (0x08)
-#define IO_MASK_5         (0x10)
-#define IO_MASK_6         (0x20)
-#define IO_MASK_7         (0x40)
-#define IO_MASK_8         (0x80)
-
 typedef enum _IO_status_t{
   IO_ok,
   IO_timeout,
@@ -35,6 +26,7 @@ typedef enum _IO_status_t{
 } IO_status_t;
 
 IO_status_t IO_read_port(uint8_t address, uint8_t* received_data);
+IO_status_t IO_read_pin(uint8_t address, uint8_t pin, uint8_t* value);
 IO_status_t IO_write_pin(uint8_t address, uint8_t pin);
 
 #endif
