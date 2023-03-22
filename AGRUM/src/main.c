@@ -48,12 +48,6 @@ void init(void) {
     // Get weather data
     // printf("\n-------- Getting weather data\n");
     // weather_current_request();
-
-    gpio_init(PIN1);
-    gpio_set_dir(PIN1, GPIO_OUT);
-    gpio_put(PIN1, 1);
-    sleep_ms(2000);
-    gpio_put(PIN1, 0);
 }
 
 int main() {

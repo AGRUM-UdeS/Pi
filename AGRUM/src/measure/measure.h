@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
+#include "PI4IOE5V9554.h"
+
 #define NUMBER_OF_LIMIT_SWITCH  8
 #define NUMBER_OF_PV_ARRAY      2
 
