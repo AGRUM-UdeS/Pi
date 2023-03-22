@@ -69,7 +69,7 @@ bool ThingsBoard_is_connected(void) {
     }
 }
 
-thingsboard_state_t thingsboard_sm(measure_t measurements, actuator_status_t actuator_status) {
+thingsboard_state_t thingsboard_sm(void) {
     // thingsboard_state represente the state of the state machine
     static thingsboard_state_t thingsboard_state = THINGSBOARD_IDLE;
 

@@ -1,12 +1,12 @@
 #ifndef ACTUATOR_H
 #define ACTUATOR_H
 
-#include "measure.h"
+#include "../measure/measure.h"
 
-#include "led.h"
-#include "pump.h"
-#include "valve.h"
-#include "motor.h"
+#include "led/led.h"
+#include "pump/pump.h"
+#include "valve/valve.h"
+#include "motor/motor.h"
 
 typedef enum _actuator_state_t{
   ACTUATOR_INIT,

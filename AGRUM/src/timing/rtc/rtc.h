@@ -3,9 +3,8 @@
 
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "hardware/rtc.h"
 #include "pico/util/datetime.h"
-#include "ntp.h"
+#include "../ntp/ntp.h"
 
 void init_RTC(void);
 bool get_RTC_time(datetime_t* datetime);

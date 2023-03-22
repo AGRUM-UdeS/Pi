@@ -1,8 +1,9 @@
 #ifndef PI4IOE5V9554_H
 #define PI4IOE5V9554_H
 
-#include "hardware/i2c.h"
 #include "pico/stdlib.h"
+
+#include "hardware/i2c.h"
 
 #define IO_address_0 (0x20)
 #define IO_address_1 (0x21)
