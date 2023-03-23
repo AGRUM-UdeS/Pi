@@ -25,8 +25,11 @@ typedef enum _IO_status_t{
   IO_error
 } IO_status_t;
 
+IO_status_t IO_set_as_output(uint8_t address, uint8_t port);
 IO_status_t IO_read_port(uint8_t address, uint8_t* received_data);
 IO_status_t IO_read_pin(uint8_t address, uint8_t pin, uint8_t* value);
-IO_status_t IO_write_pin(uint8_t address, uint8_t pin);
+IO_status_t IO_write_port(uint8_t address, uint8_t port);
+IO_status_t IO_set_pin(uint8_t address, uint8_t pin);
+IO_status_t IO_clear_pin(uint8_t address, uint8_t pin);
 
 #endif
