@@ -5,6 +5,7 @@
 #include "pico/stdlib.h"
 
 #include "../I2C/PI4IOE5V9554.h"
+#include "../I2C/ADS7828.h"
 
 #define NUMBER_OF_LIMIT_SWITCH  8
 #define NUMBER_OF_PV_ARRAY      2
