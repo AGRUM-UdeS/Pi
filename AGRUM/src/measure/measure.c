@@ -7,9 +7,9 @@ measure_state_t measure_sm(measure_t* measurements) {
 
     switch (measure_state) {
     case MEASURE_IDLE:
-        ADC_read_pin(ADC_address_0, ADC_read_pin_4, &value);
-        printf("Value read from ADC: %d. Or %.2f V\n", value, (float)(value*5.0/4096.0));
-        // measure_state = MESURE_DONE;
+        // ADC_read_pin(ADC_address_0, ADC_read_pin_4, &value);
+        // printf("Value read from ADC: %d. Or %.2f V\n", value, (float)(value*5.0/4096.0));
+        measure_state = MESURE_DONE;
         // wait for time to measure
         break;
 

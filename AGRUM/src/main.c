@@ -66,7 +66,7 @@ int main() {
 
         // print_current_weather();
 
-        sleep_ms(1000);
+        sleep_ms(100);
 
     }
     return 0;
