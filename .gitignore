@@ -50,14 +50,9 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-.vscode/c_cpp_properties.json
-.vscode/settings.json
-.vscode/extensions.json
+
+# Directory not needed
 build/
-AGRUM/build/
-AGRUM/.vscode/settings.json
-.vscode/AGRUM.code-workspace
-AGRUM/.vscode/
-AGRUM/src/wifi/secret.c
-AGRUM/src/wifi/secret.h
+.vscode/
+driver/secret
 
