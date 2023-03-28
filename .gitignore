@@ -56,3 +56,5 @@ build/
 .vscode/
 driver/secret
 
+AGRUM/src/wifi/secret.c
+AGRUM/src/wifi/secret.h
