@@ -18,8 +18,15 @@ endif()
 # Initialize the SDK
 pico_sdk_init()
 
-# Add source code
-add_subdirectory(src)
+# Add HAL, driver and lib directories
+add_subdirectory(hal)
+add_subdirectory(driver)
+add_subdirectory(lib)
+
+# Add other app directories
+add_subdirectory(energy_management)
+add_subdirectory(irrigataion)
+add_subdirectory(pv_management)
 
 add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
@@ -27,10 +34,15 @@ add_compile_options(-Wall
         -Wno-maybe-uninitialized
         )
 
+add_executable(agrum main.c)
+target_link_libraries(agrum 
+        driver
+        hal
+        )
 
 # enable usb output, disable uart output
 pico_enable_stdio_usb(agrum 1)
 pico_enable_stdio_uart(agrum 0)
 
 # create map/bin/hex file etc.
-
+pico_add_extra_outputs(agrum)
