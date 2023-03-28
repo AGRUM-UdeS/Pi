@@ -21,15 +21,15 @@ typedef enum _ADC_status_t{
 
 // Command byte
 // Single ended and power down between conversion
-#define ADC_read_pin_1 (0x80)
+#define ADC_read_pin_0 (0x80)
+#define ADC_read_pin_1 (0xC0)
 #define ADC_read_pin_2 (0x90)
-#define ADC_read_pin_3 (0xA0)
-#define ADC_read_pin_4 (0xB0)
-#define ADC_read_pin_5 (0xC0)
-#define ADC_read_pin_6 (0xD0)
-#define ADC_read_pin_7 (0xE0)
-#define ADC_read_pin_8 (0xF0)
+#define ADC_read_pin_3 (0xD0)
+#define ADC_read_pin_4 (0xA0)
+#define ADC_read_pin_5 (0xE0)
+#define ADC_read_pin_6 (0xB0)
+#define ADC_read_pin_7 (0xF0)
 
-ADC_status_t ADC_read_pin(uint8_t address, uint8_t pin_to_read, uint8_t* received_byte);
+ADC_status_t ADC_read_pin(uint8_t address, uint8_t pin_to_read, uint16_t* received_value);
 
 #endif
