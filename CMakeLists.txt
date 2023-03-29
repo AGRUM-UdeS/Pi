@@ -22,6 +22,7 @@ pico_sdk_init()
 add_subdirectory(app)
 add_subdirectory(hal)
 add_subdirectory(driver)
+
 # add_subdirectory(lib)
 
 add_compile_options(-Wall

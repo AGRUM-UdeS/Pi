@@ -16,7 +16,7 @@ void init(void) {
 
     /* Establish wifi connection
     SSID and Password are defined */
-    // printf("---------- Connecting to the wifi\n\n");
+    printf("---------- Connecting to the wifi\n\n");
     // wifi_connect();
 
     // // Establish TCP/IP and MQTT connection

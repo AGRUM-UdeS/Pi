@@ -1,3 +1,8 @@
+add_subdirectory(energy_management)
+add_subdirectory(pv_management)
+add_subdirectory(irrigation)
+add_subdirectory(utils)
+
 add_executable(agrum
         main.c
         )

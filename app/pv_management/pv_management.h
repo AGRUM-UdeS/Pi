@@ -1,0 +1,4 @@
+#ifndef ENERGY_MANAGEMENT_H
+#define ENERGY_MANAGEMENT_H
+
+#endif
