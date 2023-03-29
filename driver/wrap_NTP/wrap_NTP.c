@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "ntp.h"
+#include "wrap_NTP.h"
 
 #include "hardware/rtc.h"
 

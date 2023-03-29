@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "mqtt.h"
+#include "wrap_MQTT.h"
 #include "lwipopts.h"
 
 #define MQTT_PORT       LWIP_IANA_PORT_MQTT

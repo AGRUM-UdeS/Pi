@@ -13,7 +13,7 @@
 #include "lwip/pbuf.h"
 #include "lwip/udp.h"
 
-#include "timing/rtc/rtc.h"
+#include "wrap_RTC.h"
 
 typedef struct NTP_T_ {
     ip_addr_t ntp_server_address;

@@ -6,14 +6,14 @@
 # add_subdirectory(PI4IOE5V9554A)
 add_subdirectory(secret)
 # add_subdirectory(SHT)
-# add_subdirectory(ThingsBoard)
+add_subdirectory(ThingsBoard)
 
-# add_subdirectory(wrap_MQTT)
+add_subdirectory(wrap_MQTT)
 # add_subdirectory(wrap_GPIO)
 # add_subdirectory(wrap_HTTP)
 # add_subdirectory(wrap_I2C)
-# add_subdirectory(wrap_NTP)
-# add_subdirectory(wrap_RTC)
+add_subdirectory(wrap_NTP)
+add_subdirectory(wrap_RTC)
 # add_subdirectory(wrap_WATCHDOG)
 add_subdirectory(wrap_WIFI)
 

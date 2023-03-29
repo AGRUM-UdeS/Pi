@@ -7,13 +7,13 @@ uint8_t connect_to_interface(void) {
     wifi_connect();
 
     // Establish TCP/IP and MQTT connection
-    // printf("\n-------- Establishing ThingsBoard connection\n");
-    // ThingsBoard_connect();
+    printf("\n-------- Establishing ThingsBoard connection\n");
+    ThingsBoard_connect();
 
-    // // Getting date&time from an official server
-    // // Then saving it into the RTC
-    // printf("\n-------- Getting current date & time\n");
-    // init_RTC();
+    // Getting date&time from an official server
+    // Then saving it into the RTC
+    printf("\n-------- Getting current date & time\n");
+    init_time();
 
     return 0;
 }

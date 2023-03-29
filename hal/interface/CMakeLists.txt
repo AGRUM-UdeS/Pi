@@ -5,6 +5,8 @@ add_library(interface
 target_link_libraries(interface
         pico_stdlib              # for core functionality
         wifi
+        ThingsBoard
+        timing
         )
 
 target_include_directories(interface PUBLIC

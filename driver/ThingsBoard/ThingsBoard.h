@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "mqtt.h"
+#include "wrap_MQTT.h"
 
 typedef enum _thingsboard_state_t{
     THINGSBOARD_IDLE,

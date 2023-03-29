@@ -22,3 +22,6 @@ pico_enable_stdio_uart(agrum 0)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(agrum)
+
+# Disable useless waringn
+target_link_options(agrum PRIVATE "LINKER:--no-warn-rwx-segments")

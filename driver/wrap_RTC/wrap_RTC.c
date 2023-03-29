@@ -1,4 +1,4 @@
-#include "rtc.h"
+#include "wrap_RTC.h"
 
 #include "hardware/rtc.h"
 
