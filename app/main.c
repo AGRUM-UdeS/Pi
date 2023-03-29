@@ -44,8 +44,8 @@ int main() {
     init();
 
     while (true) {
-
-        sleep_ms(100);
+        printf("TEST\n");
+        sleep_ms(1000);
 
     }
     return 0;
