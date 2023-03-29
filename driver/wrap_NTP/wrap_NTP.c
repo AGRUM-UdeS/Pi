@@ -15,7 +15,7 @@
 #define NTP_TEST_TIME (30 * 1000)
 #define NTP_RESEND_TIME (10 * 1000)
 
-#define MONTREAL_TIME_ZONE 18000
+#define MONTREAL_TIME_ZONE 14400
 
 static bool utc_time_received = false;
 
