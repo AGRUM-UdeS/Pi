@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "interface.h"
 
 void init(void) {
     // Init RP2040 peripherals
@@ -14,19 +15,7 @@ void init(void) {
     // // Delay to let the developer open Putty
     sleep_ms(5000);
 
-    /* Establish wifi connection
-    SSID and Password are defined */
-    printf("---------- Connecting to the wifi\n\n");
-    // wifi_connect();
-
-    // // Establish TCP/IP and MQTT connection
-    // printf("\n-------- Establishing ThingsBoard connection\n");
-    // ThingsBoard_connect();
-
-    // // Getting date&time from an official server
-    // // Then saving it into the RTC
-    // printf("\n-------- Getting current date & time\n");
-    // init_RTC();
+    connect_to_interface();
 
     // // Init I2C and assign right pins
     // init_i2c();

@@ -4,7 +4,7 @@
 # add_subdirectory(ADS7828)
 # add_subdirectory(OpenMeteo)
 # add_subdirectory(PI4IOE5V9554A)
-# add_subdirectory(secret)
+add_subdirectory(secret)
 # add_subdirectory(SHT)
 # add_subdirectory(ThingsBoard)
 
@@ -15,7 +15,7 @@
 # add_subdirectory(wrap_NTP)
 # add_subdirectory(wrap_RTC)
 # add_subdirectory(wrap_WATCHDOG)
-# add_subdirectory(wrap_WIFI)
+add_subdirectory(wrap_WIFI)
 
 
 # Add all the source files in the driver directory to the hal library
@@ -32,6 +32,10 @@ target_link_libraries(driver
     hardware_pwm
     hardware_rtc
 )
+
+target_include_directories(driver PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}
+        )
 
 # Include the current directory in the include path for the hal library
 # target_include_directories(hal PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

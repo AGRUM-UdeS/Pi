@@ -13,6 +13,7 @@ target_include_directories(agrum PRIVATE
 
 target_link_libraries(agrum
         pico_stdlib              # for core functionality
+        hal
         )
 
 # enable usb output, disable uart output
