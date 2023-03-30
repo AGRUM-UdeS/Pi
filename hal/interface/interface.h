@@ -12,5 +12,6 @@ typedef enum _interface_status_t{
 } interface_status_t;
 
 interface_status_t connect_to_interface(void);
+bool interface_is_connected(void);
 
 #endif

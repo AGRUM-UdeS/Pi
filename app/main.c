@@ -9,8 +9,6 @@
 #include "interface.h"
 #include "utils.h"
 
-static bool interface_is_connected = false;
-
 void init(void) {
     // Init RP2040 peripherals
     stdio_init_all();
@@ -18,11 +16,7 @@ void init(void) {
     // Delay to let the developer open Putty
     usb_delay();
     
-    if (connect_to_interface() == INTERFACE_OK)
-        interface_is_connected = true;
-
-    // Getting date&time
-    if (interface_is_connected) {
+    if (connect_to_interface() == INTERFACE_OK) {
         init_time();
     }
 
