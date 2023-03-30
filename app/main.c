@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "interface.h"
+#include "PV_management.h"
 #include "irrigation.h"
 #include "utils.h"
 
@@ -25,7 +26,7 @@ void init(void) {
     init_irrigation();
 
     // // Init PWM and assign right pins
-    // init_pwm();
+    init_PV();
 
     // Get weather data
     // printf("\n-------- Getting weather data\n");

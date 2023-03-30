@@ -2,7 +2,7 @@
 
 # Add all hal subdirectories
 add_subdirectory(interface)
-# add_subdirectory(motor)
+add_subdirectory(motor)
 add_subdirectory(pump)
 # add_subdirectory(sensor)
 add_subdirectory(time)

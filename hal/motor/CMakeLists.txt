@@ -1,4 +1,4 @@
-add_executable(motor
+add_library(motor
         motor.c
         )
 
@@ -7,3 +7,6 @@ target_link_libraries(motor
         hardware_pwm
         )
 
+target_include_directories(motor PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}
+        )
