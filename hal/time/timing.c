@@ -1,6 +1,6 @@
 #include "timing.h"
 
-uint8_t init_time(void) {
+uint8_t init_timer(void) {
     printf("\n----- Getting current date & time -----\n");
     // Get the time online
     datetime_t time;

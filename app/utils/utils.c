@@ -1,14 +1,12 @@
 #include "utils.h"
 
-#define USB_CONNECTION_DELAY_S 5
-
-void usb_delay(void)
+void usb_delay(uint8_t delay_s)
 {
     printf("\n");
-    for (size_t i = 0; i <= USB_CONNECTION_DELAY_S; i++)
+    for (size_t i = 0; i <= delay_s; i++)
     {
         sleep_ms(1000);
-        printf("%d..", (USB_CONNECTION_DELAY_S - i));
+        printf("%d..", (delay_s - i));
     }
     printf("\n");
 }

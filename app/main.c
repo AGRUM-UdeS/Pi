@@ -14,10 +14,10 @@ void init(void) {
     stdio_init_all();
 
     // Delay to let the developer open Putty
-    usb_delay();
+    usb_delay(5);
     
     if (connect_to_interface() == INTERFACE_OK) {
-        init_time();
+        init_timer();
     }
 
     // // Init I2C and assign right pins
