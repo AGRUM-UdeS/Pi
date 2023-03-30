@@ -1,4 +1,4 @@
-#include "I2C_wrapper.h"
+#include "wrap_I2C.h"
 
 #define i2c_SDA_pin 8
 #define i2c_SCL_pin 9

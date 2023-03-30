@@ -13,6 +13,8 @@ target_include_directories(agrum PRIVATE
 
 target_link_libraries(agrum
         pico_stdlib              # for core functionality
+        irrigation
+        interface
         hal
         utils
         )

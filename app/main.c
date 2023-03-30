@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "interface.h"
+#include "irrigation.h"
 #include "utils.h"
 
 void init(void) {
@@ -20,8 +21,8 @@ void init(void) {
         init_timer();
     }
 
-    // // Init I2C and assign right pins
-    // init_i2c();
+    // Init I2C and assign right pins
+    init_irrigation();
 
     // // Init PWM and assign right pins
     // init_pwm();
