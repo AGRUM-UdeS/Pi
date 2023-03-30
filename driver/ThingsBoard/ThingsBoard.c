@@ -26,7 +26,9 @@ thingsboard_state_t ThingsBoard_connect(void) {
   for (size_t i = 0; i < CONNECTION_TIMEOUT_S; i++)
   {
     if (ThingsBoard_is_connected())
-      return THINGSBOARD_CONNECTED;    
+      return THINGSBOARD_CONNECTED;
+
+    sleep_ms(1000);
   }
   return THINGSBOARD_FAILED;
 }
