@@ -1,10 +1,10 @@
 #include "interface.h"
 
-uint8_t connect_to_interface(void) {
+int8_t connect_to_interface(void) {
     /* Establish wifi connection
     SSID and Password are defined in secret.c */
-    printf("---------- Connecting to the wifi\n\n");
-    wifi_connect();
+    if (wifi_connect() != WIFI_CONNECTED)
+        return -1;
 
     // Establish TCP/IP and MQTT connection
     printf("\n-------- Establishing ThingsBoard connection\n");

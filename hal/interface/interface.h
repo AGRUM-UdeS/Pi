@@ -5,6 +5,6 @@
 #include "ThingsBoard.h"
 #include "timing.h"
 
-uint8_t connect_to_interface(void);
+int8_t connect_to_interface(void);
 
 #endif
