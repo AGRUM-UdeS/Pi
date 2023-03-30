@@ -15,6 +15,11 @@
 
 #include "wrap_RTC.h"
 
+typedef enum _ntp_status_t{
+    NTP_OK,
+    NTP_FAILED
+} ntp_status_t;
+
 typedef struct NTP_T_ {
     ip_addr_t ntp_server_address;
     bool dns_request_sent;
@@ -24,7 +29,7 @@ typedef struct NTP_T_ {
 } NTP_T;
 
 bool ntp_time_received(void);
-void get_time_ntp(void);
+ntp_status_t get_time_ntp(datetime_t* time);
 struct tm get_utc(void);
 
 

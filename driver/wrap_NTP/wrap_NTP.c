@@ -17,6 +17,8 @@
 
 #define MONTREAL_TIME_ZONE 14400
 
+#define CONNECTION_TIMEOUT_S 5
+
 static bool utc_time_received = false;
 
 static struct tm *utc;
@@ -125,11 +127,24 @@ static NTP_T* ntp_init(void) {
     return state;
 }
 
-// Runs ntp test forever
-void get_time_ntp(void) {
+static datetime_t utc_to_datetime(struct tm utc) {
+    datetime_t datetime;
+    
+    datetime.year  = utc.tm_year + 1900;
+    datetime.month = utc.tm_mon + 1;
+    datetime.day   = utc.tm_mday;
+    datetime.dotw  = utc.tm_wday;
+    datetime.hour  = utc.tm_hour;
+    datetime.min   = utc.tm_min;
+    datetime.sec   = utc.tm_sec;
+
+    return datetime;
+}
+
+ntp_status_t get_time_ntp(datetime_t* time) {
     NTP_T *state = ntp_init();
     if (!state)
-        return;
+        return NTP_FAILED;
 
     // cyw43_arch_lwip_begin/end should be used around calls into lwIP to ensure correct locking.
     // You can omit them if you are in a callback from lwIP. Note that when using pico_cyw_arch_poll
@@ -148,4 +163,14 @@ void get_time_ntp(void) {
     }
 
     free(state);
+
+    for (size_t i = 0; i < CONNECTION_TIMEOUT_S; i++)
+    {
+        if (ntp_time_received()) {
+            *time = utc_to_datetime(get_utc());
+            return NTP_OK;
+        }
+        sleep_ms(1000);
+    }
+    return NTP_FAILED;
 }
