@@ -7,8 +7,8 @@ int8_t connect_to_interface(void) {
         return -1;
 
     // Establish TCP/IP and MQTT connection
-    printf("\n-------- Establishing ThingsBoard connection\n");
-    ThingsBoard_connect();
+    if (ThingsBoard_connect() != THINGSBOARD_CONNECTED)
+        return -1;
 
     // Getting date&time from an official server
     // Then saving it into the RTC

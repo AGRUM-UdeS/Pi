@@ -2,6 +2,7 @@
 
 static mqtt_client_t* mqtt_client;
 
+#define CONNECTION_TIMEOUT_S 10
 #define KEEP_ALIVE_TIMEOUT 3600
 #define THINGSBOARD_HOSTNAME "thingsboard.cloud"
 
@@ -19,13 +20,15 @@ static const struct mqtt_connect_client_info_t mqtt_client_info =
 
 
 thingsboard_state_t ThingsBoard_connect(void) {
+  printf("\n----- Establishing ThingsBoard connection -----\n");
   err_t connect_status = mqtt_connect(&mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
 
-  while (!(ThingsBoard_is_connected())) {
-    tight_loop_contents();
+  for (size_t i = 0; i < CONNECTION_TIMEOUT_S; i++)
+  {
+    if (ThingsBoard_is_connected())
+      return THINGSBOARD_CONNECTED;    
   }
-  
-  return (ThingsBoard_is_connected() ? THINGSBOARD_CONNECTED : THINGSBOARD_DISCONNECTED);
+  return THINGSBOARD_FAILED;
 }
 
 thingsboard_state_t ThingsBoard_publish(unsigned char* topic, float value) {
