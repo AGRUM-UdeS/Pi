@@ -7,15 +7,24 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "interface.h"
+#include "utils.h"
+
+static bool interface_is_connected = false;
 
 void init(void) {
     // Init RP2040 peripherals
     stdio_init_all();
 
-    // // Delay to let the developer open Putty
-    sleep_ms(5000);
+    // Delay to let the developer open Putty
+    usb_delay();
+    
+    if (connect_to_interface() == INTERFACE_OK)
+        interface_is_connected = true;
 
-    connect_to_interface();
+    // Getting date&time
+    if (interface_is_connected) {
+        init_time();
+    }
 
     // // Init I2C and assign right pins
     // init_i2c();

@@ -5,6 +5,12 @@
 #include "ThingsBoard.h"
 #include "timing.h"
 
-int8_t connect_to_interface(void);
+typedef enum _interface_status_t{
+    INTERFACE_OK,
+    INTERFACE_DISCONNECTED,
+    INTERFACE_ERROR,
+} interface_status_t;
+
+interface_status_t connect_to_interface(void);
 
 #endif
