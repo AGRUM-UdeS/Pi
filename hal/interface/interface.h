@@ -1,7 +1,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include "wifi.h"
+#include "wrap_WIFI.h"
 #include "ThingsBoard.h"
 #include "timing.h"
 

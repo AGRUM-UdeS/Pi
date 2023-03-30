@@ -4,7 +4,7 @@ add_library(interface
 
 target_link_libraries(interface
         pico_stdlib              # for core functionality
-        wifi
+        wrap_WIFI
         ThingsBoard
         timing
         )
