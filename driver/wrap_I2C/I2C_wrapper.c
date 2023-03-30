@@ -2,7 +2,7 @@
 
 #define i2c_SDA_pin 8
 #define i2c_SCL_pin 9
-#define i2c_baudrate (100*1000)
+#define i2c_baudrate (100*100)
 
 void init_i2c(void) {
     i2c_init(i2c0, i2c_baudrate);
