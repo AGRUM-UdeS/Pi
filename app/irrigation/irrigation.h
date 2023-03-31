@@ -3,6 +3,9 @@
 
 #include "pump.h"
 
+/*! \brief Init irrigation hardware
+ *
+ */
 void init_irrigation(void);
 
 #endif

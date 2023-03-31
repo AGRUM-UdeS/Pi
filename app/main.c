@@ -22,10 +22,10 @@ void init(void) {
         init_timer();
     }
 
-    // Init I2C and assign right pins
+    // Int everything irrigation related 
     init_irrigation();
 
-    // // Init PWM and assign right pins
+    // Int everything solar panels related 
     init_PV();
 
     // Get weather data
