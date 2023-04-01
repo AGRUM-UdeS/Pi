@@ -30,6 +30,8 @@ typedef enum _ADC_status_t{
 #define ADC_read_pin_6 (0xB0)
 #define ADC_read_pin_7 (0xF0)
 
+extern const uint16_t ADC_pin[8];
+
 /*! \brief Read ADC raw value
  *
  * \param addr Address of the ADC to read from
@@ -41,5 +43,13 @@ typedef enum _ADC_status_t{
  * PICO_ERROR_TIMEOUT if a timeout occurred.
  */
 ADC_status_t ADC_read_pin(uint8_t addr, uint8_t pin_to_read, uint16_t* received_value);
+
+/*! \brief Convert ADC raw value to a voltage
+ *
+ * \param bits 12 bits integer to convert
+ * 
+ * \return float voltage value
+ */
+float ADC_bits2voltage(uint16_t bits);
 
 #endif

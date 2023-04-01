@@ -2,6 +2,17 @@
 
 #define ADC_i2c_timeout make_timeout_time_ms(10)
 
+const uint16_t ADC_pin[8] = {
+  ADC_read_pin_0,
+  ADC_read_pin_1,
+  ADC_read_pin_2,
+  ADC_read_pin_3,
+  ADC_read_pin_4,
+  ADC_read_pin_5,
+  ADC_read_pin_6,
+  ADC_read_pin_7,
+};
+
 static ADC_status_t return_ADC_status(int value)
 {
     ADC_status_t rv;
@@ -30,4 +41,9 @@ ADC_status_t ADC_read_pin(uint8_t addr, uint8_t pin_to_read, uint16_t* received_
     *received_value = (((received_byte[0] & 0x0F) << 8) + (received_byte[1] & 0xFF));
 
     return return_ADC_status(nb);
+}
+
+float ADC_bits2voltage(uint16_t bits)
+{
+    return ((float)bits * 5.0 / 4096);
 }

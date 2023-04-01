@@ -36,6 +36,8 @@ void init(void) {
     // Init every thing energy related
     init_energy_management();
 
+    //develop_test();
+
     // Get weather data
     // printf("\n-------- Getting weather data\n");
     // weather_current_request();
@@ -46,7 +48,7 @@ int main() {
     init();
 
     while (true) {
-        printf("TEST\n");
+        //develop_test();
         sleep_ms(1000);
 
     }
