@@ -43,6 +43,7 @@ static void init_pul_pins(void)
 
 static void init_dir_pins(void)
 {
+    // No need to init a state here
     // Set dir pins as output on IO expander
     uint8_t byte = (1 << DIR_1_PIN) | (1 << DIR_2_PIN)
                  | (1 << DIR_3_PIN) | (1 << DIR_4_PIN);
@@ -51,12 +52,11 @@ static void init_dir_pins(void)
 
 static void init_ena_pins(void)
 {
-    // Clear pin before setting it as output
-    // because default state is HIGH
-    IO_clear_pin(IO_MOTOR_ADDRESS, ENA_1_PIN);
-    IO_clear_pin(IO_MOTOR_ADDRESS, ENA_2_PIN);
-    IO_clear_pin(IO_MOTOR_ADDRESS, ENA_3_PIN);
-    IO_clear_pin(IO_MOTOR_ADDRESS, ENA_4_PIN);
+    // Make sure motor drives are enabled
+    IO_set_pin(IO_MOTOR_ADDRESS, ENA_1_PIN);
+    IO_set_pin(IO_MOTOR_ADDRESS, ENA_2_PIN);
+    IO_set_pin(IO_MOTOR_ADDRESS, ENA_3_PIN);
+    IO_set_pin(IO_MOTOR_ADDRESS, ENA_4_PIN);
 
     // Set enable pins as output on IO expander
     uint8_t byte = (1 << ENA_1_PIN) | (1 << ENA_2_PIN)
@@ -72,7 +72,7 @@ void init_motor(void)
     init_ena_pins();
 }
 
-int64_t stop_rotation(__unused alarm_id_t id, __unused void *user_data) {
+static int64_t stop_rotation(__unused alarm_id_t id, __unused void *user_data) {
     // Set all duty cycle to 0
     printf("Stop moving!\n");
     disable_pwm(PUL1_PIN);
@@ -82,11 +82,16 @@ int64_t stop_rotation(__unused alarm_id_t id, __unused void *user_data) {
     return 0;
 }
 void rotate_pv(uint16_t angle, bool clockwise) {
-    // Enable motor
     if (clockwise) {
-        // Set dir pin
+        IO_clear_pin(IO_MOTOR_ADDRESS, DIR_1_PIN);
+        IO_clear_pin(IO_MOTOR_ADDRESS, DIR_2_PIN);
+        IO_clear_pin(IO_MOTOR_ADDRESS, DIR_3_PIN);
+        IO_clear_pin(IO_MOTOR_ADDRESS, DIR_4_PIN);
     } else {
-        // Set dir pin
+        IO_set_pin(IO_MOTOR_ADDRESS, DIR_1_PIN);
+        IO_set_pin(IO_MOTOR_ADDRESS, DIR_2_PIN);
+        IO_set_pin(IO_MOTOR_ADDRESS, DIR_3_PIN);
+        IO_set_pin(IO_MOTOR_ADDRESS, DIR_4_PIN);
     }
     
     // Start moving the motor

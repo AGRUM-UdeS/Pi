@@ -4,6 +4,7 @@ add_library(motor
 
 target_link_libraries(motor
         pico_stdlib              # for core functionality
+        PI4IOE5V9554A
         wrap_PWM
         )
 

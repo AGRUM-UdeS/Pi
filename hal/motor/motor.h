@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
+#include "PI4IOE5V9554A.h"
 #include "wrap_PWM.h"
 
 typedef enum motor_state_t {
@@ -12,7 +13,7 @@ typedef enum motor_state_t {
   MOTOR_OFF,
   MOTOR_CALIBRATING,
   MOTOR_UNKNOWN
-} motor_state_t; 
+} motor_state_t;
 
 /*! \brief Init pin used for the motor drive. (Pul, dir, en)
  */
