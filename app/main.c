@@ -48,7 +48,7 @@ int main() {
     init();
 
     while (true) {
-        develop_test();
+        //develop_test();
         sleep_ms(1000);
 
     }
