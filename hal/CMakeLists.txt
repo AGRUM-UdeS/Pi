@@ -4,9 +4,9 @@
 add_subdirectory(interface)
 add_subdirectory(motor)
 add_subdirectory(pump)
-# add_subdirectory(sensor)
+add_subdirectory(sensors)
 add_subdirectory(timing)
-# add_subdirectory(valve)
+add_subdirectory(valve)
 add_subdirectory(weather)
 
 # Add all the source files in the hal directory to the hal library
