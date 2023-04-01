@@ -17,22 +17,22 @@ static IO_status_t return_IO_status(int value){
 
 IO_status_t IO_set_as_output(uint8_t address, uint8_t port){
     char byte[] = {IO_PIN_DIR, ~(1 << port)};
-    int nb = i2c_write_blocking_until(i2c0, address, byte, sizeof(byte), false, IO_i2c_timeout);
+    int nb = i2c0_write(address, byte, sizeof(byte));
     return return_IO_status(nb);
 }
 
 IO_status_t IO_read_port(uint8_t address, uint8_t* received_data){
     // Send the read command
-    int nb = i2c_write_blocking_until(i2c0, address, IO_READ, (size_t)1, false, IO_i2c_timeout);
+    int nb = i2c0_write(address, IO_READ, (size_t)1);
     // Read the pins state from the IO expander
-    nb = i2c_read_blocking_until(i2c0, address, received_data, (size_t)1, false, IO_i2c_timeout);
+    nb = i2c0_read(address, received_data, (size_t)1);
 
     return return_IO_status(nb);
 }
 
 IO_status_t IO_write_port(uint8_t address, uint8_t port){
     char byte[] = {IO_WRITE, port};
-    int nb = i2c_write_blocking_until(i2c0, address, byte, sizeof(byte), false, IO_i2c_timeout);
+    int nb = i2c0_write(address, byte, sizeof(byte));
 
     return return_IO_status(nb);
 }

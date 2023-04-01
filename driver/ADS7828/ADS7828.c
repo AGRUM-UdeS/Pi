@@ -21,11 +21,11 @@ ADC_status_t ADC_read_pin(uint8_t address, uint8_t pin_to_read, uint16_t* receiv
     ADC_status_t status = ADC_ok;
 
     // Send the command byte to the ADC
-    i2c_write_blocking_until(i2c0, address, &pin_to_read, (size_t)1, false, ADC_i2c_timeout);
+    i2c0_write(address, &pin_to_read, (size_t)1);
     
     // Read the bytes from the ADC
     uint8_t received_byte[ADC_BUF_LEN];
-    int nb = i2c_read_blocking_until(i2c0, address, received_byte, (size_t)ADC_BUF_LEN, false, ADC_i2c_timeout);
+    int nb = i2c0_read(address, received_byte, (size_t)ADC_BUF_LEN);
 
     *received_value = (((received_byte[0] & 0x0F) << 8) + (received_byte[1] & 0xFF));
 

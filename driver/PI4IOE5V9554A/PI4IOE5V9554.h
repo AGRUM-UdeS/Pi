@@ -2,7 +2,7 @@
 #define PI4IOE5V9554_H
 
 #include "pico/stdlib.h"
-#include "hardware/i2c.h"
+#include "wrap_I2C.h"
 #include <stdio.h>
 
 #define IO_address_0      (0x38)

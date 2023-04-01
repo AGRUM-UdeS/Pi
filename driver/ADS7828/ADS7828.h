@@ -3,7 +3,7 @@
 
 #include "pico/stdlib.h"
 
-#include "hardware/i2c.h"
+#include "wrap_I2C.h"
 
 #define ADC_BUF_LEN 2
 
