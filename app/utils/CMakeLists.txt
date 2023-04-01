@@ -1,6 +1,7 @@
 add_library(utils
         led.c
         utils.c
+        test.h
         )
 
 target_link_libraries(utils
