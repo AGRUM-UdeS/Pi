@@ -2,5 +2,5 @@
 
 void develop_test(void)
 {
-    init_irrigation();
+    init_PV();
 }

@@ -27,13 +27,13 @@ void init(void) {
         init_timer();
     }
 
-    develop_test();
-
     // Init everything irrigation related 
-    // init_irrigation();
+    init_irrigation();
+    sleep_ms(10);
 
-    // Init everything solar panels related 
-    // init_PV();
+    // Init everything solar panels related
+    develop_test();
+    // init_PV
 
     // Init every thing energy related
     // init_energy_management();
