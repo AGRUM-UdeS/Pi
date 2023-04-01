@@ -7,5 +7,6 @@
 
 void init_pwm(uint8_t pin);
 void set_pwm_freq(uint8_t pin, uint32_t freq);
+void enable_pwm(uint8_t pin, uint8_t duty_cycle);
 
 #endif
