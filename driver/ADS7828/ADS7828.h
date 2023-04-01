@@ -30,6 +30,16 @@ typedef enum _ADC_status_t{
 #define ADC_read_pin_6 (0xB0)
 #define ADC_read_pin_7 (0xF0)
 
-ADC_status_t ADC_read_pin(uint8_t address, uint8_t pin_to_read, uint16_t* received_value);
+/*! \brief Read ADC raw value
+ *
+ * \param addr Address of the ADC to read from
+ * \param pin_to_read Pin number to read the value from
+ * \param received_value Pointer to store the received value
+ * 
+ * \return Number of bytes written, or 
+ * PICO_ERROR_GENERIC if address not acknowledged, no device present, or 
+ * PICO_ERROR_TIMEOUT if a timeout occurred.
+ */
+ADC_status_t ADC_read_pin(uint8_t addr, uint8_t pin_to_read, uint16_t* received_value);
 
 #endif

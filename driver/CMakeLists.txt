@@ -1,11 +1,11 @@
 # CMakeLists.txt for the driver directory
 
 # Add all driver subdirectories
-# add_subdirectory(ADS7828)
+add_subdirectory(ADS7828)
 # add_subdirectory(OpenMeteo)
-# add_subdirectory(PI4IOE5V9554A)
+add_subdirectory(PI4IOE5V9554A)
 add_subdirectory(secret)
-# add_subdirectory(SHT)
+add_subdirectory(SHT)
 add_subdirectory(ThingsBoard)
 
 add_subdirectory(wrap_MQTT)

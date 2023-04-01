@@ -1,4 +1,4 @@
-#include "PI4IOE5V9554.h"
+#include "PI4IOE5V9554A.h"
 
 #define IO_i2c_timeout make_timeout_time_ms(10)
 

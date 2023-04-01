@@ -1,5 +1,5 @@
-#ifndef PI4IOE5V9554_H
-#define PI4IOE5V9554_H
+#ifndef PI4IOE5V9554A_H
+#define PI4IOE5V9554A_H
 
 #include "pico/stdlib.h"
 #include "wrap_I2C.h"
