@@ -1,5 +1,5 @@
 add_library(energy_management
-energy_management.c
+        energy_management.c
         )
 
 target_link_libraries(energy_management

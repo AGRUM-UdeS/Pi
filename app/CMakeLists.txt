@@ -15,6 +15,7 @@ target_link_libraries(agrum
         pico_stdlib              # for core functionality
         irrigation
         pv_management
+        energy_management
         interface
         hal
         utils

@@ -9,6 +9,7 @@
 #include "interface.h"
 #include "PV_management.h"
 #include "irrigation.h"
+#include "energy_management.h"
 #include "utils.h"
 
 void init(void) {
@@ -25,11 +26,14 @@ void init(void) {
         init_timer();
     }
 
-    // Int everything irrigation related 
+    // Init everything irrigation related 
     init_irrigation();
 
-    // Int everything solar panels related 
+    // Init everything solar panels related 
     init_PV();
+
+    // Init every thing energy related
+    init_energy_management();
 
     // Get weather data
     // printf("\n-------- Getting weather data\n");
