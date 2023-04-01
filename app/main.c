@@ -29,14 +29,12 @@ void init(void) {
 
     // Init everything irrigation related 
     init_irrigation();
-    sleep_ms(10);
 
     // Init everything solar panels related
-    develop_test();
-    // init_PV
+    init_PV();
 
     // Init every thing energy related
-    // init_energy_management();
+    init_energy_management();
 
     // Get weather data
     // printf("\n-------- Getting weather data\n");
