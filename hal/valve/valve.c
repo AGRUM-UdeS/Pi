@@ -12,6 +12,6 @@ void init_valve(void)
     IO_clear_pin(IO_IRRIGATION_ADDRESS, VALVE2_PIN);
 
     // Set valve pin as output on IO expander
-    uint8_t byte = (1 << VALVE1_PIN) | (1 << VALVE2_PIN);
-    IO_set_as_output(IO_IRRIGATION_ADDRESS, byte);
+    IO_set_as_output(IO_IRRIGATION_ADDRESS, VALVE1_PIN);
+    IO_set_as_output(IO_IRRIGATION_ADDRESS, VALVE2_PIN);
 }
