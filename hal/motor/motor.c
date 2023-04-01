@@ -5,8 +5,8 @@
 #define pul_3_pin 14
 #define pul_4_pin 15
 
-#define MAX_DUTY_CYCLE 1000
-#define DUTY_CYCLE 500
+#define ONE_KHZ 1000
+#define DUTY_CYCLE 50
 #define NO_PWM 0
 
 // 71 step / degree
@@ -14,44 +14,27 @@
 #define STEP_PER_DEGREE ((int)(25600/360))
 #define GEARBOX_RATIO (47)
 
-void init_pwm(void) {
+void init_motor(void) {
     // Set pwm pins
-    gpio_set_function(pul_1_pin, GPIO_FUNC_PWM);
-    gpio_set_function(pul_2_pin, GPIO_FUNC_PWM);
-    gpio_set_function(pul_3_pin, GPIO_FUNC_PWM);
-    gpio_set_function(pul_4_pin, GPIO_FUNC_PWM);
+    init_pwm(pul_1_pin);
+    init_pwm(pul_2_pin);
+    init_pwm(pul_3_pin);
+    init_pwm(pul_4_pin);
 
-    // Get which pin is which slice
-    uint8_t slice_1 = pwm_gpio_to_slice_num(pul_1_pin);
-    uint8_t slice_2 = pwm_gpio_to_slice_num(pul_2_pin);
-    uint8_t slice_3 = pwm_gpio_to_slice_num(pul_3_pin);
-    uint8_t slice_4 = pwm_gpio_to_slice_num(pul_4_pin);
-
-    // Get default config
-    pwm_config config = pwm_get_default_config();
-    // Set divider, reduces counter clock to 1 MHz
-    pwm_config_set_clkdiv(&config, 125);
-
-    // Load the configuration into our PWM slice and start the pwm
-    pwm_init(slice_1, &config, true);
-    pwm_init(slice_2, &config, true);
-    pwm_init(slice_3, &config, true);
-    pwm_init(slice_4, &config, true);
-
-    // Set the max pwm duty cycle
-    pwm_set_wrap(slice_1, MAX_DUTY_CYCLE);
-    pwm_set_wrap(slice_2, MAX_DUTY_CYCLE);
-    pwm_set_wrap(slice_3, MAX_DUTY_CYCLE);
-    pwm_set_wrap(slice_4, MAX_DUTY_CYCLE);
+    // Set pwm frequency
+    set_pwm_freq(pul_1_pin ,ONE_KHZ);
+    set_pwm_freq(pul_2_pin ,ONE_KHZ);
+    set_pwm_freq(pul_3_pin ,ONE_KHZ);
+    set_pwm_freq(pul_4_pin ,ONE_KHZ);
 }
 
 int64_t stop_rotation(__unused alarm_id_t id, __unused void *user_data) {
     // Set all duty cycle to 0
     printf("Stop moving!\n");
-    pwm_set_gpio_level(pul_1_pin, NO_PWM);
-    pwm_set_gpio_level(pul_2_pin, NO_PWM);
-    pwm_set_gpio_level(pul_3_pin, NO_PWM);
-    pwm_set_gpio_level(pul_4_pin, NO_PWM);
+    enable_pwm(pul_1_pin, NO_PWM);
+    enable_pwm(pul_2_pin, NO_PWM);
+    enable_pwm(pul_3_pin, NO_PWM);
+    enable_pwm(pul_4_pin, NO_PWM);
     return 0;
 }
 void rotate_pv(uint16_t angle, bool clockwise) {
@@ -64,10 +47,10 @@ void rotate_pv(uint16_t angle, bool clockwise) {
     
     // Start moving the motor
     printf("Start moving!\n");
-    pwm_set_gpio_level(pul_1_pin, DUTY_CYCLE);
-    pwm_set_gpio_level(pul_2_pin, DUTY_CYCLE);
-    pwm_set_gpio_level(pul_3_pin, DUTY_CYCLE);
-    pwm_set_gpio_level(pul_4_pin, DUTY_CYCLE);
+    enable_pwm(pul_1_pin, DUTY_CYCLE);
+    enable_pwm(pul_2_pin, DUTY_CYCLE);
+    enable_pwm(pul_3_pin, DUTY_CYCLE);
+    enable_pwm(pul_4_pin, DUTY_CYCLE);
 
     // Set time to stop moving motor
     add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation, NULL, false);

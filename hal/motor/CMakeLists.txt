@@ -4,7 +4,7 @@ add_library(motor
 
 target_link_libraries(motor
         pico_stdlib              # for core functionality
-        hardware_pwm
+        wrap_PWM
         )
 
 target_include_directories(motor PUBLIC

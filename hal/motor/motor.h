@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
-#include "hardware/pwm.h"
+#include "wrap_PWM.h"
 
 typedef enum motor_state_t {
   MOTOR_ON_CLOCKWISE,
@@ -14,7 +14,7 @@ typedef enum motor_state_t {
   MOTOR_UNKNOWN
 } motor_state_t; 
 
-void init_pwm(void);
+void init_motor(void);
 void rotate_pv(uint16_t angle, bool clockwise);
 
 #endif
