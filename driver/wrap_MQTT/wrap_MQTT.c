@@ -59,7 +59,6 @@ static void mqtt_connection_cb(mqtt_client_t *client,
             void *arg, mqtt_connection_status_t status)
 {
   const struct mqtt_connect_client_info_t* client_info = (const struct mqtt_connect_client_info_t*)arg;
-  LWIP_UNUSED_ARG(client);
 
   LWIP_PLATFORM_DIAG(("MQTT client \"%s\" connection status: %d\n", client_info->client_id, (int)status));
 

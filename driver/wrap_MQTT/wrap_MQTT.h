@@ -1,6 +1,7 @@
 #ifndef MQTT_H
 #define MQTT_H
 
+#include "pico/stdlib.h"
 #include "lwip/apps/mqtt.h"
 #include "lwip/dns.h"
 #include "pico/cyw43_arch.h"

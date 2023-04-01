@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
+#include "pico/stdlib.h"
 
 #include "wrap_MQTT.h"
 
