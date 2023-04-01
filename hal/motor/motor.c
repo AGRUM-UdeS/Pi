@@ -31,10 +31,10 @@ void init_motor(void) {
 int64_t stop_rotation(__unused alarm_id_t id, __unused void *user_data) {
     // Set all duty cycle to 0
     printf("Stop moving!\n");
-    enable_pwm(pul_1_pin, NO_PWM);
-    enable_pwm(pul_2_pin, NO_PWM);
-    enable_pwm(pul_3_pin, NO_PWM);
-    enable_pwm(pul_4_pin, NO_PWM);
+    disable_pwm(pul_1_pin);
+    disable_pwm(pul_2_pin);
+    disable_pwm(pul_3_pin);
+    disable_pwm(pul_4_pin);
     return 0;
 }
 void rotate_pv(uint16_t angle, bool clockwise) {
