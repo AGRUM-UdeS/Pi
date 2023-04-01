@@ -6,6 +6,7 @@ add_library(utils
 
 target_link_libraries(utils
         pico_stdlib              # for core functionality
+        wrap_I2C
         )
 
 target_include_directories(utils PUBLIC

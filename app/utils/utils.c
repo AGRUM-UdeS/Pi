@@ -10,3 +10,7 @@ void usb_delay(uint8_t delay_s)
     }
     printf("\n");
 }
+
+void init_peripherals(void) {
+    init_i2c();
+}

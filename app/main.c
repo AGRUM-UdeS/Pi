@@ -17,6 +17,9 @@ void init(void) {
 
     // Delay to let the developer open Putty
     usb_delay(5);
+
+    // Init usefull peripherals
+    init_peripherals();
     
     if (connect_to_interface() == INTERFACE_OK) {
         init_timer();

@@ -5,6 +5,8 @@ typedef enum {
   VALVE_OPEN,
   VALVE_CLOSED,
   VALVE_UNKNOWN
-} valve_state_t; 
+} valve_state_t;
+
+void init_valve(void);
 
 #endif

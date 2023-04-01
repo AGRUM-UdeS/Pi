@@ -2,6 +2,8 @@
 #define IRRIGATION_H
 
 #include "pump.h"
+#include "valve.h"
+#include "sensors.h"
 
 /*! \brief Init irrigation hardware
  *

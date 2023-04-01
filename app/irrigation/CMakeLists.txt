@@ -5,6 +5,8 @@ add_library(irrigation
 target_link_libraries(irrigation
         pico_stdlib              # for core functionality
         pump
+        valve
+        sensors
         )
 
 target_include_directories(irrigation PUBLIC

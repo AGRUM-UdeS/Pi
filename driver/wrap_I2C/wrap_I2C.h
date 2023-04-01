@@ -7,5 +7,8 @@
 #include "hardware/i2c.h"
 
 void init_i2c(void);
+int32_t i2c0_write(uint8_t addr, const uint8_t *src, size_t len);
+int32_t i2c0_read(uint8_t addr, uint8_t *dst, size_t len);
+
 
 #endif
