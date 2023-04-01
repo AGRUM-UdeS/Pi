@@ -1,7 +1,7 @@
 #ifndef PUMP_H
 #define PUMP_H
 
-#include "wrap_I2C.h"
+#include "PI4IOE5V9554A.h"
 
 typedef enum pump_state_t{
   PUMP_ON,

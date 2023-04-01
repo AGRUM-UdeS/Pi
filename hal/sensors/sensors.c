@@ -6,5 +6,6 @@
 
 void init_water_level_sensors(void)
 {
-    
+    // Do nothing
+    // IO pin are set as input by default
 }

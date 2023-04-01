@@ -1,6 +1,8 @@
 #ifndef VALVE_H
 #define VALVE_H
 
+#include "PI4IOE5V9554A.h"
+
 typedef enum {
   VALVE_OPEN,
   VALVE_CLOSED,

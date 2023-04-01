@@ -4,7 +4,7 @@ add_library(pump
 
 target_link_libraries(pump
         pico_stdlib              # for core functionality
-        wrap_I2C
+        PI4IOE5V9554A
         )
 
 target_include_directories(pump PUBLIC

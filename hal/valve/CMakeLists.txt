@@ -4,7 +4,7 @@ add_library(valve
 
 target_link_libraries(valve
         pico_stdlib              # for core functionality
-        hardware_i2c
+        PI4IOE5V9554A
         hardware_pwm
         )
 
