@@ -1,12 +1,14 @@
 add_library(utils
         led.c
         utils.c
-        test.h
+        test.c
         )
 
 target_link_libraries(utils
         pico_stdlib              # for core functionality
-        wrap_I2C
+        irrigation
+        pv_management
+        energy_management
         )
 
 target_include_directories(utils PUBLIC

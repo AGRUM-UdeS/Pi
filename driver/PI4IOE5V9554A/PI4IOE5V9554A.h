@@ -25,26 +25,15 @@ typedef enum _IO_status_t{
   IO_error
 } IO_status_t;
 
-/*! \brief Set pin bit set as output
+/*! \brief Set pin as output
  *
  * \note Pin are input by default
  *
  * \param address address of the i2c chip
- * \param port pin to set as output. ex: 0x13 (0b00010011) will set pin 
- * 4, 1 and 0 as output
+ * \param port pin to set as output. (0 to 7)
  * \return IO_ok if everything good, IO_timeout if timeout and IO_error if other errors
  */
 IO_status_t IO_set_as_output(uint8_t address, uint8_t port);
-
-/*! \brief Read the input register
- *
- * \note Pin are read even if they are set as output
- *
- * \param address address of the i2c chip
- * \param received_data Used to store all 8 pins states
- * \return IO_ok if everything good, IO_timeout if timeout and IO_error if other errors
- */
-IO_status_t IO_read_port(uint8_t address, uint8_t* received_data);
 
 /*! \brief Read one pin state
  *
@@ -56,16 +45,6 @@ IO_status_t IO_read_port(uint8_t address, uint8_t* received_data);
  * \return IO_ok if everything good, IO_timeout if timeout and IO_error if other errors
  */
 IO_status_t IO_read_pin(uint8_t address, uint8_t pin, uint8_t* value);
-
-/*! \brief Write to the output register
- *
- * \note Pins first need to be set as output
- *
- * \param address address of the i2c chip
- * \param port Value to write to the output register
- * \return IO_ok if everything good, IO_timeout if timeout and IO_error if other errors
- */
-IO_status_t IO_write_port(uint8_t address, uint8_t port);
 
 /*! \brief Set one pin to high
  *

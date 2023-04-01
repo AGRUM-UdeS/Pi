@@ -11,6 +11,7 @@
 #include "irrigation.h"
 #include "energy_management.h"
 #include "utils.h"
+#include "test.h"
 
 void init(void) {
     // Init RP2040 peripherals
@@ -26,14 +27,16 @@ void init(void) {
         init_timer();
     }
 
+    develop_test();
+
     // Init everything irrigation related 
-    init_irrigation();
+    // init_irrigation();
 
     // Init everything solar panels related 
-    init_PV();
+    // init_PV();
 
     // Init every thing energy related
-    init_energy_management();
+    // init_energy_management();
 
     // Get weather data
     // printf("\n-------- Getting weather data\n");

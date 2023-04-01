@@ -12,6 +12,6 @@ void init_pump(void)
     IO_clear_pin(IO_IRRIGATION_ADDRESS, PUMP2_PIN);
     
     // Set pump pin as output on IO expander
-    uint8_t byte = (1 << PUMP1_PIN) | (1 << PUMP2_PIN);
-    IO_set_as_output(IO_IRRIGATION_ADDRESS, byte);
+    IO_set_as_output(IO_IRRIGATION_ADDRESS, PUMP1_PIN);
+    IO_set_as_output(IO_IRRIGATION_ADDRESS, PUMP2_PIN);
 }
