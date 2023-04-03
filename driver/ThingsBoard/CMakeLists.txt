@@ -1,0 +1,15 @@
+add_library(ThingsBoard
+        ThingsBoard.c
+        )
+
+target_link_libraries(ThingsBoard
+        pico_stdlib              # for core functionality
+        pico_cyw43_arch_lwip_threadsafe_background
+
+        wrap_MQTT
+        )
+
+target_include_directories(ThingsBoard PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}
+        )
+
