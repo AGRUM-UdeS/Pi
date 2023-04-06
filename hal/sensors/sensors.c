@@ -63,3 +63,20 @@ float get_PV_current(uint8_t PV_index)
     // Convert voltage to PV current
     return signal2current(adc_voltage);
 }
+
+void read_temp(uint8_t addr)
+{
+    printf("\nAttempt to read temp");
+    uint16_t buffer = 0x0024;
+    i2c0_write(addr, &buffer, sizeof(buffer));
+    sleep_ms(1000);
+    char recept[6];
+    i2c0_read(addr, recept, 6);
+
+
+    float cTemp = ((((recept[0] * 256.0) + recept[1]) * 175) / 65535.0) - 45;
+    float fTemp = (cTemp * 1.8) + 32;
+    float humidity = ((((recept[3] * 256.0) + recept[4]) * 100) / 65535.0);
+    printf("\nAir Temperature under panel (Celsius): %f",cTemp);
+    printf("\nAir Humidity under panel (%): %f",humidity);
+}

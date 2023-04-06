@@ -23,9 +23,9 @@ void init(void) {
     // Init usefull peripherals
     init_peripherals();
     
-    if (connect_to_interface() == INTERFACE_OK) {
-        init_timer();
-    }
+    // if (connect_to_interface() == INTERFACE_OK) {
+    //     init_timer();
+    // }
 
     // Init everything irrigation related 
     init_irrigation();
@@ -46,10 +46,10 @@ void init(void) {
 int main() {
     
     init();
-
+    
     while (true) {
-        //develop_test();
-        sleep_ms(1000);
+        develop_test();
+        sleep_ms(10000);
 
     }
     return 0;

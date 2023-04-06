@@ -29,4 +29,11 @@ void init_motor(void);
  */
 void rotate_pv(uint16_t angle, bool clockwise);
 
+void rotate_single_pv(int ind_motor, uint16_t angle, bool clockwise);
+
+static int64_t stop_rotation_mot1(__unused alarm_id_t id, __unused void *user_data);
+static int64_t stop_rotation_mot2(__unused alarm_id_t id, __unused void *user_data);
+static int64_t stop_rotation_mot3(__unused alarm_id_t id, __unused void *user_data);
+static int64_t stop_rotation_mot4(__unused alarm_id_t id, __unused void *user_data);
+
 #endif

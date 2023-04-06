@@ -7,6 +7,7 @@ target_link_libraries(sensors
         ADS7828
         PI4IOE5V9554A
         SHT
+        wrap_I2C
         )
 
 target_include_directories(sensors PUBLIC

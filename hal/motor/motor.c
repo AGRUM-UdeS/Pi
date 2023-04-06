@@ -113,3 +113,110 @@ void rotate_pv(uint16_t angle, bool clockwise)
     add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation, NULL, false);
 }
 
+void rotate_single_pv(int ind_motor, uint16_t angle, bool clockwise)
+{
+    if (clockwise) 
+    {
+        if (ind_motor == 1)
+        {
+            IO_clear_pin(IO_MOTOR_ADDRESS, DIR_1_PIN);
+        }
+        else if (ind_motor == 2)
+        {
+            IO_clear_pin(IO_MOTOR_ADDRESS, DIR_2_PIN);
+        }
+        else if (ind_motor == 3)
+        {
+            IO_clear_pin(IO_MOTOR_ADDRESS, DIR_3_PIN);
+        }
+        else
+        {
+            IO_clear_pin(IO_MOTOR_ADDRESS, DIR_4_PIN);
+        }
+    } 
+    else 
+    {
+        if (ind_motor == 1)
+        {
+            IO_set_pin(IO_MOTOR_ADDRESS, DIR_1_PIN);
+        }
+        else if (ind_motor == 2)
+        {
+            IO_set_pin(IO_MOTOR_ADDRESS, DIR_2_PIN);
+        }
+        else if (ind_motor == 3)
+        {
+            IO_set_pin(IO_MOTOR_ADDRESS, DIR_3_PIN);
+        }
+        else
+        {
+            IO_set_pin(IO_MOTOR_ADDRESS, DIR_4_PIN);
+        }
+    }
+    
+    // Start moving the motor
+    printf("Start moving!\n");
+    if (ind_motor == 1)
+    {
+        enable_pwm(PUL1_PIN, DUTY_CYCLE);
+    }
+    else if (ind_motor == 2)
+    {
+        enable_pwm(PUL2_PIN, DUTY_CYCLE);
+    }
+    else if (ind_motor == 3)
+    {
+        enable_pwm(PUL3_PIN, DUTY_CYCLE);
+    }
+    else
+    {
+        enable_pwm(PUL4_PIN, DUTY_CYCLE);
+    }
+       
+    // Set time to stop moving motor
+    if (ind_motor == 1)
+    {
+        add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation_mot1, NULL, false);
+    }
+    else if (ind_motor == 2)
+    {
+        add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation_mot2, NULL, false);
+    }
+    else if (ind_motor == 3)
+    {
+        add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation_mot3, NULL, false);
+    }
+    else
+    {
+        add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation_mot4, NULL, false);
+    }
+}
+
+static int64_t stop_rotation_mot1(__unused alarm_id_t id, __unused void *user_data)
+{
+    // Set on panel duty cycle to 0
+    printf("Stop moving motor 1!\n");
+    disable_pwm(PUL1_PIN);
+}
+
+static int64_t stop_rotation_mot2(__unused alarm_id_t id, __unused void *user_data)
+{
+    // Set on panel duty cycle to 0
+    printf("Stop moving motor 2!\n");
+    disable_pwm(PUL2_PIN);
+}
+
+static int64_t stop_rotation_mot3(__unused alarm_id_t id, __unused void *user_data)
+{
+    // Set on panel duty cycle to 0
+    printf("Stop moving motor 3!\n");
+    disable_pwm(PUL3_PIN);
+}
+
+static int64_t stop_rotation_mot4(__unused alarm_id_t id, __unused void *user_data)
+{
+    // Set on panel duty cycle to 0
+    printf("Stop moving motor 4!\n");
+    disable_pwm(PUL4_PIN);
+}
+

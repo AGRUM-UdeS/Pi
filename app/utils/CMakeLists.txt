@@ -9,6 +9,8 @@ target_link_libraries(utils
         irrigation
         pv_management
         energy_management
+        PI4IOE5V9554A
+        sensors
         )
 
 target_include_directories(utils PUBLIC
