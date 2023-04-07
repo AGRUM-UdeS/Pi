@@ -2,20 +2,43 @@
 
 #define IO_MOTOR_ADDRESS   (IO_address_2)
 
-#define PUL1_PIN    12
-#define PUL2_PIN    13
-#define PUL3_PIN    14
-#define PUL4_PIN    15
+#define MOTOR_NUM    4
+
+#define PUL_1_PIN    12
+#define PUL_2_PIN    13
+#define PUL_3_PIN    14
+#define PUL_4_PIN    15
+
+const uint8_t PUL_PIN[] = {
+    PUL_1_PIN,
+    PUL_2_PIN,
+    PUL_3_PIN,
+    PUL_4_PIN
+};
 
 #define DIR_1_PIN   7
 #define DIR_2_PIN   5
 #define DIR_3_PIN   2
 #define DIR_4_PIN   0
 
+const uint8_t DIR_PIN[] = {
+    DIR_1_PIN,
+    DIR_2_PIN,
+    DIR_3_PIN,
+    DIR_4_PIN
+};
+
 #define ENA_1_PIN   6
 #define ENA_2_PIN   4
 #define ENA_3_PIN   3
 #define ENA_4_PIN   1
+
+const uint8_t ENA_PIN[] = {
+    ENA_1_PIN,
+    ENA_2_PIN,
+    ENA_3_PIN,
+    ENA_4_PIN
+};
 
 #define ONE_KHZ 1000
 #define DUTY_CYCLE 50
@@ -26,90 +49,131 @@
 #define STEP_PER_DEGREE ((int)(25600/360))
 #define GEARBOX_RATIO (47)
 
-static void init_pul_pins(void)
+static motor_state_t init_pul_pins(void)
 {
-    // Set pwm pins
-    init_pwm(PUL1_PIN);
-    init_pwm(PUL2_PIN);
-    init_pwm(PUL3_PIN);
-    init_pwm(PUL4_PIN);
-
-    // Set pwm frequency
-    set_pwm_freq(PUL1_PIN ,ONE_KHZ);
-    set_pwm_freq(PUL2_PIN ,ONE_KHZ);
-    set_pwm_freq(PUL3_PIN ,ONE_KHZ);
-    set_pwm_freq(PUL4_PIN ,ONE_KHZ);
+    for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
+        // Set pwm pins
+        init_pwm(PUL_PIN[i]);
+        // Set pwm frequency
+        set_pwm_freq(PUL_PIN[i] ,ONE_KHZ);
+    }
+    return MOTOR_OK;
 }
 
-static void init_dir_pins(void)
+static motor_state_t init_dir_pins(void)
 {
-    // No need to init a state here
-    IO_clear_pin(IO_MOTOR_ADDRESS, DIR_1_PIN);
-    IO_clear_pin(IO_MOTOR_ADDRESS, DIR_2_PIN);
-    IO_clear_pin(IO_MOTOR_ADDRESS, DIR_3_PIN);
-    IO_clear_pin(IO_MOTOR_ADDRESS, DIR_4_PIN);
-    // Set dir pins as output on IO expander
-    IO_set_as_output(IO_MOTOR_ADDRESS, DIR_1_PIN);
-    IO_set_as_output(IO_MOTOR_ADDRESS, DIR_2_PIN);
-    IO_set_as_output(IO_MOTOR_ADDRESS, DIR_3_PIN);
-    IO_set_as_output(IO_MOTOR_ADDRESS, DIR_4_PIN);
+    motor_state_t status = MOTOR_OK;
+
+    for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
+        // No need to init a state here, but hey, we're safe
+        if (IO_clear_pin(IO_MOTOR_ADDRESS, DIR_PIN[i]) != IO_ok){
+            status = MOTOR_ERROR;
+        }
+
+        // Set dir pins as output on IO expander
+        if (IO_set_as_output(IO_MOTOR_ADDRESS, DIR_PIN[i]) != IO_ok){
+            status = MOTOR_ERROR;
+        }
+    }
+    return status;
 }
 
-static void init_ena_pins(void)
+static motor_state_t init_ena_pins(void)
 {
-    // Make sure motor drives are enabled
-    IO_set_pin(IO_MOTOR_ADDRESS, ENA_1_PIN);
-    IO_set_pin(IO_MOTOR_ADDRESS, ENA_2_PIN);
-    IO_set_pin(IO_MOTOR_ADDRESS, ENA_3_PIN);
-    IO_set_pin(IO_MOTOR_ADDRESS, ENA_4_PIN);
+    motor_state_t status = MOTOR_OK;
 
-    // Set enable pins as output on IO expander
-    IO_set_as_output(IO_MOTOR_ADDRESS, ENA_1_PIN);
-    IO_set_as_output(IO_MOTOR_ADDRESS, ENA_2_PIN);
-    IO_set_as_output(IO_MOTOR_ADDRESS, ENA_3_PIN);
-    IO_set_as_output(IO_MOTOR_ADDRESS, ENA_4_PIN);
+    for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
+        // Make sure motor drives are enabled
+        if (IO_set_pin(IO_MOTOR_ADDRESS, ENA_PIN[i]) != IO_ok){
+            status = MOTOR_ERROR;
+        }
+
+        // Set enable pins as output on IO expander
+        if (IO_set_as_output(IO_MOTOR_ADDRESS, ENA_PIN[i]) != IO_ok){
+            status = MOTOR_ERROR;
+        }
+    }
+    return status;
 }
 
-void init_motor(void)
+motor_state_t init_motor(void)
 {
+    motor_state_t status = MOTOR_OK;
     // Init pins to control motor drives
-    init_pul_pins();
-    init_dir_pins();
-    init_ena_pins();
+    if (init_pul_pins() != MOTOR_OK) {
+        status = MOTOR_ERROR;
+    }
+    if (init_dir_pins() != MOTOR_OK) {
+        status = MOTOR_ERROR;
+    }
+    if (init_ena_pins() != MOTOR_OK) {
+        status = MOTOR_ERROR;
+    }
+    return status;
 }
 
-static int64_t stop_rotation(__unused alarm_id_t id, __unused void *user_data)
+static int64_t stop_rotation(__unused alarm_id_t id, void *user_data)
 {
-    // Set all duty cycle to 0
-    printf("Stop moving!\n");
-    disable_pwm(PUL1_PIN);
-    disable_pwm(PUL2_PIN);
-    disable_pwm(PUL3_PIN);
-    disable_pwm(PUL4_PIN);
+    if (user_data == NULL) {
+        // Set all duty cycle to 0
+        printf("Stop moving!\n");
+        for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
+            disable_pwm(PUL_PIN[i]);
+        }
+    } else {
+        // Tell the code user_data is a uint8_t ptr and dereference it
+        disable_pwm(PUL_PIN[*((uint8_t*)(user_data))]);
+    }
+
     return 0;
 }
-void rotate_pv(uint16_t angle, bool clockwise)
+
+motor_state_t rotate_all_pv(uint16_t angle, bool clockwise)
 {
     if (clockwise) {
-        IO_clear_pin(IO_MOTOR_ADDRESS, DIR_1_PIN);
-        IO_clear_pin(IO_MOTOR_ADDRESS, DIR_2_PIN);
-        IO_clear_pin(IO_MOTOR_ADDRESS, DIR_3_PIN);
-        IO_clear_pin(IO_MOTOR_ADDRESS, DIR_4_PIN);
+        for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
+            IO_clear_pin(IO_MOTOR_ADDRESS, DIR_PIN[i]);
+        }
     } else {
-        IO_set_pin(IO_MOTOR_ADDRESS, DIR_1_PIN);
-        IO_set_pin(IO_MOTOR_ADDRESS, DIR_2_PIN);
-        IO_set_pin(IO_MOTOR_ADDRESS, DIR_3_PIN);
-        IO_set_pin(IO_MOTOR_ADDRESS, DIR_4_PIN);
+        for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
+            IO_set_pin(IO_MOTOR_ADDRESS, DIR_PIN[i]);
+        }
     }
     
     // Start moving the motor
     printf("Start moving!\n");
-    enable_pwm(PUL1_PIN, DUTY_CYCLE);
-    enable_pwm(PUL2_PIN, DUTY_CYCLE);
-    enable_pwm(PUL3_PIN, DUTY_CYCLE);
-    enable_pwm(PUL4_PIN, DUTY_CYCLE);
+    for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
+        enable_pwm(PUL_PIN[i], DUTY_CYCLE);
+    }
 
     // Set time to stop moving motor
     add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation, NULL, false);
+}
+
+motor_state_t rotate_single_pv(uint8_t ind_motor, uint16_t angle, bool clockwise)
+{
+    motor_state_t status = MOTOR_OK;
+    if (clockwise) 
+    {
+        if (IO_clear_pin(IO_MOTOR_ADDRESS, DIR_PIN[ind_motor]) != IO_ok) {
+            status = MOTOR_ERROR;
+        }
+    } 
+    else 
+    {
+        if (IO_set_pin(IO_MOTOR_ADDRESS, DIR_PIN[ind_motor]) != IO_ok) {
+            status = MOTOR_ERROR;
+        }
+    }
+
+    // Start moving the motor
+    printf("Start moving!\n");
+    enable_pwm(PUL_PIN[ind_motor], DUTY_CYCLE);
+
+    // Set time to stop moving motor
+    uint8_t motor_to_stop = ind_motor;
+    add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation, (void*)(&motor_to_stop), false);
+    
+    return status;
 }
 
