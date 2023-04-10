@@ -116,13 +116,15 @@ static int64_t stop_rotation(__unused alarm_id_t id, void *user_data)
 {
     if (user_data == NULL) {
         // Set all duty cycle to 0
-        printf("Stop moving!\n");
+        printf("Stop moving (all)!\n");
         for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
             disable_pwm(PUL_PIN[i]);
         }
     } else {
         // Tell the code user_data is a uint8_t ptr and dereference it
-        disable_pwm(PUL_PIN[*((uint8_t*)(user_data))]);
+        uint8_t moto_index = *((uint8_t*)(user_data));
+        printf("Stop moving (%d)!\n", moto_index);
+        disable_pwm(PUL_PIN[moto_index]);
     }
 
     return 0;
@@ -141,7 +143,7 @@ motor_state_t rotate_all_pv(uint16_t angle, bool clockwise)
     }
     
     // Start moving the motor
-    printf("Start moving!\n");
+    printf("Start moving (all)!\n");
     for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
         enable_pwm(PUL_PIN[i], DUTY_CYCLE);
     }
@@ -167,7 +169,7 @@ motor_state_t rotate_single_pv(uint8_t ind_motor, uint16_t angle, bool clockwise
     }
 
     // Start moving the motor
-    printf("Start moving!\n");
+    printf("Start moving (%d)!\n", ind_motor);
     enable_pwm(PUL_PIN[ind_motor], DUTY_CYCLE);
 
     // Set time to stop moving motor
