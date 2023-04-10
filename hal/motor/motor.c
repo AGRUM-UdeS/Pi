@@ -40,6 +40,8 @@ const uint8_t ENA_PIN[] = {
     ENA_4_PIN
 };
 
+static uint8_t motor_to_stop[MOTOR_NUM];
+
 #define ONE_KHZ 1000
 #define DUTY_CYCLE 50
 #define NO_PWM 0
@@ -122,9 +124,9 @@ static int64_t stop_rotation(__unused alarm_id_t id, void *user_data)
         }
     } else {
         // Tell the code user_data is a uint8_t ptr and dereference it
-        uint8_t moto_index = *((uint8_t*)(user_data));
-        printf("Stop moving (%d)!\n", moto_index);
-        disable_pwm(PUL_PIN[moto_index]);
+        uint8_t motor_index = *((uint8_t*)(user_data));
+        printf("Stop moving (%d)!\n", motor_index);
+        disable_pwm(PUL_PIN[motor_index]);
     }
 
     return 0;
@@ -154,6 +156,11 @@ motor_state_t rotate_all_pv(uint16_t angle, bool clockwise)
 
 motor_state_t rotate_single_pv(uint8_t ind_motor, uint16_t angle, bool clockwise)
 {
+    if (ind_motor >= MOTOR_NUM) {
+        printf("Wrong motor index (%d)", ind_motor);
+        return MOTOR_ERROR;
+    }
+
     motor_state_t status = MOTOR_OK;
     if (clockwise) 
     {
@@ -173,8 +180,8 @@ motor_state_t rotate_single_pv(uint8_t ind_motor, uint16_t angle, bool clockwise
     enable_pwm(PUL_PIN[ind_motor], DUTY_CYCLE);
 
     // Set time to stop moving motor
-    uint8_t motor_to_stop = ind_motor;
-    add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation, (void*)(&motor_to_stop), false);
+    motor_to_stop[ind_motor] = ind_motor;
+    add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation, &(motor_to_stop[ind_motor]), false);
     
     return status;
 }
