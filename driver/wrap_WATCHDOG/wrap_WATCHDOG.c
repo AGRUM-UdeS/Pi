@@ -2,10 +2,13 @@
 
 #define WATCHDOG_TIMEOUT_MS 200
 
+static bool reboot_by_watchdog = false;
+
 void init_watchdog(void)
 {
     if (watchdog_caused_reboot()) {
-        printf("Watchdog reboot!\n");
+        reboot_by_watchdog = true;
+        printf("Reboot by watchdog!\n");
     }
 
     watchdog_enable(WATCHDOG_TIMEOUT_MS, 1);

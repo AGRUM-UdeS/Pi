@@ -11,8 +11,6 @@ uint8_t init_timer(void)
     if (init_RTC(time) != RTC_OK)
         return TIMING_FAILED;
 
-    init_watchdog();
-
     return TIMING_OK;
 }
 
