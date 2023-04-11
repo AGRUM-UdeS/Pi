@@ -20,7 +20,7 @@ void init(void) {
     // Delay to let the developer open Putty
     usb_delay(5);
     
-    if (connect_to_interface() == INTERFACE_OK) {
+    if (connect_to_interface() == INTERFACE_CONNECTED) {
         init_timer();
     }
 
@@ -49,6 +49,7 @@ int main() {
 
     while (true) {
         house_keeping();
+        interface_sm();
         //develop_test();
         sleep_ms(100);
 
