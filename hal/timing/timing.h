@@ -21,7 +21,7 @@ uint8_t init_timer(void);
 
 /*! \brief Some house keeping task. (Watchdog, interface ping, etc)
  * 
- * \param init True to init the watchdog, false to feed only
+ * \param init True for init, false during normal operation
  */
 void house_keeping(bool init);
 
