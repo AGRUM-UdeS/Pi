@@ -10,6 +10,8 @@ interface_status_t connect_to_interface(void)
     if (ThingsBoard_connect() != THINGSBOARD_CONNECTED)
         return INTERFACE_ERROR;
 
+    ThingsBoard_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
+
     return INTERFACE_OK;
 }
 

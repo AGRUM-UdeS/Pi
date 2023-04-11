@@ -8,6 +8,10 @@
 
 #include "wrap_MQTT.h"
 
+#define PI_STATUS_TOPIC         ("Pi status")
+#define PI_STATUS_CONNECTED     (0.1)
+#define PI_STATUS_PING          (0.2)
+
 typedef enum _thingsboard_state_t{
     THINGSBOARD_IDLE,
     THINGSBOARD_SEND_DATA,
