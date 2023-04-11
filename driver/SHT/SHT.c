@@ -1,6 +1,5 @@
 #include "SHT.h"
 
-const absolute_time_t ABSOLUTE_TIME_INITIALIZED_VAR(SHT_i2c_timeout, 10000); // 10 ms
 // #define STH1_BUF_LEN 4
 #define STH3_BUF_LEN 6
 
@@ -11,7 +10,7 @@ SHT_status_t SHT3_read_temp_humidity(float* temp, float* humidity) {
     if (i2c0_write(SHT3_address, buffer, sizeof(buffer)) != sizeof(buffer)) {
         rv = SHT_error;
     }
-    sleep_ms(15);
+    sleep_ms(15); // Based on max measure time in datasheet
     uint8_t recept[STH3_BUF_LEN];
     if (i2c0_read(SHT3_address, recept, STH3_BUF_LEN) != STH3_BUF_LEN) {
         rv = SHT_error;
@@ -20,8 +19,6 @@ SHT_status_t SHT3_read_temp_humidity(float* temp, float* humidity) {
     float cTemp = ((((recept[0] * 256.0) + recept[1]) * 175) / 65535.0) - 45;
     *temp = (cTemp * 1.8) + 32;
     *humidity = ((((recept[3] * 256.0) + recept[4]) * 100) / 65535.0);
-    // printf("\nAir Temperature under panel (Celsius): %f",cTemp);
-    // printf("\nAir Humidity under panel (%): %f",humidity);
 
     return rv;
 }
