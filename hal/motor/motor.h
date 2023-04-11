@@ -8,6 +8,8 @@
 #include "wrap_PWM.h"
 
 typedef enum motor_state_t {
+  MOTOR_OK,
+  MOTOR_ERROR,
   MOTOR_ON_CLOCKWISE,
   MOTOR_ON_COUNTERCLOCKWISE,
   MOTOR_OFF,
@@ -16,17 +18,33 @@ typedef enum motor_state_t {
 } motor_state_t;
 
 /*! \brief Init pin used for the motor drive. (Pul, dir, en)
+ *  \return MOTOR_OK if init was good, MOTOR_ERROR if not
  */
-void init_motor(void);
+motor_state_t init_motor(void);
 
-/*! \brief Rotate the PV by a set amount of angle in degree,
+/*! \brief Rotate all the PV by a set amount of angle in degree,
  * clockise or counterclockwise.
  *
  * \note Counter clockwise follow the sun.
  *
  * \param angle Number of degree to move the panels
- * \param port Direction to move the panels
+ * \param clockwise Direction to move the panels
+ * 
+ * \return MOTOR_OK if init was good, MOTOR_ERROR if not
  */
-void rotate_pv(uint16_t angle, bool clockwise);
+motor_state_t rotate_all_pv(uint16_t angle, bool clockwise);
+
+/*! \brief Rotate only one PV by a set amount of angle in degree,
+ * clockise or counterclockwise.
+ *
+ * \note Counter clockwise follow the sun.
+ *
+ * \param ind_motor Index of the motor to move 
+ * \param angle Number of degree to move the panels
+ * \param clockwise Direction to move the panels
+ * 
+ * \return MOTOR_OK if init was good, MOTOR_ERROR if not
+ */
+motor_state_t rotate_single_pv(uint8_t ind_motor, uint16_t angle, bool clockwise);
 
 #endif
