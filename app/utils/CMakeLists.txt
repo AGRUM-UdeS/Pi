@@ -10,6 +10,8 @@ target_link_libraries(utils
         pv_management
         energy_management
         sensors
+        interface
+        wrap_WATCHDOG
         )
 
 target_include_directories(utils PUBLIC

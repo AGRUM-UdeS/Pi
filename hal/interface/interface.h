@@ -5,6 +5,10 @@
 #include "ThingsBoard.h"
 #include "timing.h"
 
+#define PI_STATUS_TOPIC         ("Pi status")
+#define PI_STATUS_CONNECTED     (0.1)
+#define PI_STATUS_PING          (0.2)
+
 typedef enum _interface_status_t{
     INTERFACE_OK,
     INTERFACE_DISCONNECTED,
