@@ -11,7 +11,18 @@ typedef enum _timing_status_t{
     TIMING_FAILED
 } timing_status_t;
 
+/*! \brief Get date&time from the web and init real time clock
+ *
+ * \note Need wifi to do so
+ * 
+ * \return TIMING_OK if init was good, TIMING_FAILED if not
+ */
 uint8_t init_timer(void);
+
+/*! \brief Some house keeping task. (Watchdog, interface ping, etc)
+ * 
+ * \param init True to init the watchdog, false to feed only
+ */
 void house_keeping(bool init);
 
 #endif
