@@ -6,6 +6,7 @@
 #include "wrap_I2C.h"
 #include "wrap_WATCHDOG.h"
 #include "interface.h"
+#include "led.h"
 
 /*! \brief Blocking delay to let the developper open a terminal
  * 

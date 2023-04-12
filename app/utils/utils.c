@@ -28,6 +28,7 @@ void init_peripherals(void)
     if (!add_repeating_timer_ms(-30000, ping_callback, NULL, &ping_timer)) {
         printf("Failed to add ping timer\n");
     }
+    init_heartbeat_led();
 }
 
 void house_keeping(void)
