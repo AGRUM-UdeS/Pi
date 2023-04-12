@@ -11,6 +11,22 @@ void init_water_level_sensors(void)
     // IO pin are set as input by default
 }
 
+SHT_measure_t read_temp_humidity(void)
+{
+    float temp, humidity;
+    SHT_measure_t meas;
+    if (SHT3_read_temp_humidity(&temp, &humidity) != SHT_ok) {
+        meas.meas_ok = false;
+        return meas;
+    }
+
+    meas.temp = temp;
+    meas.humidity = humidity;
+    meas.meas_ok = true;
+
+    return meas;
+}
+
 /********** Energy sensors **********/
 #include "ADS7828.h"
 #define ADC_ENERGY_ADDRESS   (ADC_address_0)
