@@ -6,8 +6,8 @@
 #include "timing.h"
 
 #define PI_STATUS_TOPIC         ("Pi status")
-#define PI_STATUS_CONNECTED     (0.1)
-#define PI_STATUS_PING          (0.2)
+#define PI_STATUS_CONNECTED     (2)
+#define PI_STATUS_PING          (1)
 
 typedef enum _interface_status_t{
     INTERFACE_CONNECTED,
