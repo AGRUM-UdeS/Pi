@@ -1,5 +1,10 @@
 #include "interface.h"
 
+bool interface_publish(unsigned char *topic, float value)
+{
+    ThingsBoard_publish(topic, value);
+}
+
 interface_status_t connect_to_interface(void)
 {
     /* Establish wifi connection
