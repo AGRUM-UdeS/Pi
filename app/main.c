@@ -51,7 +51,7 @@ int main() {
         house_keeping();
         interface_sm();
         //develop_test();
-        sleep_ms(100);
+        sleep_ms(10);
 
     }
     return 0;

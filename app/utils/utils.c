@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#define PING_PERIOD_MS  30000
+
 static repeating_timer_t ping_timer;
 static bool ping_interface_flag = false;
 
@@ -25,10 +27,10 @@ void init_peripherals(void)
     init_i2c();
     init_watchdog();
     // negative timeout means exact delay (rather than delay between callbacks)
-    if (!add_repeating_timer_ms(-30000, ping_callback, NULL, &ping_timer)) {
+    if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
         printf("Failed to add ping timer\n");
     }
-    init_heartbeat_led();
+    // init_heartbeat_led();
 }
 
 void house_keeping(void)
