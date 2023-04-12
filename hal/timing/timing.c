@@ -1,6 +1,7 @@
 #include "timing.h"
 
-uint8_t init_timer(void) {
+uint8_t init_timer(void)
+{
     printf("\n----- Getting current date & time -----\n");
     // Get the time online
     datetime_t time;
@@ -11,4 +12,17 @@ uint8_t init_timer(void) {
         return TIMING_FAILED;
 
     return TIMING_OK;
+}
+
+void house_keeping(bool init)
+{
+    if (init) {
+        init_watchdog();
+    }
+    feed_watchdog();
+
+    if (interface_is_connected()) {
+        // Send update to the interface
+        
+    }
 }

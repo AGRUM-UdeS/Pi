@@ -27,6 +27,9 @@ void init(void) {
         init_timer();
     }
 
+    // Start housekeeping
+    house_keeping(true);
+
     // Init everything irrigation related 
     init_irrigation();
 
@@ -48,8 +51,9 @@ int main() {
     init();
 
     while (true) {
+        house_keeping(false);
         develop_test();
-        sleep_ms(1000);
+        sleep_ms(100);
 
     }
     return 0;

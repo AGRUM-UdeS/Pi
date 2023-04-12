@@ -3,9 +3,11 @@ add_library(timing
         )
 
 target_link_libraries(timing
+        interface
         hardware_rtc
         wrap_RTC
         wrap_NTP
+        wrap_WATCHDOG
         )
 
 target_include_directories(timing PUBLIC
