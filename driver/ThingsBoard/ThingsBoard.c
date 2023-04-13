@@ -2,9 +2,10 @@
 
 static mqtt_client_t* mqtt_client;
 
-#define CONNECTION_TIMEOUT_S 10
-#define KEEP_ALIVE_TIMEOUT 3600
-#define THINGSBOARD_HOSTNAME "thingsboard.cloud"
+#define CONNECTION_TIMEOUT_MS     200
+#define CONNECTION_TEST_DELAY_MS  5
+#define KEEP_ALIVE_TIMEOUT        3600
+#define THINGSBOARD_HOSTNAME      "thingsboard.cloud"
 
 static const struct mqtt_connect_client_info_t mqtt_client_info =
 {
@@ -23,12 +24,13 @@ thingsboard_state_t ThingsBoard_connect(void) {
   printf("\n----- Establishing ThingsBoard connection -----\n");
   err_t connect_status = mqtt_connect(&mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
 
-  for (size_t i = 0; i < CONNECTION_TIMEOUT_S; i++)
+  for (size_t i = 0; i < CONNECTION_TIMEOUT_MS/CONNECTION_TEST_DELAY_MS; i++)
   {
-    if (ThingsBoard_is_connected())
+    if (ThingsBoard_is_connected()) {
+      printf("Connected after %d ms\n", i*CONNECTION_TEST_DELAY_MS);
       return THINGSBOARD_CONNECTED;
-
-    sleep_ms(1000);
+    }
+    sleep_ms(CONNECTION_TEST_DELAY_MS);
   }
   return THINGSBOARD_FAILED;
 }
@@ -72,42 +74,4 @@ bool ThingsBoard_is_connected(void) {
     } else {
         return false;
     }
-}
-
-thingsboard_state_t thingsboard_sm(void) {
-    // thingsboard_state represente the state of the state machine
-    static thingsboard_state_t thingsboard_state = THINGSBOARD_IDLE;
-
-    // thingsboard_status represent the status of
-    // the connection to thingsboard
-    static thingsboard_status_t thingsboard_status;
-
-    switch (thingsboard_state) {
-    case THINGSBOARD_IDLE:
-      if (!ThingsBoard_is_connected()) {
-        thingsboard_state = THINGSBOARD_CONNECTING;
-      }
-
-        break;
-
-    case THINGSBOARD_CONNECTING:
-      ThingsBoard_connect();
-      thingsboard_state = THINGSBOARD_IDLE;
-        break;
-
-    case THINGSBOARD_SEND_DATA:
-
-        break;
-
-    case THINGSBOARD_READ_DATA:
-
-        break;
-
-    case THINGSBOARD_ERROR:
-
-        break;
-    }
-
-
-    return thingsboard_state;
 }

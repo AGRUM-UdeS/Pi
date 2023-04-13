@@ -13,16 +13,3 @@ uint8_t init_timer(void)
 
     return TIMING_OK;
 }
-
-void house_keeping(bool init)
-{
-    if (init) {
-        init_watchdog();
-    }
-    feed_watchdog();
-
-    if (interface_is_connected()) {
-        // Send update to the interface
-        
-    }
-}
