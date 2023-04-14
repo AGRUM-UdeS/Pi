@@ -4,6 +4,7 @@
 #include "wrap_WIFI.h"
 #include "ThingsBoard.h"
 #include "timing.h"
+#include "sensors.h"
 
 #define PI_STATUS_TOPIC         ("Pi status")
 #define PI_STATUS_CONNECTED     (0)
