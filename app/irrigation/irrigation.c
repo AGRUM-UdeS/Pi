@@ -2,7 +2,7 @@
 
 #define TEMP_TOPIC              ("Temperature")
 #define HUMIDITY_TOPIC          ("Humidite")
-#define MEASUREMENTS_PERIOD_MS  (60*1000)
+#define MEASUREMENTS_PERIOD_MS  (5*1000)
 
 static repeating_timer_t measure_timer;
 static bool measure_flag = false;
