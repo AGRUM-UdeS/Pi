@@ -7,6 +7,7 @@ target_link_libraries(interface
         wrap_WIFI
         ThingsBoard
         timing
+        sensors
         )
 
 target_include_directories(interface PUBLIC

@@ -1,7 +1,26 @@
 # Pi
-Ce repertoire contient le code du raspberry pi pour le projet AGRUM. Voici les étapes pour set-up votre environnement, build le code et programmer le rasperry pi pico W. Je me suis beaucoup inspiré de [ce site web](https://www.hackster.io/lawrence-wiznet-io/how-to-setup-raspberry-pi-pico-c-c-sdk-in-window10-f2b816)
+Ce repertoire contient le code du raspberry pi pour le projet AGRUM.
 
-## Set-up environnement Windows
+Le projet étudiant AGRUM de l'Université de Sherbrooke est effectué dans le cadre du Projet majeur de Conception en énergie électrique. Ce projet s'étend sur plus d'un an et demi (Mai 2022 à Décembre 2023). AGRUM se veut une preuve de concept selon laquelle la production d'électricité et d'aliment est possible à même les villes, le tout occupant la même surface d'une toiture urbaine. La finalité du projet est un prototype d'agrivoltaïsme installer sur le toit de l'Université de Sherbrooke - Campus de Longueuil pendant une partie de l'été et de l'automne 2023
+
+Ce répertoire contient le code du Raspberry Pi pico W (nommé Pi pour la suite) servant à controler l'ensemble du système du prototype, notamment la rotation des panneaux solaire, l'irrigation des cultures végétales, la prise de mesure de puissance électrique et de mesures environnementales ainsi que l'envoie de l'état du système sur une interface web. 
+
+Pour toute question, communiquer à AGRUM@USherbrooke.ca ou Alexis.Gendron@USherbrooke.ca
+
+## Table des matières
+
+- [Environment Setup](#environment-setup)
+- [Project architecture](#project-architecture)
+- [Version](#versionknown-issues)
+- [Known Issues](#versionknown-issues)
+
+Voici les étapes pour set-up votre environnement, build le code et programmer le Pi. Je me suis beaucoup inspiré de [ce site web](https://www.hackster.io/lawrence-wiznet-io/how-to-setup-raspberry-pi-pico-c-c-sdk-in-window10-f2b816)
+
+---
+
+## Environment Setup
+
+Vous aurez besoin d'environ 20 Gb d'espace sur votre disque.
 
 ### 1. ARM GCC Compiler
 
@@ -31,13 +50,13 @@ Direct link : https://aka.ms/vs/17/release/vs_BuildTools.exe
 
 Cocher l'option `Desktop development with C++`
 
-### 3. Github
+### 4. Github
 
 Si vous etes à l'aise avec les lignes de commande git : https://git-scm.com/download/win
 
 Sinon, utilisez Github Desktop : https://central.github.com/deployments/desktop/desktop/latest/win32
 
-### 4. Visual Studio Code
+### 5. Visual Studio Code
 
 Finalement, pour ecrire du code, je recommande VS Code pour toute les extensions qui facilite la vie.
 
@@ -45,7 +64,51 @@ Direct link : https://code.visualstudio.com/sha/download?build=stable&os=win32-x
 
 Set `Default Destination folder path` et cocher `Add to PATH`
 
-Si vous etes rendu ici, poker moi pour que je finisse ce ReadMe!
+Si vous etes rendu ici, écrivez moi et je vous aiderai à finir le setup, ou suiver le guide dans l'hyperlien au début de cette section.
 
+---
 
+## Project architecture
 
+Voici un apercu de l'architecture des dossiers et de ce qu'ils contiennent
+
+### app
+L'application contient les fonctions haut-niveau liées au système global. Elle contient : 
+- Irrigation : Gère les capteurs environnementaux, l'irrigation des plantes et la récupération d'eau.
+- Controle des PV (pv_management) : Gère la position des panneaux et la calibratin de ceux-ci.
+- Gestion de l'énergie (energy_management) : S'occupe des décisions d'injection de puissance et gère la charge/décharge des batteries.
+
+L'application se base sur l'interface **HAL** pour intéragir avec le matériel.
+
+### hal
+Fait la liaison entre l'application (**app**) et le matériel (**driver**). Contient des modules de niveau moyen (interface, motor, pump, sensors, timing, valve, weather) et utilise des fonction de l'interface **driver**.
+
+### driver
+Offre une interface simple pour interagir directement avec le matériel et des protocole de communication. Contient de nombreux wrapper (i2c, rtc, watchdog, MQTT, etc) afin de ne pas dépendre directement du microcontrolleur et des librairies utilisées.
+
+### lib
+Contient des librairies 3rd parties nécessaire au fonctionnement actuel du code, comme le rasberry pi pico C/C++ SDK qui contient à son tour d'autre librairies.
+
+---
+
+## Version
+
+### v0.x
+Les versions commencant par **v0** sont celles développées avant le mois de mai 2023. Elles sont surtout des tests et de la validation avant la **v1.0**
+
+La version actuelle est v0.0 : Premier test de la v0 sur l'Oasis.
+
+### v1.x
+Les versions commencant par **v1** débutent au début du mois de mai, quand les étudiants partent en stage. Les versions supérieurs à **v1.0** sont des fix ou amélioration de la version **v1.0**.
+
+Cette version, qui sera en fonction la majorité de l'été 2023, sert à mesurer humidité et température dans l'environnement de culture des plantes et envoyer les données sur l'interface web.
+
+### v2.x
+Les versions commencant par **v2** débutent dès le retour du stage. Les versions supérieurs à **v2.0** sont des fix ou amélioration de la version **v2.0**.
+
+Cette version, qui sera en fonction la majorité de l'automne 2023, contient l'ensemble des fonctionnalitées du prototype.
+
+---
+
+## Known Issues
+- V0.0 : 1. Le Pi se déconnecte et reboot après un peu plus de 5h de fonctionnement.
