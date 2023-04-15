@@ -39,7 +39,7 @@ void house_keeping(void)
 
     if (interface_is_connected() && ping_interface_flag) {
         // Send ping to the interface
-        ThingsBoard_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
+        interface_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
         ping_interface_flag = false;
     }
 }
@@ -62,10 +62,10 @@ void send_system_status(
 
         // Publish only on system states changes
         if (last_status != status) {
-            ThingsBoard_publish(SYSTEM_STATUS_TOPIC, status);
+            if (interface_publish(SYSTEM_STATUS_TOPIC, status)) {
+                last_status = status;
+            }
         }
-        last_status = status;
-        
     } else {
         // Turn on error LED
     }
