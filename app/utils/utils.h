@@ -7,6 +7,19 @@
 #include "wrap_WATCHDOG.h"
 #include "interface.h"
 #include "led.h"
+#include "irrigation.h"
+
+// TODO: Add more states.
+typedef enum _system_status_t{
+    SYSTEM_IDLE,
+    SYSTEM_MEASURING,
+    SYSTEM_PV_ROTATION,
+    SYSTEM_IRRIGATING,
+    SYSTEM_POWER_INJECTION,
+    SYSTEM_PV_CALIBRATION,
+    SYSTEM_WATER_PUMPING,
+    SYSTEM_ERROR
+} system_status_t;
 
 /*! \brief Blocking delay to let the developper open a terminal
  * 
@@ -22,5 +35,12 @@ void init_peripherals(void);
  * 
  */
 void house_keeping(void);
+
+/*! \brief Send system states to the interface
+ * 
+ */
+void send_system_status(
+    interface_status_t status_interface,
+    irrigation_status_t status_irrigation);
 
 #endif
