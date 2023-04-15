@@ -2,7 +2,11 @@
 
 bool interface_publish(unsigned char *topic, float value)
 {
-    ThingsBoard_publish(topic, value);
+    if (ThingsBoard_publish(topic, value) != THINGSBOARD_OK) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 interface_status_t connect_to_interface(void)
