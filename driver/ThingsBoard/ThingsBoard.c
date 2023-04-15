@@ -37,9 +37,15 @@ thingsboard_state_t ThingsBoard_connect(void) {
 
 thingsboard_state_t ThingsBoard_publish(unsigned char* topic, float value) {
   if (ThingsBoard_is_connected()) {
+    // Get epoch time for exact timestamp
+    uint64_t epoch_time;
+    get_RTC_epoch_time(&epoch_time);
+    printf("Epoch time (%llu)\n", epoch_time);
+
     // Creating the string that ThingsBoard will understand
     unsigned char payload[64];
-    snprintf(payload, sizeof(payload), "{\"%s\":%.2f}", topic, value);
+    snprintf(payload, sizeof(payload),
+        "{\"ts\":%llu, \"%s\":%.2f}", epoch_time, topic, value);
 
     err_t ret = mqtt_publish(mqtt_client,
           "v1/devices/me/telemetry", &payload,

@@ -38,6 +38,27 @@ rtc_status_t get_RTC_time(datetime_t* datetime) {
     }
 }
 
+rtc_status_t get_RTC_epoch_time(uint64_t* epoch_time) {
+    datetime_t datetime;
+    if (get_RTC_time(&datetime) != RTC_OK) {
+        return RTC_FAILED;
+    }
+    struct tm t;
+    time_t t_of_day;
+    // Need local timezone
+    t.tm_year = (datetime.year)-1900;  // Year - 1900
+    t.tm_mon = (datetime.month) - 1;   // Month, where 0 = jan
+    t.tm_mday = (datetime.day);        // Day of the month
+    t.tm_hour = (datetime.hour);
+    t.tm_min = (datetime.min);
+    t.tm_sec = (datetime.sec);
+    t.tm_isdst = -1; // Is DST on? 1 = yes, 0 = no, -1 = unknown
+    t_of_day = mktime(&t);
+
+    *epoch_time = (uint64_t)t_of_day;
+    return RTC_OK;
+}
+
 bool RTC_initialized(void) {
     return is_init;
 }

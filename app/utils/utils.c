@@ -24,6 +24,8 @@ void usb_delay(uint8_t delay_s)
 
 void init_peripherals(void)
 {
+    ThingsBoard_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
+    
     init_i2c();
     init_watchdog();
     // negative timeout means exact delay (rather than delay between callbacks)
