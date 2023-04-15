@@ -7,6 +7,7 @@ target_link_libraries(irrigation
         pump
         valve
         sensors
+        interface
         )
 
 target_include_directories(irrigation PUBLIC

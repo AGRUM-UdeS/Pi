@@ -50,6 +50,7 @@ int main() {
     while (true) {
         house_keeping();
         interface_sm();
+        irrigation_sm();
         //develop_test();
         sleep_ms(10);
 

@@ -6,7 +6,7 @@
 SHT_status_t SHT3_read_temp_humidity(float* temp, float* humidity) {
     SHT_status_t rv = SHT_ok;
 
-    uint8_t buffer[] = {HIGH_REPEATABILITY_NCS, NO_CLOCK_STRECHING};
+    uint8_t buffer[] = {NO_CLOCK_STRECHING, HIGH_REPEATABILITY_NCS};
     if (i2c0_write(SHT3_address, buffer, sizeof(buffer)) != sizeof(buffer)) {
         rv = SHT_error;
     }
@@ -16,9 +16,11 @@ SHT_status_t SHT3_read_temp_humidity(float* temp, float* humidity) {
         rv = SHT_error;
     }
 
-    float cTemp = ((((recept[0] * 256.0) + recept[1]) * 175) / 65535.0) - 45;
-    *temp = (cTemp * 1.8) + 32;
+    *temp = ((((recept[0] * 256.0) + recept[1]) * 175) / 65535.0) - 45;
+    // float temp_f = (*temp * 1.8) + 32;
     *humidity = ((((recept[3] * 256.0) + recept[4]) * 100) / 65535.0);
+
+    printf("Temp : %.2f degC, humid : %.2f %\n", *temp, *humidity);
 
     return rv;
 }
