@@ -1,8 +1,11 @@
 #include "irrigation.h"
 
+#include <math.h>
+
 #define TEMP_TOPIC              ("Temperature")
 #define HUMIDITY_TOPIC          ("Humidite")
-#define MEASUREMENTS_PERIOD_MS  (1*60*1000)
+//#define MEASUREMENTS_PERIOD_MS  (1*60*1000)
+#define MEASUREMENTS_PERIOD_MS  (60*1000)
 
 static repeating_timer_t measure_timer;
 static bool measure_flag = false;
@@ -39,6 +42,13 @@ irrigation_status_t irrigation_sm(void)
 
     case IRRIGATION_MEASURING:
         SHT_measure_t meas = read_temp_humidity();
+
+        // Test without sensor
+        meas.meas_ok = true;
+        static float i = 0;
+        meas.temp = 20 + 4 * cos(2.0 * M_PI * (i++/50.0) + 4);
+        meas.humidity = 35 + 1 * sin(2.0 * M_PI * (i++/20.0));
+
         if (meas.meas_ok) {
             interface_publish(TEMP_TOPIC, meas.temp);
             interface_publish(HUMIDITY_TOPIC, meas.humidity);
