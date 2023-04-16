@@ -52,11 +52,8 @@ thingsboard_state_t ThingsBoard_publish(unsigned char* topic, float value) {
           0, NULL,
           LWIP_CONST_CAST(void*, &mqtt_client_info));
 
-    printf("Value '%.2f' published to topic '%s'. (%d)\n", value, topic, ret);
-    
     return ret == 0 ? THINGSBOARD_OK : THINGSBOARD_FAILED;
   } else {
-    printf("Client not connected...\n");
     return THINGSBOARD_DISCONNECTED;
   }
 }

@@ -4,8 +4,11 @@ bool interface_publish(unsigned char *topic, float value)
 {
     sleep_ms(5); // Delay not to overload wifi
     if (ThingsBoard_publish(topic, value) != THINGSBOARD_OK) {
+        printf("Client not connected...\n");
         return false;
     } else {
+        uint32_t time_since_boot = to_ms_since_boot(get_absolute_time());
+        printf("(%lu s) Value '%.2f' published to topic '%s'.\n", time_since_boot/1000, value, topic);
         return true;
     }
 }
