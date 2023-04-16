@@ -92,11 +92,13 @@ Contient des librairies 3rd parties nécessaire au fonctionnement actuel du code
 ---
 
 ## Version
+La version actuelle est v0.1.
+
+- v0.0 : Premier test de la v0 sur l'Oasis avec machine à état d'irrigation et reconnexion au Thingsboard lors d'une déconnexion.
+- v0.1 : Ajout d'envoie de l'état du système à ThingsBoard et des timestamp dans l'envoie de la télémetrie.
 
 ### v0.x
 Les versions commencant par **v0** sont celles développées avant le mois de mai 2023. Elles sont surtout des tests et de la validation avant la **v1.0**
-
-La version actuelle est v0.0 : Premier test de la v0 sur l'Oasis.
 
 ### v1.x
 Les versions commencant par **v1** débutent au début du mois de mai, quand les étudiants partent en stage. Les versions supérieurs à **v1.0** sont des fix ou amélioration de la version **v1.0**.
