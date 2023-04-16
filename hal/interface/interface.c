@@ -2,6 +2,7 @@
 
 bool interface_publish(unsigned char *topic, float value)
 {
+    sleep_ms(5); // Delay not to overload wifi
     if (ThingsBoard_publish(topic, value) != THINGSBOARD_OK) {
         return false;
     } else {
