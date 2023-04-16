@@ -7,6 +7,7 @@ target_link_libraries(ThingsBoard
         pico_cyw43_arch_lwip_threadsafe_background
 
         wrap_MQTT
+        wrap_RTC
         )
 
 target_include_directories(ThingsBoard PUBLIC

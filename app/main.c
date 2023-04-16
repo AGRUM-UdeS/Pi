@@ -49,10 +49,11 @@ int main() {
 
     while (true) {
         house_keeping();
-        interface_sm();
-        irrigation_sm();
+        interface_status_t status_interface = interface_sm();
+        irrigation_status_t status_irrigation = irrigation_sm();
+        send_system_status(status_interface, status_irrigation);
         //develop_test();
-        sleep_ms(10);
+        sleep_ms(50);
 
     }
     return 0;

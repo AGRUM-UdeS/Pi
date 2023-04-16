@@ -2,7 +2,15 @@
 
 bool interface_publish(unsigned char *topic, float value)
 {
-    ThingsBoard_publish(topic, value);
+    sleep_ms(5); // Delay not to overload wifi
+    if (ThingsBoard_publish(topic, value) != THINGSBOARD_OK) {
+        printf("Client not connected...\n");
+        return false;
+    } else {
+        uint32_t time_since_boot = to_ms_since_boot(get_absolute_time());
+        printf("(%lu s) Value '%.2f' published to topic '%s'.\n", time_since_boot/1000, value, topic);
+        return true;
+    }
 }
 
 interface_status_t connect_to_interface(void)
@@ -14,8 +22,6 @@ interface_status_t connect_to_interface(void)
 
     if (ThingsBoard_connect() != THINGSBOARD_CONNECTED)
         return INTERFACE_ERROR;
-
-    ThingsBoard_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
 
     return INTERFACE_CONNECTED;
 }

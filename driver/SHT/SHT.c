@@ -20,8 +20,6 @@ SHT_status_t SHT3_read_temp_humidity(float* temp, float* humidity) {
     // float temp_f = (*temp * 1.8) + 32;
     *humidity = ((((recept[3] * 256.0) + recept[4]) * 100) / 65535.0);
 
-    printf("Temp : %.2f degC, humid : %.2f %\n", *temp, *humidity);
-
     return rv;
 }
 

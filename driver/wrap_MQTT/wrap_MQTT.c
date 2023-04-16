@@ -66,6 +66,7 @@ static void mqtt_connection_cb(mqtt_client_t *client,
     is_thingsboard_connected = true;
     // printf("Your pi is now connected to thingsboard!(%u)\n", (int)status);
   } else {
+    client = NULL;
     is_thingsboard_connected = false;
     printf("Your pi has disconnected to thingsboard...(%u)\n", (int)status);
   }

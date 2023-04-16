@@ -24,6 +24,8 @@ void usb_delay(uint8_t delay_s)
 
 void init_peripherals(void)
 {
+    ThingsBoard_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
+    
     init_i2c();
     init_watchdog();
     // negative timeout means exact delay (rather than delay between callbacks)
@@ -39,7 +41,34 @@ void house_keeping(void)
 
     if (interface_is_connected() && ping_interface_flag) {
         // Send ping to the interface
-        ThingsBoard_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
+        interface_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
         ping_interface_flag = false;
+    }
+}
+
+void send_system_status(
+    interface_status_t status_interface,
+    irrigation_status_t status_irrigation)
+{
+    if (interface_is_connected()) {
+        static system_status_t last_status = SYSTEM_ERROR;
+        system_status_t status = SYSTEM_IDLE;
+        // TODO: Add more states
+        if (status_irrigation == IRRIGATION_MEASURING) {
+            status = SYSTEM_MEASURING;
+        } else if (status_irrigation == IRRIGATION_IRRIGATING) {
+            status = SYSTEM_IRRIGATING;
+        } else if (status_irrigation == IRRIGATION_PUMPING) {
+            status = SYSTEM_WATER_PUMPING;
+        }
+
+        // Publish only on system states changes
+        if (last_status != status) {
+            if (interface_publish(SYSTEM_STATUS_TOPIC, status)) {
+                last_status = status;
+            }
+        }
+    } else {
+        // Turn on error LED
     }
 }
