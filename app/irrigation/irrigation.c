@@ -9,14 +9,14 @@
 #define TEMP_TOPIC_4              ("Temperature sans PV 2")
 #define HUMIDITY_TOPIC_4          ("Humidite sans PV 2")
 
-char **temperature_topic = {
+char *temperature_topic[] = {
     TEMP_TOPIC_1,
     TEMP_TOPIC_2,
     TEMP_TOPIC_3,
     TEMP_TOPIC_4
 };
 
-char **humidity_topic = {
+char *humidity_topic[] = {
     HUMIDITY_TOPIC_1,
     HUMIDITY_TOPIC_2,
     HUMIDITY_TOPIC_3,
