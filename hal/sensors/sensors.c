@@ -5,23 +5,51 @@
 #define BARREL_WATER_LEVEL_PIN  (0)
 #define BIN_WATER_LEVEL_PIN     (1)
 
+uint8_t enviro_sensor_location[ENVIRO_SENSOR_NB] = {
+    UNDER_PV_0,
+    UNDER_PV_1,
+    BESIDE_PV_0,
+    BESIDE_PV_1
+};
+
 void init_water_level_sensors(void)
 {
     // Do nothing
     // IO pin are set as input by default
 }
 
-SHT_measure_t read_temp_humidity(void)
+SHT_measure_t read_temp_humidity(uint8_t sensor)
 {
-    float temp, humidity;
     SHT_measure_t meas;
-    if (SHT3_read_temp_humidity(&temp, &humidity) != SHT_ok) {
-        meas.meas_ok = false;
-        return meas;
-    }
 
-    meas.temp = temp;
-    meas.humidity = humidity;
+    switch(sensor) {
+    case UNDER_PV_0:
+        if (SHT3_read_temp_humidity(&(meas.temp), &(meas.humidity), 0) != SHT_ok) {
+            meas.meas_ok = false;
+            return meas;
+        }
+        break;
+
+    case UNDER_PV_1:
+
+        break;
+
+    case BESIDE_PV_0:
+        if (SHT3_read_temp_humidity(&(meas.temp), &(meas.humidity), 1) != SHT_ok) {
+            meas.meas_ok = false;
+            return meas;
+        }
+
+        break;
+
+    case BESIDE_PV_1:
+
+        break;
+
+    default:
+
+        break;
+    }
     meas.meas_ok = true;
 
     return meas;

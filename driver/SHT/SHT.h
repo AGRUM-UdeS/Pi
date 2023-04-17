@@ -36,7 +36,7 @@ typedef enum _SHT_status_t{
  * \param humidity float to store the converted humdity
  * \return SHT_ok if everything good, SHT_error if other errors
  */
-SHT_status_t SHT3_read_temp_humidity(float* temp, float* humidity);
+SHT_status_t SHT3_read_temp_humidity(float* temp, float* humidity, uint8_t i2c_bus);
 // SHT_status_t SHT1_read_temp_humidity(float* temp, float* humidity);
 
 #endif
