@@ -8,6 +8,9 @@
 
 #define MQTT_PORT       LWIP_IANA_PORT_MQTT
 
+#define RESOLVE_HOSTNAME_DELAY_MS   (10)
+#define RESOLVE_HOSTNAME_TIMEOUT_MS (1000)
+
 static ip_addr_t mqtt_ipaddr;
 
 static bool host_name_is_resolved = false;
@@ -68,6 +71,7 @@ static void mqtt_connection_cb(mqtt_client_t *client,
   } else {
     client = NULL;
     is_thingsboard_connected = false;
+    host_name_is_resolved = false;
     printf("Your pi has disconnected to thingsboard...(%u)\n", (int)status);
   }
 
@@ -105,16 +109,23 @@ err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client
 
   resolve_hostname(hostname);
 
-  while (!host_name_is_resolved) {
-    tight_loop_contents();
-  }
+  for (size_t i = 0; i < RESOLVE_HOSTNAME_TIMEOUT_MS/RESOLVE_HOSTNAME_DELAY_MS; i++) {
+    if (host_name_is_resolved) {
+      printf("Hostname resolved after %d ms\n", i*RESOLVE_HOSTNAME_DELAY_MS);
 
-  err_t ret = mqtt_client_connect(*mqtt_client,
+      err_t ret = mqtt_client_connect(*mqtt_client,
         &mqtt_ipaddr, MQTT_PORT,
         mqtt_connection_cb, LWIP_CONST_CAST(void*, client_info),
         client_info);
 
-  return ret;
+      return ret;
+      
+    }
+    sleep_ms(RESOLVE_HOSTNAME_DELAY_MS);
+  }
+
+  host_name_is_resolved = false;
+  return (err_t)MQTT_CONNECT_TIMEOUT;
 }
 
 bool thingsboard_is_connected(void) {
