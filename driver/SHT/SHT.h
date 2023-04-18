@@ -5,8 +5,9 @@
 
 #include "wrap_I2C.h"
 
-#define SHT3_address (0x44)
-#define SHT1_address (0x00)
+#define SHT3_address    (0x44)
+#define SHT1_TEMP       (0x03)
+#define SHT1_HUMIDITY   (0x05)
 
 #define CLOCK_STRECHING           (0x2C)
 #define HIGH_REPEATABILITY_CS     (0x06)
@@ -17,9 +18,6 @@
 #define HIGH_REPEATABILITY_NCS    (0x00)
 #define MEDUIM_REPEATABILITY_NCS  (0x0B)
 #define LOW_REPEATABILITY_NCS     (0x16)
-
-#define SHT1_MEASURE_TEMPERATURE  (0x03)
-#define SHT1_MEASURE_HUMIDITY     (0x05)
 
 typedef struct _SHT_measure_t {
   float humidity;
