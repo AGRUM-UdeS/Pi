@@ -23,7 +23,7 @@ char *humidity_topic[] = {
     HUMIDITY_TOPIC_4
 };
 
-#define MEASUREMENTS_PERIOD_MS  (1*60*1000)
+#define MEASUREMENTS_PERIOD_MS  (1*10*1000)
 
 static repeating_timer_t measure_timer;
 static bool measure_flag = false;
@@ -67,6 +67,7 @@ irrigation_status_t irrigation_sm(void)
 
             if (meas[i].meas_ok) {
                 interface_publish(temperature_topic[i], meas[i].temp);
+                sleep_ms(50);
                 interface_publish(humidity_topic[i], meas[i].humidity);
             } else {
                 printf("Failed to take temp&humidity measurements (%d)\n", i);

@@ -31,7 +31,8 @@ SHT_measure_t read_temp_humidity(uint8_t sensor)
         break;
 
     case UNDER_PV_1:
-
+        meas.meas_ok = false;
+        return meas;
         break;
 
     case BESIDE_PV_0:
@@ -43,7 +44,8 @@ SHT_measure_t read_temp_humidity(uint8_t sensor)
         break;
 
     case BESIDE_PV_1:
-
+        meas.meas_ok = false;
+        return meas;
         break;
 
     default:
