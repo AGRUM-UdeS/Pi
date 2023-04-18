@@ -52,8 +52,8 @@ int main() {
         interface_status_t status_interface = interface_sm();
         irrigation_status_t status_irrigation = irrigation_sm();
         send_system_status(status_interface, status_irrigation);
-        //develop_test();
-        sleep_ms(50);
+        develop_test();
+        sleep_ms(500);
 
     }
     return 0;

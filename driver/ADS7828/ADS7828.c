@@ -32,7 +32,9 @@ ADC_status_t ADC_read_pin(uint8_t addr, uint8_t pin_to_read, uint16_t* received_
     ADC_status_t status = ADC_ok;
 
     // Send the command byte to the ADC
-    i2c0_write(addr, &pin_to_read, (size_t)1);
+    if (i2c0_write(addr, &pin_to_read, (size_t)1) != (size_t)1 ) {
+        return ADC_error;
+    }
     
     // Read the bytes from the ADC
     uint8_t received_byte[ADC_BUF_LEN];
