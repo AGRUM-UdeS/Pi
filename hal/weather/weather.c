@@ -12,6 +12,8 @@ const char* WEATHER_REQUEST =
 const char* MONTREAL_WEATHER = 
 "/v1/forecast?latitude=45.53&longitude=-73.52&hourly=rain,cloudcover,windspeed_80m,direct_radiation_instant&timeformat=unixtime&forecast_days=1&timezone=America%2FNew_York";
 
+#define END_OF_MSG ("]}}")
+
 void httpc_result_cb(void *arg, httpc_result_t httpc_result, 
                         u32_t rx_content_len, u32_t srv_res, err_t err) {
     // printf("transfer complete\n");
@@ -35,14 +37,16 @@ err_t httpc_headers_cb(httpc_state_t *connection, void *arg,
 err_t httpc_body_cb(void *arg, struct altcp_pcb *conn, struct pbuf *p, err_t err) {
     // Save the weather buffer in a global variable
     pbuf_copy_partial(p, myBuff, p->tot_len, 0);
-    // Tell the application data has been received
-    weather_is_received = true;
-    
+
+    char *ptr = strstr(myBuff, END_OF_MSG);
+    if (ptr != NULL) {
+        // Tell the application data has been received
+        weather_is_received = true;
+    }
     return ERR_OK;
 }
 
 void weather_current_request(void) {
-    printf("Requesting current weather data\n");
     httpc_connection_t settings;
     settings.result_fn = httpc_result_cb;
     settings.headers_done_fn = httpc_headers_cb;
