@@ -16,7 +16,8 @@ const char* WEATHER_REQUEST =
 const char* MONTREAL_WEATHER = 
 "/v1/forecast?latitude=45.53&longitude=-73.52&hourly=rain,cloudcover,windspeed_80m,direct_radiation_instant&timeformat=unixtime&forecast_days=3&timezone=America%2FNew_York";
 
-const char* END_OF_MSG = "]}}";
+const char* NEW_LINE = "\n";
+const char* END_OF_MSG = "}}";
 
 void httpc_result_cb(void *arg, httpc_result_t httpc_result, 
                         u32_t rx_content_len, u32_t srv_res, err_t err) {
@@ -61,42 +62,55 @@ err_t httpc_body_cb(void *arg, struct altcp_pcb *conn, struct pbuf *p, err_t err
     return ERR_OK;
 }
 
+static void cat_buf(char** dest, char source[][BUF_SIZE], uint8_t buf_nb) {
+    // Get the size of the string
+    size_t len = 0;
+    for (size_t i = 0; i <= buf_nb; i++) {
+        len += strlen(source[i]);
+    }
+
+    char *temp = malloc(len + 1);
+    if (temp == NULL)
+        return;
+
+    // Concatenate into one string
+    for (size_t i = 0; i <= buf_nb; i++){
+        strcat(temp, source[i]);
+    }
+
+    // Delete garbage before and after payload
+    // This is custom code for the weather API used
+    strtok(temp, NEW_LINE);
+    char *test = strtok(NULL, NEW_LINE);
+    free(temp);
+
+    // Save string into dest
+    *dest = malloc(strlen(test) + 1);
+    if (*dest != NULL)
+        strcpy(*dest, test);
+}
+
 void weather_current_request(void) {
     httpc_connection_t settings;
     settings.result_fn = httpc_result_cb;
     settings.headers_done_fn = httpc_headers_cb;
 
+    // Make a new request
     new_weather_request = true;
     httpc_get_file_dns(WEATHER_REQUEST, HTTP_PORT, MONTREAL_WEATHER, &settings, httpc_body_cb, NULL, NULL);
     
+    // Wait for all the msg to be received
     while (!weather_is_received) {
         tight_loop_contents();
     }
     weather_is_received = false;
 
-    printf("Body (%d) :\n", myBuff_index);
-    for (size_t i = 0; i <= myBuff_index; i++)
-    {
-        printf("%s", myBuff[i]);
-    }
-    printf("\n");
-}
+    // Concatenate the buffers into one string
+    char *meteo_str;
+    cat_buf(&meteo_str, myBuff, myBuff_index);
 
-void print_current_weather(void) {
-    // static uint16_t i = 0;
+    printf("Finale string : %s\n", meteo_str);
 
-    // if (!weather_is_received) {
-    //     return;
-    // }
-    // weather_is_received = false;
-
-    // struct pbuf* buf = weather_buf;
-
-    // // char* ptr = strstr(buf->payload, "\"temp\":");
-    // // char num[] = {(char)(*(ptr+7)), (char)(*(ptr+8)), (char)(*(ptr+9)), 
-    // //                 (char)(*(ptr+10)), (char)(*(ptr+11)), (char)(*(ptr+12)), '\0'};
-    // // printf("\n\nCurrent temp is %s", num);
-    // // printf(" => %f\n\n", atof(num));
-
-    // printf("%s", buf->payload);
+    // DONT FORGET TO FREE meteo_str
+    free(meteo_str);
 }
