@@ -109,7 +109,8 @@ void weather_current_request(void) {
     char *meteo_str;
     cat_buf(&meteo_str, myBuff, myBuff_index);
 
-    printf("Finale string : %s\n", meteo_str);
+    //printf("Finale string : %s\n", meteo_str);
+    // TODO : Parse float value into array
 
     // DONT FORGET TO FREE meteo_str
     free(meteo_str);
