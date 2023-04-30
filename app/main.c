@@ -13,6 +13,8 @@
 #include "utils.h"
 #include "test.h"
 
+#include "weather.h"
+
 void init(void) {
     // Init RP2040 peripherals
     stdio_init_all();
@@ -37,6 +39,7 @@ void init(void) {
     init_energy_management();
 
     // develop_test();
+    feed_watchdog();
 
     // Get weather data
     // printf("\n-------- Getting weather data\n");

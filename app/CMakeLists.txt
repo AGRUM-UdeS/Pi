@@ -19,6 +19,7 @@ target_link_libraries(agrum
         interface
         hal
         utils
+        weather
         )
 
 # enable usb output, disable uart output
