@@ -14,7 +14,7 @@ const char* WEATHER_REQUEST =
 "api.open-meteo.com";
 
 const char* MONTREAL_WEATHER = 
-"/v1/forecast?latitude=45.53&longitude=-73.52&hourly=rain,cloudcover,windspeed_80m,direct_radiation_instant&timeformat=unixtime&forecast_days=3&timezone=America%2FNew_York";
+"/v1/forecast?latitude=45.53&longitude=-73.52&hourly=cloudcover&daily=sunrise,sunset,precipitation_sum,windgusts_10m_max&timeformat=unixtime&forecast_days=3&timezone=America%2FNew_York";
 
 const char* NEW_LINE = "\n";
 const char* END_OF_MSG = "}}";
@@ -28,9 +28,9 @@ void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 
 err_t httpc_headers_cb(httpc_state_t *connection, void *arg, 
                             struct pbuf *hdr, u16_t hdr_len, u32_t content_len) {
-    printf("headers recieved\n");
-    printf("content length=%d\n", content_len);
-    printf("header length %d\n", hdr_len);
+    // printf("headers recieved\n");
+    // printf("content length=%d\n", content_len);
+    // printf("header length %d\n", hdr_len);
     // char myBuff[BUF_SIZE];
     // pbuf_copy_partial(hdr, myBuff, hdr->tot_len, 0);
     // printf("headers :\n");
@@ -90,6 +90,13 @@ static void cat_buf(char** dest, char source[][BUF_SIZE], uint8_t buf_nb) {
         strcpy(*dest, test);
 }
 
+static bool meteo_parse(char* str, weather_forecast_t* weather_forecast)
+{
+
+
+
+}
+
 void weather_current_request(void) {
     httpc_connection_t settings;
     settings.result_fn = httpc_result_cb;
@@ -109,8 +116,11 @@ void weather_current_request(void) {
     char *meteo_str;
     cat_buf(&meteo_str, myBuff, myBuff_index);
 
-    //printf("Finale string : %s\n", meteo_str);
+    printf("Finale string : %s\n", meteo_str);
     // TODO : Parse float value into array
+
+    weather_forecast_t weather_forecast;
+    meteo_parse(meteo_str, &weather_forecast);
 
     // DONT FORGET TO FREE meteo_str
     free(meteo_str);

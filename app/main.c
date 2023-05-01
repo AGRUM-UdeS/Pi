@@ -42,8 +42,8 @@ void init(void) {
     feed_watchdog();
 
     // Get weather data
-    // printf("\n-------- Getting weather data\n");
-    // weather_current_request();
+    printf("\n-------- Getting weather data\n");
+    weather_current_request();
 }
 
 int main() {
