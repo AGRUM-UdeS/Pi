@@ -26,31 +26,35 @@ SHT_measure_t read_temp_humidity(uint8_t sensor)
     case UNDER_PV_0:
         if (SHT3_read_temp_humidity(&(meas.temp), &(meas.humidity), 0) != SHT_ok) {
             meas.meas_ok = false;
-            return meas;
+        } else {
+            meas.meas_ok = true;
         }
         break;
 
     case UNDER_PV_1:
+        meas.meas_ok = false;
 
         break;
 
     case BESIDE_PV_0:
         if (SHT3_read_temp_humidity(&(meas.temp), &(meas.humidity), 1) != SHT_ok) {
             meas.meas_ok = false;
-            return meas;
+        } else {
+            meas.meas_ok = true;
         }
 
         break;
 
     case BESIDE_PV_1:
+        meas.meas_ok = false;
 
         break;
 
     default:
+        meas.meas_ok = false;
 
         break;
     }
-    meas.meas_ok = true;
 
     return meas;
 }
