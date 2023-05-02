@@ -1,8 +1,10 @@
 #include "weather.h"
 
 #define HTTP_PORT   HTTP_DEFAULT_PORT
-#define BUF_SIZE 2048
-#define BUF_NB   4
+#define BUF_SIZE    2048
+#define BUF_NB      4
+
+#define NB_CHAR     3
 
 static bool weather_is_received = false;
 static bool new_weather_request = false;
@@ -18,6 +20,13 @@ const char* MONTREAL_WEATHER =
 
 const char* NEW_LINE = "\n";
 const char* END_OF_MSG = "}}";
+const char* COMMA = ",";
+
+const char* CLOUDCOVER_STR = "cloudcover";
+const char* SUNRISE_STR = "sunrise";
+const char* SUNSET_STR = "sunset";
+const char* PRECIPITATION_STR = "precipitation_sum";
+const char* WINDGUST_STR = "windgusts_10m_max";
 
 void httpc_result_cb(void *arg, httpc_result_t httpc_result, 
                         u32_t rx_content_len, u32_t srv_res, err_t err) {
@@ -92,9 +101,89 @@ static void cat_buf(char** dest, char source[][BUF_SIZE], uint8_t buf_nb) {
 
 static bool meteo_parse(char* str, weather_forecast_t* weather_forecast)
 {
+    char* buf = malloc(strlen(str));
+    strcpy(buf, str);
 
+    // Get beginning of cloudcover
+    char* token = strstr(buf, CLOUDCOVER_STR);
+    token = strstr(token+1, CLOUDCOVER_STR);
+    // start now point to the beginning of the data
+    token = strtok(token+strlen(CLOUDCOVER_STR)+NB_CHAR, COMMA);
+    if (token != NULL) {
+        // printf("%s :\n", CLOUDCOVER_STR);
+        for (size_t i = 0; i < FORECAST_HOURS; i++) {
+            weather_forecast->cloudcover_hourly[i] = atoi(token);
+            token = strtok(NULL, COMMA);
+            // printf("%d\n", weather_forecast->cloudcover_hourly[i]);
+        }
+    } else {
+        printf("%s notfound..\n", CLOUDCOVER_STR);
+    }
 
+    strcpy(buf, str);
+    // Get beginning of sunrise
+    token = strstr(buf, SUNRISE_STR);
+    token = strstr(token+1, SUNRISE_STR);
+    token = strtok(token+strlen(SUNRISE_STR)+NB_CHAR, COMMA);
+    if (token != NULL) {
+        // printf("%s :\n", SUNRISE_STR);
+        for (size_t i = 0; i < FORECAST_DAYS; i++) {
+            weather_forecast->sunrise[i] = atoll(token);
+            token = strtok(NULL, COMMA);
+            // printf("%llu\n", weather_forecast->sunrise[i]);
+        }
+    } else {
+        printf("%s notfound...\n", SUNRISE_STR);
+    }
 
+    strcpy(buf, str);
+    // Get beginning of sunset
+    token = strstr(buf, SUNSET_STR);
+    token = strstr(token+1, SUNSET_STR);
+    token = strtok(token+strlen(SUNSET_STR)+NB_CHAR, COMMA);
+    if (token != NULL) {
+        // printf("%s :\n", SUNSET_STR);
+        for (size_t i = 0; i < FORECAST_DAYS; i++) {
+            weather_forecast->sunset[i] = atoll(token);
+            token = strtok(NULL, COMMA);
+            // printf("%llu\n", weather_forecast->sunset[i]);
+        }
+    } else {
+        printf("%s notfound...\n", SUNSET_STR);
+    }
+
+    strcpy(buf, str);
+    // Get beginning of precipitation
+    token = strstr(buf, PRECIPITATION_STR);
+    token = strstr(token+1, PRECIPITATION_STR);
+    token = strtok(token+strlen(PRECIPITATION_STR)+NB_CHAR, COMMA);
+    if (token != NULL) {
+        // printf("%s :\n", PRECIPITATION_STR);
+        for (size_t i = 0; i < FORECAST_DAYS; i++) {
+            weather_forecast->precipitation_daily[i] = atof(token);
+            token = strtok(NULL, COMMA);
+            // printf("%.2f\n", weather_forecast->precipitation_daily[i]);
+        }
+    } else {
+        printf("%s notfound...\n", PRECIPITATION_STR);
+    }
+
+    strcpy(buf, str);
+    // Get beginning of windgust max
+    token = strstr(buf, WINDGUST_STR);
+    token = strstr(token+1, WINDGUST_STR);
+    token = strtok(token+strlen(WINDGUST_STR)+NB_CHAR, COMMA);
+    if (token != NULL) {
+        // printf("%s :\n", WINDGUST_STR);
+        for (size_t i = 0; i < FORECAST_DAYS; i++) {
+            weather_forecast->max_windgust_daily[i] = atof(token);
+            token = strtok(NULL, COMMA);
+            // printf("%.2f\n", weather_forecast->max_windgust_daily[i]);
+        }
+    } else {
+        printf("%s notfound...\n", WINDGUST_STR);
+    }
+    return true;
 }
 
 void weather_current_request(void) {
@@ -116,11 +205,15 @@ void weather_current_request(void) {
     char *meteo_str;
     cat_buf(&meteo_str, myBuff, myBuff_index);
 
-    printf("Finale string : %s\n", meteo_str);
+    // printf("Finale string : %s\n", meteo_str);
     // TODO : Parse float value into array
 
     weather_forecast_t weather_forecast;
-    meteo_parse(meteo_str, &weather_forecast);
+    if (meteo_parse(meteo_str, &weather_forecast)) {
+        printf("Weather data received!\n");
+    } else {
+        printf("Failed to receive weather data\n");
+    }
 
     // DONT FORGET TO FREE meteo_str
     free(meteo_str);
