@@ -23,7 +23,7 @@ char *humidity_topic[] = {
     HUMIDITY_TOPIC_4
 };
 
-#define MEASUREMENTS_PERIOD_MS  (1*60*1000)
+#define MEASUREMENTS_PERIOD_MS  (5*60*1000)
 
 static repeating_timer_t measure_timer;
 static bool measure_flag = false;
