@@ -39,8 +39,8 @@ void init(void) {
     // Init everything solar panels related
     init_PV();
 
-    // Init every thing energy related
-    init_energy_management();
+    // Init energy management
+    // enery_management();
 
     // develop_test();
     feed_watchdog();
@@ -58,6 +58,7 @@ int main() {
         house_keeping();
         interface_status_t status_interface = interface_sm();
         irrigation_status_t status_irrigation = irrigation_sm();
+        // energy_status_t status_energy = enery_management();
         send_system_status(status_interface, status_irrigation);
         //develop_test();
         sleep_ms(50);
