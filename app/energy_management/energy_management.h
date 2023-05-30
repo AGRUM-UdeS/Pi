@@ -7,13 +7,14 @@
 
 typedef enum _energy_status_t {
     ENERGY_INIT,
-    ENERGY_IDLE
+    ENERGY_IDLE,
     ENERGY_MEASUREMENT,
     INVERTER_DISCONNECT,
     INVERTER_CONNECT,
     BATTERY_DISCONNECT,
     BATTERY_CONNECT,
-    LOAD_SHEDDING
+    LOAD_SHEDDING,
+    ENERGY_ERROR
 } energy_status_t;
 
 #define NB_PV   4
