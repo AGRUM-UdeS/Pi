@@ -8,6 +8,7 @@
 #include "interface.h"
 #include "led.h"
 #include "irrigation.h"
+#include "energy_management.h"
 
 // TODO: Add more states.
 typedef enum _system_status_t{
@@ -41,6 +42,7 @@ void house_keeping(void);
  */
 void send_system_status(
     interface_status_t status_interface,
-    irrigation_status_t status_irrigation);
+    irrigation_status_t status_irrigation,
+    energy_status_t status_energy);
 
 #endif

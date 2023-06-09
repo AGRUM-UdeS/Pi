@@ -47,7 +47,8 @@ void house_keeping(void)
 
 void send_system_status(
     interface_status_t status_interface,
-    irrigation_status_t status_irrigation)
+    irrigation_status_t status_irrigation,
+    energy_status_t status_energy)
 {
     if (interface_is_connected()) {
         static system_status_t last_status = SYSTEM_ERROR;
@@ -60,6 +61,13 @@ void send_system_status(
         } else if (status_irrigation == IRRIGATION_PUMPING) {
             status = SYSTEM_WATER_PUMPING;
         }
+
+        // Energy states
+        static energy_status_t last_energy_status;
+        if (last_energy_status != status_energy) {
+            interface_publish(ENERGY_STATUS_TOPIC, status_energy);
+        }
+        last_energy_status = status_energy;
 
         // Publish only on system states changes
         if (last_status != status) {

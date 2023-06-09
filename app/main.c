@@ -40,7 +40,7 @@ void init(void) {
     init_PV();
 
     // Init energy management
-    // enery_management();
+    enery_management();
 
     // develop_test();
     feed_watchdog();
@@ -58,8 +58,8 @@ int main() {
         house_keeping();
         interface_status_t status_interface = interface_sm();
         irrigation_status_t status_irrigation = irrigation_sm();
-        // energy_status_t status_energy = enery_management();
-        send_system_status(status_interface, status_irrigation);
+        energy_status_t status_energy = enery_management();
+        send_system_status(status_interface, status_irrigation, status_energy);
         //develop_test();
         sleep_ms(50);
 

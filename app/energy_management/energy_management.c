@@ -6,7 +6,7 @@
 #define BATTERY_FULL_VOLTAGE        (26.0)
 #define BATTERY_LOW_VOLTAGE         (22.0)
 
-#define MEASUREMENTS_PERIOD_MS  (1000)
+#define MEASUREMENTS_PERIOD_MS  (10*1000)
 static repeating_timer_t measure_timer;
 static bool energy_measurement_flag = false;
 
@@ -102,11 +102,21 @@ float get_instant_power_PV(void)
 
 energy_status_t enery_management(void)
 {
-    static energy_status_t energy_state = ENERGY_IDLE;
-    static float battery_voltage[NB_PV];
+    static energy_status_t energy_state = ENERGY_INIT;
+    static energy_status_t last_energy_state = ENERGY_ERROR;
+    bool print_state = false;
+
+    if (energy_state != last_energy_state) {
+        print_state = true;
+    }
+    last_energy_state = energy_state;
+
+    static float battery_voltage[NB_PV] = {0};
 
     switch (energy_state) {
     case ENERGY_INIT:
+        if (print_state)
+            printf("Energy init\n");
         // Init relays states
 
         // Validate states
@@ -116,10 +126,12 @@ energy_status_t enery_management(void)
             printf("Failed to add energy timer\n");
         }
 
-        energy_state = ENERGY_MEASUREMENT;
+        energy_state = ENERGY_IDLE;
         break;
 
     case ENERGY_IDLE:
+        if (print_state)
+            printf("Energy idle\n");
         if (time_to_measure()) {
             energy_state = ENERGY_MEASUREMENT;
         }
@@ -127,7 +139,15 @@ energy_status_t enery_management(void)
         break;
 
     case ENERGY_MEASUREMENT:
+        if (print_state)
+            printf("Energy measurements\n");
+
         // Take and publish measurement
+        /* Test */
+        for (size_t i = 0; i < NB_PV; i++)
+        {
+            battery_voltage[i] = BATTERY_LOW_VOLTAGE + 1;
+        }
 
         if (battery_is_full(battery_voltage, NB_PV)) {
             energy_state = INVERTER_CONNECT;
@@ -140,6 +160,9 @@ energy_status_t enery_management(void)
         break;
 
     case INVERTER_DISCONNECT:
+        if (print_state)
+            printf("Inverter disconnect\n");
+
         if (inverter_is_connected()) {
             // Disconnect inverter
 
@@ -150,6 +173,9 @@ energy_status_t enery_management(void)
         break;
 
     case INVERTER_CONNECT:
+        if (print_state)
+            printf("Inverter connect\n");
+
         if (!(inverter_is_connected())) {
             // Connect inverter
 
@@ -165,6 +191,9 @@ energy_status_t enery_management(void)
         break;
 
     case BATTERY_DISCONNECT:
+        if (print_state)
+            printf("Battery disconnect\n");
+
         if (battery_is_connected()) {
             // Disconnect battery
         }
@@ -174,6 +203,9 @@ energy_status_t enery_management(void)
         break;
 
     case BATTERY_CONNECT:
+        if (print_state)
+            printf("Battery connect\n");
+
         if (!(battery_is_connected())) {
             // Connect battery
         }
@@ -186,6 +218,9 @@ energy_status_t enery_management(void)
         break;
 
     case LOAD_SHEDDING:
+        if (print_state)
+            printf("Load shed\n");
+
         // Take measurements since you can hang here
         if (time_to_measure()) {
             // Take measurement and publish them
@@ -198,7 +233,10 @@ energy_status_t enery_management(void)
 
         break;
 
-    case ENERGY_ERROR:  
+    case ENERGY_ERROR:
+        if (print_state)
+            printf("Energy error\n");
+
         // Print error message on thingsboard
         energy_state = ENERGY_INIT;
 
