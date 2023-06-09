@@ -2,6 +2,7 @@
 
 bool interface_publish(unsigned char *topic, float value)
 {
+#ifdef PUBLISH
     sleep_ms(5); // Delay not to overload wifi
     if (ThingsBoard_publish(topic, value) != THINGSBOARD_OK) {
         printf("Client not connected...\n");
@@ -11,6 +12,9 @@ bool interface_publish(unsigned char *topic, float value)
         printf("(%lu s) Value '%.2f' published to topic '%s'.\n", time_since_boot/1000, value, topic);
         return true;
     }
+#else
+    return true;
+#endif
 }
 
 interface_status_t connect_to_interface(void)
