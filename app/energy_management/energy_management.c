@@ -150,7 +150,7 @@ energy_status_t enery_management(void)
         break;
 
     case INVERTER_CONNECT:
-        if (!(inverted_is_connected())) {
+        if (!(inverter_is_connected())) {
             // Connect inverter
 
         }
