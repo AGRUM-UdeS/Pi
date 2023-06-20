@@ -64,7 +64,8 @@ void send_system_status(
 
         // Energy states
         static energy_status_t last_energy_status;
-        if (last_energy_status != status_energy) {
+        if (last_energy_status != status_energy
+                && status_energy != ENERGY_IDLE) {
             interface_publish(ENERGY_STATUS_TOPIC, status_energy);
         }
         last_energy_status = status_energy;
