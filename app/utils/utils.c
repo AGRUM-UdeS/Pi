@@ -24,8 +24,7 @@ void usb_delay(uint8_t delay_s)
 
 void init_peripherals(void)
 {
-    ThingsBoard_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
-    
+    interface_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
     init_i2c();
     // negative timeout means exact delay (rather than delay between callbacks)
     if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
@@ -69,13 +68,6 @@ void send_system_status(
             interface_publish(ENERGY_STATUS_TOPIC, status_energy);
         }
         last_energy_status = status_energy;
-
-        // Publish only on system states changes
-        if (last_status != status) {
-            if (interface_publish(SYSTEM_STATUS_TOPIC, status)) {
-                last_status = status;
-            }
-        }
     } else {
         // Turn on error LED
     }
