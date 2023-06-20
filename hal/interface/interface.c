@@ -13,6 +13,17 @@ bool interface_publish(unsigned char *topic, float value)
         return true;
     }
 #else
+    sleep_ms(5); // Delay not to overload wifi
+    unsigned char test_topic[30];
+    snprintf(test_topic, sizeof(test_topic), "TEST_%s", topic);
+    if (ThingsBoard_publish(test_topic, value) != THINGSBOARD_OK) {
+        printf("Client not connected...\n");
+        return false;
+    } else {
+        uint32_t time_since_boot = to_ms_since_boot(get_absolute_time());
+        printf("(%lu s) Value '%.2f' published to topic '%s'.\n", time_since_boot/1000, value, test_topic);
+        return true;
+    }
     return true;
 #endif
 }
