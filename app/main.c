@@ -27,6 +27,7 @@ void init(void) {
     
     if (connect_to_interface() == INTERFACE_CONNECTED) {
         init_timer();
+        interface_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
     }
 
     feed_watchdog();

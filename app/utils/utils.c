@@ -24,7 +24,6 @@ void usb_delay(uint8_t delay_s)
 
 void init_peripherals(void)
 {
-    interface_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
     init_i2c();
     // negative timeout means exact delay (rather than delay between callbacks)
     if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
