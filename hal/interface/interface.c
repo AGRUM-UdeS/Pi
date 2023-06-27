@@ -70,6 +70,7 @@ interface_status_t interface_sm(void)
             interface_state = INTERFACE_CONNECTED;
         } else {
             printf("Unable to reconnect to thingsboard, retrying...\n");
+            sleep_ms(100);
         }
       
         break;
