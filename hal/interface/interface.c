@@ -1,5 +1,8 @@
 #include "interface.h"
 
+// Uncomment this for prod build
+// #define PUBLISH
+
 bool interface_publish(unsigned char *topic, float value)
 {
     if (!interface_is_connected()) {
