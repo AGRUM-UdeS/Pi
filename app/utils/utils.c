@@ -62,9 +62,7 @@ void send_system_status(
 
         // Energy states
         static energy_status_t last_energy_status;
-        if (last_energy_status != status_energy
-                && status_energy != ENERGY_IDLE
-                && status_energy != ENERGY_MEASUREMENT) {
+        if (status_energy != ENERGY_MEASUREMENT) {
             interface_publish(ENERGY_STATUS_TOPIC, status_energy);
         }
         last_energy_status = status_energy;

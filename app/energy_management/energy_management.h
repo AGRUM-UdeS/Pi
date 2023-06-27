@@ -7,13 +7,11 @@
 
 typedef enum _energy_status_t {
     ENERGY_INIT,
-    ENERGY_IDLE,
     ENERGY_MEASUREMENT,
-    INVERTER_DISCONNECT,
-    INVERTER_CONNECT,
-    BATTERY_DISCONNECT,
-    BATTERY_CONNECT,
     LOAD_SHEDDING,
+    POWER_SAVING,
+    NORMAL_USE,
+    OVERCHARGED,
     ENERGY_ERROR
 } energy_status_t;
 

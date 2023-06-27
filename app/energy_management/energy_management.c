@@ -2,9 +2,11 @@
 
 #include "sensors.h"
 
+// TODO: Modify voltage
 #define BATTERY_OVERCHARGED_VOLTAGE (27.0)
 #define BATTERY_FULL_VOLTAGE        (26.0)
-#define BATTERY_LOW_VOLTAGE         (22.0)
+#define BATTERY_LOW_VOLTAGE         (23.0)
+#define BATTERY_EMPTY_VOLTAGE       (22.0)
 
 #define MEASUREMENTS_PERIOD_MS  (10*1000)
 static repeating_timer_t measure_timer;
@@ -37,22 +39,22 @@ static bool battery_is_overcharged(float voltage[], uint16_t size)
     return false;
 }
 
-static bool battery_is_full(float voltage[], uint16_t size)
+static bool battery_is_ok(float voltage[], uint16_t size)
 {
-    // Detect full battery
+    // Make sure battery voltage is below limit
     for (size_t i = 0; i < size; i++) {
-        if (voltage[i] >= BATTERY_FULL_VOLTAGE) {
+        if (voltage[i] <= BATTERY_FULL_VOLTAGE) {
             return true;
         }
     }
     return false;
 }
 
-static bool battery_is_ok(float voltage[], uint16_t size)
+static bool battery_is_low(float voltage[], uint16_t size)
 {
-    // Make sure battery voltage is below limit
+    // Detect empty battery
     for (size_t i = 0; i < size; i++) {
-        if (voltage[i] <= BATTERY_FULL_VOLTAGE) {
+        if (voltage[i] <= BATTERY_LOW_VOLTAGE) {
             return true;
         }
     }
@@ -109,6 +111,10 @@ energy_status_t enery_management(void)
 
     static float battery_voltage[NB_PV] = {0};
 
+    if (time_to_measure()) {
+         energy_state = ENERGY_MEASUREMENT;
+    }
+
     switch (energy_state) {
     case ENERGY_INIT:
         // Init relays states
@@ -120,13 +126,7 @@ energy_status_t enery_management(void)
             printf("Failed to add energy timer\n");
         }
 
-        energy_state = ENERGY_IDLE;
-        break;
-
-    case ENERGY_IDLE:
-        if (time_to_measure()) {
-            energy_state = ENERGY_MEASUREMENT;
-        }
+        energy_state = ENERGY_MEASUREMENT;
 
         break;
 
@@ -138,71 +138,61 @@ energy_status_t enery_management(void)
             battery_voltage[i] = BATTERY_LOW_VOLTAGE + 1;
         }
 
-        if (battery_is_full(battery_voltage, NB_PV)) {
-            energy_state = INVERTER_CONNECT;
+        if (battery_is_overcharged(battery_voltage, NB_PV)) {
+            energy_state = OVERCHARGED;
         } else if (battery_is_ok(battery_voltage, NB_PV)) {
-            energy_state = INVERTER_DISCONNECT;
+            energy_state = NORMAL_USE;
+        } else if (battery_is_low(battery_voltage, NB_PV)) {
+            energy_state = POWER_SAVING;
+        } else if (battery_is_empty(battery_voltage, NB_PV)) {
+            energy_state = LOAD_SHEDDING;
         } else {
             energy_state = ENERGY_ERROR;
         }
 
         break;
 
-    case INVERTER_DISCONNECT:
+    case LOAD_SHEDDING:
+        // Disable irrigation
         if (inverter_is_connected()) {
             // Disconnect inverter
-
         }
 
-        energy_state = BATTERY_CONNECT;
-
-        break;
-
-    case INVERTER_CONNECT:
-        if (!(inverter_is_connected())) {
-            // Connect inverter
-
-        }
-
-        if (battery_is_overcharged(battery_voltage, NB_PV)) {
-            energy_state = BATTERY_DISCONNECT;
-        } else {
-            // Let battery discharged
-            energy_state = ENERGY_IDLE;
-        }
-
-        break;
-
-    case BATTERY_DISCONNECT:
-        if (battery_is_connected()) {
-            // Disconnect battery
-        }
-        
-        energy_state = ENERGY_IDLE;
-
-        break;
-
-    case BATTERY_CONNECT:
         if (!(battery_is_connected())) {
             // Connect battery
         }
-        if (battery_is_empty(battery_voltage, NB_PV)) {
-            energy_state = LOAD_SHEDDING;
-        } else {
-            energy_state = ENERGY_IDLE;
+
+        break;
+
+    case POWER_SAVING:
+        if (inverter_is_connected()) {
+            // Disconnect inverter
+        }
+
+        if (!(battery_is_connected())) {
+            // Connect battery
         }
 
         break;
 
-    case LOAD_SHEDDING:
-        // Take measurements since you can hang here
-        if (time_to_measure()) {
-            // Take measurement and publish them
-            
+    case NORMAL_USE:
+        if (!(inverter_is_connected())) {
+            // Connect inverter
         }
 
-        if (battery_is_ok(battery_voltage, NB_PV)) {
-            energy_state = ENERGY_IDLE;
+        if (!(battery_is_connected())) {
+            // Connect battery
+        }
+
+        break;
+
+    case OVERCHARGED:
+        if (!(inverter_is_connected())) {
+            // Connect inverter
+        }
+
+        if (battery_is_connected()) {
+            // Disconnect battery
         }
 
         break;
