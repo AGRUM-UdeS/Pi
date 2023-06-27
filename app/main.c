@@ -21,12 +21,16 @@ void init(void) {
 
     // Delay to let the developer open Putty
     usb_delay(5);
+
+    // Init watchdog before wifi connection
+    init_watchdog();
     
     if (connect_to_interface() == INTERFACE_CONNECTED) {
         init_timer();
     }
 
-    // Init watchdog after wifi connection
+    feed_watchdog();
+
     init_peripherals();
 
     // Init everything irrigation related 

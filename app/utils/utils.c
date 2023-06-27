@@ -27,7 +27,6 @@ void init_peripherals(void)
     ThingsBoard_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
     
     init_i2c();
-    init_watchdog();
     // negative timeout means exact delay (rather than delay between callbacks)
     if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
         printf("Failed to add ping timer\n");
