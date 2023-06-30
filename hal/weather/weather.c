@@ -197,6 +197,7 @@ void weather_current_request(void) {
     
     // Wait for all the msg to be received
     while (!weather_is_received) {
+        // If failing, watchdog will reboot
         tight_loop_contents();
     }
     weather_is_received = false;
