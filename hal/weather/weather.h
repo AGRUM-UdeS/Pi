@@ -15,6 +15,10 @@
 #include "lwip/apps/http_client.h"
 #include "secret.h"
 
+#include "hardware/rtc.h"
+#include "pico/stdlib.h"
+#include "pico/util/datetime.h"
+
 #define FORECAST_DAYS   3
 #define FORECAST_HOURS  (FORECAST_DAYS*24)
 
@@ -27,6 +31,11 @@ typedef struct _weather_forecast_t {
     uint64_t last_updated;
 } weather_forecast_t;
 
-void weather_current_request(void);
+typedef struct _weather_handle_t {
+    bool is_received;
+    weather_forecast_t* weather_forecast;
+} weather_handle_t;
+
+void weather_init(weather_handle_t* weather_handle);
 
 #endif
