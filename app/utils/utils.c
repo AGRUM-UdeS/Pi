@@ -24,8 +24,6 @@ void usb_delay(uint8_t delay_s)
 
 void init_peripherals(void)
 {
-    ThingsBoard_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
-    
     init_i2c();
     // negative timeout means exact delay (rather than delay between callbacks)
     if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
@@ -47,7 +45,8 @@ void house_keeping(void)
 
 void send_system_status(
     interface_status_t status_interface,
-    irrigation_status_t status_irrigation)
+    irrigation_status_t status_irrigation,
+    energy_status_t status_energy)
 {
     if (interface_is_connected()) {
         static system_status_t last_status = SYSTEM_ERROR;
@@ -61,12 +60,13 @@ void send_system_status(
             status = SYSTEM_WATER_PUMPING;
         }
 
-        // Publish only on system states changes
-        if (last_status != status) {
-            if (interface_publish(SYSTEM_STATUS_TOPIC, status)) {
-                last_status = status;
-            }
+        // Energy states
+        static energy_status_t last_energy_status;
+        if (status_energy != ENERGY_MEASUREMENT
+            && last_energy_status != status_energy) {
+            interface_publish(ENERGY_STATUS_TOPIC, status_energy);
         }
+        last_energy_status = status_energy;
     } else {
         // Turn on error LED
     }

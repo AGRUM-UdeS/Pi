@@ -1,7 +1,15 @@
 #include "interface.h"
 
+// Uncomment this for prod build
+// #define PUBLISH
+
 bool interface_publish(unsigned char *topic, float value)
 {
+    if (!interface_is_connected()) {
+        return false;
+    }
+    
+#ifdef PUBLISH
     sleep_ms(5); // Delay not to overload wifi
     if (ThingsBoard_publish(topic, value) != THINGSBOARD_OK) {
         printf("Client not connected...\n");
@@ -11,6 +19,20 @@ bool interface_publish(unsigned char *topic, float value)
         printf("(%lu s) Value '%.2f' published to topic '%s'.\n", time_since_boot/1000, value, topic);
         return true;
     }
+#else
+    sleep_ms(5); // Delay not to overload wifi
+    unsigned char test_topic[30];
+    snprintf(test_topic, sizeof(test_topic), "TEST_%s", topic);
+    if (ThingsBoard_publish(test_topic, value) != THINGSBOARD_OK) {
+        printf("Client not connected...\n");
+        return false;
+    } else {
+        uint32_t time_since_boot = to_ms_since_boot(get_absolute_time());
+        printf("(%lu s) Value '%.2f' published to topic '%s'.\n", time_since_boot/1000, value, test_topic);
+        return true;
+    }
+    return true;
+#endif
 }
 
 interface_status_t connect_to_interface(void)
@@ -48,6 +70,7 @@ interface_status_t interface_sm(void)
             interface_state = INTERFACE_CONNECTED;
         } else {
             printf("Unable to reconnect to thingsboard, retrying...\n");
+            sleep_ms(100);
         }
       
         break;

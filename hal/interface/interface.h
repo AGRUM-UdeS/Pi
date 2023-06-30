@@ -8,6 +8,7 @@
 
 #define PI_STATUS_TOPIC         ("Pi status")
 #define SYSTEM_STATUS_TOPIC     ("System state")
+#define ENERGY_STATUS_TOPIC     ("Energy state")
 #define PI_STATUS_CONNECTED     (0)
 #define PI_STATUS_PING          (1)
 
