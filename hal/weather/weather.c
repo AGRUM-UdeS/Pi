@@ -28,6 +28,12 @@ const char* SUNSET_STR = "sunset";
 const char* PRECIPITATION_STR = "precipitation_sum";
 const char* WINDGUST_STR = "windgusts_10m_max";
 
+#define WEATHER_ALARM_HOUR      (1)
+#define WEATHER_ALARM_MINUTE    (14)
+
+static weather_handle_t** weather_handle_ptr;
+static weather_forecast_t weather_forecast;
+
 void httpc_result_cb(void *arg, httpc_result_t httpc_result, 
                         u32_t rx_content_len, u32_t srv_res, err_t err) {
     // printf("transfer complete\n");
@@ -186,7 +192,7 @@ static bool meteo_parse(char* str, weather_forecast_t* weather_forecast)
     return true;
 }
 
-void weather_current_request(void) {
+static weather_forecast_t* weather_current_request(void) {
     httpc_connection_t settings;
     settings.result_fn = httpc_result_cb;
     settings.headers_done_fn = httpc_headers_cb;
@@ -207,9 +213,6 @@ void weather_current_request(void) {
     cat_buf(&meteo_str, myBuff, myBuff_index);
 
     // printf("Finale string : %s\n", meteo_str);
-    // TODO : Parse float value into array
-
-    weather_forecast_t weather_forecast;
     if (meteo_parse(meteo_str, &weather_forecast)) {
         printf("Weather data received!\n");
     } else {
@@ -218,4 +221,39 @@ void weather_current_request(void) {
 
     // DONT FORGET TO FREE meteo_str
     free(meteo_str);
+    return &weather_forecast;
+}
+
+static void weather_alarm_callback(void)
+{
+    printf("WEATHER RECEIVED2!\n");
+    // Save new forecast
+    (*weather_handle_ptr)->weather_forecast = weather_current_request();
+    // Tell the app it has been received
+    (*weather_handle_ptr)->is_received = true;
+}
+
+void weather_init(weather_handle_t* weather_handle)
+{
+    // Get intial weather
+    printf("WEATHER RECEIVED1!\n");
+    // Save handle address locally
+    *weather_handle_ptr = weather_handle;
+    // This also save local weather forecast address
+    (*weather_handle_ptr)->weather_forecast = weather_current_request();
+    // Tell the app forecast was received
+    (*weather_handle_ptr)->is_received = true;
+
+    // Alarm once a minute
+    datetime_t weather_alarm = {
+        .year  = -1,
+        .month = -1,
+        .day   = -1,
+        .dotw  = -1,
+        .hour  = WEATHER_ALARM_HOUR,
+        .min   = WEATHER_ALARM_MINUTE,
+        .sec   = -1,
+    };
+
+    rtc_set_alarm(&weather_alarm, &weather_alarm_callback);
 }
