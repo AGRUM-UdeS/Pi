@@ -107,6 +107,7 @@ static void cat_buf(char** dest, char source[][BUF_SIZE], uint8_t buf_nb) {
 
 static bool meteo_parse(char* str, weather_forecast_t* weather_forecast_in)
 {
+    bool rv = true;
     char* buf = malloc(strlen(str));
     strcpy(buf, str);
 
@@ -124,6 +125,7 @@ static bool meteo_parse(char* str, weather_forecast_t* weather_forecast_in)
         }
     } else {
         printf("%s notfound..\n", CLOUDCOVER_STR);
+        rv = false;
     }
 
     strcpy(buf, str);
@@ -140,6 +142,7 @@ static bool meteo_parse(char* str, weather_forecast_t* weather_forecast_in)
         }
     } else {
         printf("%s notfound...\n", SUNRISE_STR);
+        rv = false;
     }
 
     strcpy(buf, str);
@@ -156,6 +159,7 @@ static bool meteo_parse(char* str, weather_forecast_t* weather_forecast_in)
         }
     } else {
         printf("%s notfound...\n", SUNSET_STR);
+        rv = false;
     }
 
     strcpy(buf, str);
@@ -172,6 +176,7 @@ static bool meteo_parse(char* str, weather_forecast_t* weather_forecast_in)
         }
     } else {
         printf("%s notfound...\n", PRECIPITATION_STR);
+        rv = false;
     }
 
     strcpy(buf, str);
@@ -188,8 +193,9 @@ static bool meteo_parse(char* str, weather_forecast_t* weather_forecast_in)
         }
     } else {
         printf("%s notfound...\n", WINDGUST_STR);
+        rv = false;
     }
-    return true;
+    return rv;
 }
 
 static weather_forecast_t weather_current_request(void) {
@@ -227,14 +233,12 @@ static weather_forecast_t weather_current_request(void) {
 
 static void weather_alarm_callback(void)
 {
-    printf("WEATHER REQUEST!\n");
     weather_cb_flag = true;
 }
 
 void weather_init(weather_handle_t* weather_handle)
 {
     // Get intial weather
-    printf("WEATHER RECEIVED1!\n");
     weather_handle->weather_forecast = weather_current_request();
     // Tell the app forecast was received
     weather_handle->is_received = true;
