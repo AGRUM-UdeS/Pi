@@ -29,7 +29,7 @@ const char* SUNSET_STR = "sunset";
 const char* PRECIPITATION_STR = "precipitation_sum";
 const char* WINDGUST_STR = "windgusts_10m_max";
 
-#define WEATHER_ALARM_HOUR      (22)
+#define WEATHER_ALARM_HOUR      (6)
 #define WEATHER_ALARM_MINUTE    (30)
 
 static weather_handle_t* weather_handle_ptr;
@@ -235,12 +235,9 @@ void weather_init(weather_handle_t* weather_handle)
 {
     // Get intial weather
     printf("WEATHER RECEIVED1!\n");
-    // Save handle address locally
-    weather_handle_ptr = weather_handle;
-    // This also save local weather forecast address
-    weather_handle_ptr->weather_forecast = weather_current_request();
+    weather_handle->weather_forecast = weather_current_request();
     // Tell the app forecast was received
-    weather_handle_ptr->is_received = true;
+    weather_handle->is_received = true;
 
     // Alarm once a minute
     datetime_t weather_alarm = {
@@ -249,8 +246,7 @@ void weather_init(weather_handle_t* weather_handle)
         .day   = -1,
         .dotw  = -1,
         .hour  = WEATHER_ALARM_HOUR,
-        //.min   = WEATHER_ALARM_MINUTE,
-        .min   = -1,
+        .min   = WEATHER_ALARM_MINUTE,
         .sec   = 0,
     };
 
@@ -273,14 +269,14 @@ void weather_printf(weather_handle_t* weather_handle)
 {
     printf("\tPrecipitation\tWindgust\tSunrise\tSunset\n");
     for (size_t i = 0; i < FORECAST_DAYS; i++) {
-        printf("Day %d:\t\t\t%.2f,\t\t\t%.2f,\t\t%d,\t\t%d\n",
+        printf("Day %d:\t%.2f,\t%.2f,\t%llu,\t%llu\n",
                 i, weather_handle->weather_forecast.precipitation_daily[i], weather_handle->weather_forecast.max_windgust_daily[i],
                 weather_handle->weather_forecast.sunrise[i], weather_handle->weather_forecast.sunset[i]);
     }
 
     printf("\tcloudcover\n");
     for (size_t i = 0; i < FORECAST_HOURS; i++) {
-        printf("Hour %d:\t%d\n",
+        printf("Hour %2d:\t%d\n",
                 i, weather_handle->weather_forecast.cloudcover_hourly[i]);
     }
     
