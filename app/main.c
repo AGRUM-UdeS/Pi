@@ -28,7 +28,7 @@ void vApplicationIdleHook( void );
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 void vApplicationTickHook( void );
 
-static weather_handle_t weather_forecast;
+static weather_handle_t weather_forecast_h;
 
 #define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
 #define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
@@ -76,7 +76,7 @@ void startUp(void *pvParameters) {
         vTaskDelay(50);
     }
     printf("\n-------- Getting weather data\n");
-    weather_init(&weather_forecast);
+    weather_init(&weather_forecast_h);
 }
 
 int main() {

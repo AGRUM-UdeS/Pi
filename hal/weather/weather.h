@@ -22,6 +22,11 @@
 #define FORECAST_DAYS   3
 #define FORECAST_HOURS  (FORECAST_DAYS*24)
 
+typedef enum _weather_status_t {
+    WEATHER_OK,
+    WEATHER_ERROR
+} weather_status_t;
+
 typedef struct _weather_forecast_t {
     float precipitation_daily[FORECAST_DAYS];
     float max_windgust_daily[FORECAST_DAYS];
@@ -33,9 +38,11 @@ typedef struct _weather_forecast_t {
 
 typedef struct _weather_handle_t {
     bool is_received;
-    weather_forecast_t* weather_forecast;
+    weather_forecast_t weather_forecast;
 } weather_handle_t;
 
 void weather_init(weather_handle_t* weather_handle);
+weather_status_t weather_task(weather_handle_t* weather_handle);
+void weather_printf(weather_handle_t* weather_handle);
 
 #endif
