@@ -1,5 +1,9 @@
 #include "weather.h"
 
+/* ----- Weather data fetch alarm time -----*/
+#define WEATHER_ALARM_HOUR      (6)
+#define WEATHER_ALARM_MINUTE    (30)
+
 #define HTTP_PORT   HTTP_DEFAULT_PORT
 #define BUF_SIZE    2048
 #define BUF_NB      4
@@ -28,9 +32,6 @@ const char* SUNRISE_STR = "sunrise";
 const char* SUNSET_STR = "sunset";
 const char* PRECIPITATION_STR = "precipitation_sum";
 const char* WINDGUST_STR = "windgusts_10m_max";
-
-#define WEATHER_ALARM_HOUR      (6)
-#define WEATHER_ALARM_MINUTE    (30)
 
 #define MAX_DAILY_PRECIPITATION (1000)
 #define MAX_DAILY_WINDGUST      (1000)
@@ -297,19 +298,59 @@ weather_status_t weather_task(weather_handle_t* weather_handle)
     return WEATHER_OK;
 }
 
-void weather_printf(weather_handle_t* weather_handle)
+static void log_weather(weather_forecast_t* forecast)
+{
+    char str[32] = {0};
+    for (size_t i = 0; i < FORECAST_DAYS; i++) {
+        snprintf(str, sizeof(str), "%s %u", PRECIPITATION_TOPIC , i);
+        interface_publish(str, forecast->precipitation_daily[i]);
+        snprintf(str, sizeof(str), "%s %u", WINDGUST_TOPIC , i);
+        interface_publish(str, forecast->max_windgust_daily[i]);
+
+        snprintf(str, sizeof(str), "%s %u", SUNRISE_HOUR_TOPIC , i);
+        interface_publish(str, epoch_to_hour(forecast->sunrise[i]));
+        snprintf(str, sizeof(str), "%s %u", SUNRISE_MINUTE_TOPIC , i);
+        interface_publish(str, epoch_to_minute(forecast->sunrise[i]));
+        snprintf(str, sizeof(str), "%s %u", SUNSET_HOUR_TOPIC , i);
+        interface_publish(str, epoch_to_hour(forecast->sunset[i]));
+        snprintf(str, sizeof(str), "%s %u", SUNSET_MINUTE_TOPIC , i);
+        interface_publish(str, epoch_to_minute(forecast->sunset[i]));
+    }
+}
+
+static void printf_weather(weather_forecast_t* forecast)
 {
     printf("\tPrecipitation\tWindgust\tSunrise\tSunset\n");
     for (size_t i = 0; i < FORECAST_DAYS; i++) {
         printf("Day %d:\t%.2f,\t%.2f,\t%llu,\t%llu\n",
-                i, weather_handle->weather_forecast.precipitation_daily[i], weather_handle->weather_forecast.max_windgust_daily[i],
-                weather_handle->weather_forecast.sunrise[i], weather_handle->weather_forecast.sunset[i]);
+                i, forecast->precipitation_daily[i], forecast->max_windgust_daily[i],
+                forecast->sunrise[i], forecast->sunset[i]);
     }
 
     printf("\tcloudcover\n");
     for (size_t i = 0; i < FORECAST_HOURS; i++) {
         printf("Hour %2d:\t%d\n",
-                i, weather_handle->weather_forecast.cloudcover_hourly[i]);
+                i, forecast->cloudcover_hourly[i]);
     }
-    
+}
+
+void weather_printf(weather_handle_t* weather_handle, weather_print_log_t print_log)
+{
+    switch (print_log) {
+    case (NO_LOG_NO_PRINT_WEATHER):
+        break;
+
+    case (PRINT_WEATHER):
+        printf_weather(&(weather_handle->weather_forecast));
+        break;
+
+    case (LOG_WEATHER):
+        log_weather(&(weather_handle->weather_forecast));
+        break;
+
+    case (LOG_AND_PRINT_WEATHER):
+        log_weather(&(weather_handle->weather_forecast));
+        printf_weather(&(weather_handle->weather_forecast));
+        break;
+    }
 }
