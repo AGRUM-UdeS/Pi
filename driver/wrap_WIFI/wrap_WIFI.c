@@ -15,6 +15,7 @@ WIFI_STATUS wifi_connect(void) {
 
     for (size_t i = 0; i < WIFI_CONNECTION_MAX_RETRY; i++)
     {
+        feed_watchdog();
         if (cyw43_arch_wifi_connect_timeout_ms(SSID, PASSWORD, CYW43_AUTH_WPA2_AES_PSK, WIFI_CONNECTION_TIMEOUT_MS)) {
             printf("Failed to connect. Retrying... (%d)\n", i);  
         } else {
