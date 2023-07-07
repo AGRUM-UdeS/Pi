@@ -32,7 +32,9 @@ const char* WINDGUST_STR = "windgusts_10m_max";
 #define WEATHER_ALARM_HOUR      (6)
 #define WEATHER_ALARM_MINUTE    (30)
 
-static weather_handle_t* weather_handle_ptr;
+#define MAX_DAILY_PRECIPITATION (1000)
+#define MAX_DAILY_WINDGUST      (1000)
+#define MAX_EPOCH_TIME          (1800000000)
 
 void httpc_result_cb(void *arg, httpc_result_t httpc_result, 
                         u32_t rx_content_len, u32_t srv_res, err_t err) {
@@ -198,6 +200,30 @@ static bool meteo_parse(char* str, weather_forecast_t* weather_forecast_in)
     return rv;
 }
 
+static void check_weather_limit(weather_forecast_t* weather_forecast)
+{
+    for (size_t i = 0; i < FORECAST_DAYS; i++) {
+        if (weather_forecast->precipitation_daily[i] > MAX_DAILY_PRECIPITATION) {
+            weather_forecast->precipitation_daily[i] = -1;
+        }
+        if (weather_forecast->max_windgust_daily[i] > MAX_DAILY_WINDGUST) {
+            weather_forecast->max_windgust_daily[i] = -1;
+        }
+        if (weather_forecast->sunrise[i] > MAX_EPOCH_TIME) {
+            weather_forecast->sunrise[i] = -1;
+        }
+        if (weather_forecast->sunset[i] > MAX_EPOCH_TIME) {
+            weather_forecast->sunset[i] = -1;
+        }
+    }
+
+    for (size_t i = 0; i < FORECAST_HOURS; i++) {
+        if (weather_forecast->cloudcover_hourly[i] > 100) {
+            weather_forecast->cloudcover_hourly[i] = -1;
+        }
+    }
+}
+
 static weather_forecast_t weather_current_request(void) {
     httpc_connection_t settings;
     settings.result_fn = httpc_result_cb;
@@ -225,6 +251,8 @@ static weather_forecast_t weather_current_request(void) {
     } else {
         printf("Failed to receive weather data\n");
     }
+
+    check_weather_limit(&weather_forecast);
 
     // DONT FORGET TO FREE meteo_str
     free(meteo_str);
