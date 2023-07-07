@@ -63,3 +63,14 @@ bool RTC_initialized(void) {
     return is_init;
 }
 
+uint32_t epoch_to_hour(uint64_t epoch_time)
+{
+    uint32_t hour = (epoch_time / 3600) %  24;
+    return hour;
+}
+
+uint32_t epoch_to_minute(uint64_t epoch_time)
+{
+    uint32_t minute = (epoch_time / 60) %  60;
+    return minute;
+}
