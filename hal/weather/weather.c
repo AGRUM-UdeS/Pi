@@ -235,9 +235,12 @@ static weather_forecast_t weather_current_request(void) {
     httpc_get_file_dns(WEATHER_REQUEST, HTTP_PORT, MONTREAL_WEATHER, &settings, httpc_body_cb, NULL, NULL);
 
     // Wait for all the msg to be received
-    while (!weather_is_received) {
-        // If failing, watchdog will reboot
-        tight_loop_contents();
+    for (size_t i = 0; i < 10; i++)
+    {
+        sleep_ms(200);
+        if (weather_is_received) {
+            break;
+        }
     }
     weather_is_received = false;
 

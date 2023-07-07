@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "wrap_WATCHDOG.h"
 #include "secret.h"
 
 typedef enum {

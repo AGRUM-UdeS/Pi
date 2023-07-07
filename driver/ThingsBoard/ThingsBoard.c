@@ -26,6 +26,7 @@ thingsboard_state_t ThingsBoard_connect(void) {
   err_t connect_status;
 
   for (size_t i = 0; i < MQTT_CONNECTION_RETRY; i++) {
+    feed_watchdog();
     connect_status = mqtt_connect(&mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
 
     if (connect_status == MQTT_CONNECT_ACCEPTED) {
