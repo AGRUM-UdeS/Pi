@@ -1,6 +1,6 @@
 #include "wrap_WATCHDOG.h"
 
-#define WATCHDOG_TIMEOUT_MS 10000
+#define WATCHDOG_TIMEOUT_MS (8*1000)
 
 static bool reboot_by_watchdog = false;
 
