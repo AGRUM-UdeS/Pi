@@ -307,15 +307,20 @@ static void log_weather(weather_forecast_t* forecast)
     for (size_t i = 0; i < FORECAST_DAYS; i++) {
         snprintf(str, sizeof(str), "%s %u", PRECIPITATION_TOPIC , i);
         interface_publish(str, forecast->precipitation_daily[i]);
+        sleep_ms(100);
         snprintf(str, sizeof(str), "%s %u", WINDGUST_TOPIC , i);
         interface_publish(str, forecast->max_windgust_daily[i]);
+        sleep_ms(100);
 
         snprintf(str, sizeof(str), "%s %u", SUNRISE_HOUR_TOPIC , i);
         interface_publish(str, epoch_to_hour(forecast->sunrise[i]));
+        sleep_ms(100);
         snprintf(str, sizeof(str), "%s %u", SUNRISE_MINUTE_TOPIC , i);
         interface_publish(str, epoch_to_minute(forecast->sunrise[i]));
+        sleep_ms(100);
         snprintf(str, sizeof(str), "%s %u", SUNSET_HOUR_TOPIC , i);
         interface_publish(str, epoch_to_hour(forecast->sunset[i]));
+        sleep_ms(100);
         snprintf(str, sizeof(str), "%s %u", SUNSET_MINUTE_TOPIC , i);
         interface_publish(str, epoch_to_minute(forecast->sunset[i]));
     }
