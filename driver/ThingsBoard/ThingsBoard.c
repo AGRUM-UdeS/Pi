@@ -3,10 +3,10 @@
 static mqtt_client_t* mqtt_client = NULL;
 
 #define CONNECTION_TIMEOUT_MS     2000
-#define CONNECTION_TEST_DELAY_MS  5
+#define CONNECTION_TEST_DELAY_MS  10
 #define KEEP_ALIVE_TIMEOUT        65535
 #define THINGSBOARD_HOSTNAME      "thingsboard.cloud"
-#define MQTT_CONNECTION_RETRY     3
+#define MQTT_CONNECTION_RETRY     10
 
 static const struct mqtt_connect_client_info_t mqtt_client_info =
 {

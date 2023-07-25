@@ -4,6 +4,17 @@
 #define WEATHER_ALARM_HOUR      (6)
 #define WEATHER_ALARM_MINUTE    (30)
 
+// Alarm once a minute
+    datetime_t weather_alarm = {
+        .year  = -1,
+        .month = -1,
+        .day   = -1,
+        .dotw  = -1,
+        .hour  = -1,
+        .min   = 0,
+        .sec   = 0,
+    };
+
 #define HTTP_PORT   HTTP_DEFAULT_PORT
 #define BUF_SIZE    2048
 #define BUF_NB      4
@@ -235,11 +246,15 @@ static weather_forecast_t weather_current_request(void) {
     httpc_get_file_dns(WEATHER_REQUEST, HTTP_PORT, MONTREAL_WEATHER, &settings, httpc_body_cb, NULL, NULL);
 
     // Wait for all the msg to be received
-    for (size_t i = 0; i < 10; i++)
+    for (size_t i = 0; i < 50; i++)
     {
+        feed_watchdog();
         sleep_ms(200);
         if (weather_is_received) {
             break;
+        }
+        if (i == 19) {
+            printf("http wheater timeout\n");
         }
     }
     weather_is_received = false;
@@ -270,22 +285,7 @@ static void weather_alarm_callback(void)
 
 void weather_init(weather_handle_t* weather_handle)
 {
-    // Get intial weather
-    weather_handle->weather_forecast = weather_current_request();
-    // Tell the app forecast was received
-    weather_handle->is_received = true;
-
-    // Alarm once a minute
-    datetime_t weather_alarm = {
-        .year  = -1,
-        .month = -1,
-        .day   = -1,
-        .dotw  = -1,
-        .hour  = WEATHER_ALARM_HOUR,
-        .min   = WEATHER_ALARM_MINUTE,
-        .sec   = 0,
-    };
-
+    // Get weather every hour
     rtc_set_alarm(&weather_alarm, &weather_alarm_callback);
 }
 
@@ -307,20 +307,20 @@ static void log_weather(weather_forecast_t* forecast)
     for (size_t i = 0; i < FORECAST_DAYS; i++) {
         snprintf(str, sizeof(str), "%s %u", PRECIPITATION_TOPIC , i);
         interface_publish(str, forecast->precipitation_daily[i]);
-        sleep_ms(100);
+        sleep_ms(500);
         snprintf(str, sizeof(str), "%s %u", WINDGUST_TOPIC , i);
         interface_publish(str, forecast->max_windgust_daily[i]);
-        sleep_ms(100);
+        sleep_ms(500);
 
         snprintf(str, sizeof(str), "%s %u", SUNRISE_HOUR_TOPIC , i);
         interface_publish(str, epoch_to_hour(forecast->sunrise[i]));
-        sleep_ms(100);
+        sleep_ms(500);
         snprintf(str, sizeof(str), "%s %u", SUNRISE_MINUTE_TOPIC , i);
         interface_publish(str, epoch_to_minute(forecast->sunrise[i]));
-        sleep_ms(100);
+        sleep_ms(500);
         snprintf(str, sizeof(str), "%s %u", SUNSET_HOUR_TOPIC , i);
         interface_publish(str, epoch_to_hour(forecast->sunset[i]));
-        sleep_ms(100);
+        sleep_ms(500);
         snprintf(str, sizeof(str), "%s %u", SUNSET_MINUTE_TOPIC , i);
         interface_publish(str, epoch_to_minute(forecast->sunset[i]));
     }
