@@ -58,3 +58,4 @@ driver/secret
 
 AGRUM/src/wifi/secret.c
 AGRUM/src/wifi/secret.h
+lib/FreeRTOS/FreeRTOS-SMP-Demos/

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.13)
 
 # Pull in SDK (must be before project)
 include(pico_sdk_import.cmake)
+set(FREERTOS_KERNEL_PATH ../lib/FreeRTOS/FreeRTOS-SMP-Demos/FreeRTOS/Source)
+include(lib/FreeRTOS/FreeRTOS-SMP-Demos/FreeRTOS/Demo/CORTEX_M0+_RP2040/Standard/FreeRTOS_Kernel_import.cmake)
 
 project(AGRUM C CXX ASM)
 set(CMAKE_C_STANDARD 11)
@@ -18,16 +20,33 @@ endif()
 # Initialize the SDK
 pico_sdk_init()
 
+add_executable(agrum
+        app/main.c
+        )
+
 # Add HAL, driver and lib directories
+include_directories(app)
 add_subdirectory(app)
 add_subdirectory(hal)
 add_subdirectory(driver)
 
 # add_subdirectory(lib)
 
+
 add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
         -Wno-unused-function # we have some for the docs that aren't called
         -Wno-maybe-uninitialized
         )
+
+# enable usb output, disable uart output
+pico_enable_stdio_usb(agrum 1)
+pico_enable_stdio_uart(agrum 0)
+
+# create map/bin/hex file etc.
+pico_add_extra_outputs(agrum)
+
+# Disable useless waringn
+target_link_options(agrum PRIVATE "LINKER:--no-warn-rwx-segments")
+
 
