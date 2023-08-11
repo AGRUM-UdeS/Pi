@@ -4,7 +4,7 @@ add_library(wrap_NTP
 
 target_link_libraries(wrap_NTP
         pico_stdlib              # for core functionality
-        pico_cyw43_arch_lwip_threadsafe_background
+        pico_cyw43_arch_lwip_sys_freertos
         driver
         wrap_RTC
         )

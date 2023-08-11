@@ -25,7 +25,7 @@ add_library(driver)
 # Specify any libraries or dependencies that the driver library requires
 target_link_libraries(driver
     pico_stdlib
-    pico_cyw43_arch_lwip_threadsafe_background
+    pico_cyw43_arch_lwip_sys_freertos
     pico_lwip
     pico_lwip_http
 

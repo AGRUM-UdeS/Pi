@@ -5,7 +5,7 @@ add_library(wrap_MQTT
 
 target_link_libraries(wrap_MQTT
         pico_stdlib              # for core functionality
-        pico_cyw43_arch_lwip_threadsafe_background
+        pico_cyw43_arch_lwip_sys_freertos
         pico_lwip
         driver
         )

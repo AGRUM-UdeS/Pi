@@ -102,7 +102,7 @@
 */
 
 /* SMP port only */
-#define configNUM_CORES                         2
+#define configNUM_CORES                         1
 #define configTICK_CORE                         0
 #define configRUN_MULTIPLE_PRIORITIES           0
 
@@ -134,6 +134,8 @@ to exclude the API function. */
 #define INCLUDE_xQueueGetMutexHolder            1
 
 /* A header file that defines trace macro can be included here. */
+
+#define portTICK_RATE_MS portTICK_PERIOD_MS
 
 #endif /* FREERTOS_CONFIG_H */
 

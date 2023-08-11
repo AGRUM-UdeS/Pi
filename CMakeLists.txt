@@ -1,9 +1,18 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Pull in SDK (must be before project)
+include_directories(lib/pico-sdk/lib/lwip/contrib/ports/freertos/include)
+include_directories(lib/pico-sdk/lib/lwip/src/include)
+include_directories(lib/FreeRTOS/FreeRTOS-SMP-Demos/FreeRTOS/Source/include)
+include_directories(lib/FreeRTOS/FreeRTOS-SMP-Demos/FreeRTOS/Source/portable/ThirdParty/GCC/RP2040/include)
+
 include(pico_sdk_import.cmake)
+
 set(FREERTOS_KERNEL_PATH ../lib/FreeRTOS/FreeRTOS-SMP-Demos/FreeRTOS/Source)
 include(lib/FreeRTOS/FreeRTOS-SMP-Demos/FreeRTOS/Demo/CORTEX_M0+_RP2040/Standard/FreeRTOS_Kernel_import.cmake)
+
+set(LWIP_DIR lib/pico-sdk/lib/lwip)
+include(lib/pico-sdk/external/pico_sdk_import.cmake)
 
 project(AGRUM C CXX ASM)
 set(CMAKE_C_STANDARD 11)
@@ -30,8 +39,6 @@ add_subdirectory(app)
 add_subdirectory(hal)
 add_subdirectory(driver)
 
-# add_subdirectory(lib)
-
 
 add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
@@ -48,5 +55,15 @@ pico_add_extra_outputs(agrum)
 
 # Disable useless waringn
 target_link_options(agrum PRIVATE "LINKER:--no-warn-rwx-segments")
+
+target_link_libraries(agrum
+        pico_stdlib              # for core functionality
+        FreeRTOS-Kernel
+        FreeRTOS-Kernel-Heap4
+        pico_cyw43_arch_lwip_sys_freertos
+        app
+        driver
+        hal
+        )
 
 

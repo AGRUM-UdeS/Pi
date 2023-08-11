@@ -9,9 +9,10 @@
 
 #define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 1)
 
+#define LWIP_PROVIDE_ERRNO          1
 // allow override in some examples
 #ifndef NO_SYS
-#define NO_SYS                      1
+#define NO_SYS                      0
 #endif
 // allow override in some examples
 #ifndef LWIP_SOCKET
