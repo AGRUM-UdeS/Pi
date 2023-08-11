@@ -1,3 +1,8 @@
+/* Kernel includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
 #include "utils.h"
 
 #define PING_PERIOD_MS  (1*60*1000)
@@ -32,7 +37,9 @@ void init_peripherals(void)
     // init_heartbeat_led();
 }
 
-void house_keeping(void)
+#define HOUSEKEEPING_FREQUENCY_MS			( 1000 / portTICK_PERIOD_MS )
+
+void house_keeping(void *pvParameters)
 {
     feed_watchdog();
 
@@ -41,6 +48,8 @@ void house_keeping(void)
         interface_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
         ping_interface_flag = false;
     }
+    TickType_t xNextWakeTime = xTaskGetTickCount();
+    vTaskDelayUntil( &xNextWakeTime, HOUSEKEEPING_FREQUENCY_MS );
 }
 
 void send_system_status(

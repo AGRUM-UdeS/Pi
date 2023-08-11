@@ -10,7 +10,7 @@ target_include_directories(agrum PRIVATE
 target_link_libraries(agrum
         pico_stdlib              # for core functionality
         FreeRTOS-Kernel
-        FreeRTOS-Kernel-Heap1
+        FreeRTOS-Kernel-Heap4
         irrigation
         pv_management
         energy_management

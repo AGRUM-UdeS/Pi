@@ -27,6 +27,8 @@ void vApplicationIdleHook( void );
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 void vApplicationTickHook( void );
 
+#define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
+
 void init(void) {
     // Init RP2040 peripherals
     stdio_init_all();
@@ -66,16 +68,25 @@ int main() {
     
     init();
 
-    while (true) {
-        house_keeping();
-        interface_status_t status_interface = interface_sm();
-        irrigation_status_t status_irrigation = irrigation_sm();
-        energy_status_t status_energy = enery_management();
-        send_system_status(status_interface, status_irrigation, status_energy);
-        //develop_test();
-        sleep_ms(50);
+    xTaskCreate( house_keeping,				/* The function that implements the task. */
+            "house_keeping", 								/* The text name assigned to the task - for debug only as it is not used by the kernel. */
+            configMINIMAL_STACK_SIZE, 			/* The size of the stack to allocate to the task. */
+            NULL, 								/* The parameter passed to the task - not used in this case. */
+            HOUSEKEEPING_TASK_PRIORITY, 	/* The priority assigned to the task. */
+            NULL );								/* The task handle is not required, so NULL is passed. */
 
-    }
+    /* Start the tasks and timer running. */
+	vTaskStartScheduler();
+    // while (true) {
+    //     house_keeping();
+    //     interface_status_t status_interface = interface_sm();
+    //     irrigation_status_t status_irrigation = irrigation_sm();
+    //     energy_status_t status_energy = enery_management();
+    //     send_system_status(status_interface, status_irrigation, status_energy);
+    //     //develop_test();
+    //     sleep_ms(50);
+
+    // }
     return 0;
 }
 
