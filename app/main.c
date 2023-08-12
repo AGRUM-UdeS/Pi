@@ -28,14 +28,9 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 void vApplicationTickHook( void );
 
 #define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
+#define STARTUP_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
 
-void init(void) {
-    // Init RP2040 peripherals
-    stdio_init_all();
-
-    // Delay to let the developer open Putty
-    usb_delay(5);
-
+void startUp(void *pvParameters) {
     if (connect_to_interface() == INTERFACE_CONNECTED) {
         init_timer();
         interface_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
@@ -56,24 +51,38 @@ void init(void) {
     // Init energy management
     enery_management();
 
-    // develop_test();
-    feed_watchdog();
-
     // Get weather data
     // printf("\n-------- Getting weather data\n");
     // weather_current_request();
-}
-
-int main() {
-    
-    init();
-
     xTaskCreate( house_keeping,				/* The function that implements the task. */
             "house_keeping", 								/* The text name assigned to the task - for debug only as it is not used by the kernel. */
             configMINIMAL_STACK_SIZE, 			/* The size of the stack to allocate to the task. */
             NULL, 								/* The parameter passed to the task - not used in this case. */
             HOUSEKEEPING_TASK_PRIORITY, 	/* The priority assigned to the task. */
             NULL );								/* The task handle is not required, so NULL is passed. */
+
+    while(1) {
+        interface_status_t status_interface = interface_sm();
+        irrigation_status_t status_irrigation = irrigation_sm();
+        energy_status_t status_energy = enery_management();
+        send_system_status(status_interface, status_irrigation, status_energy);
+        vTaskDelay(50);
+    }
+}
+
+int main() {
+    // Init RP2040 peripherals
+    stdio_init_all();
+
+    // Delay to let the developer open Putty
+    usb_delay(5);
+
+    xTaskCreate( startUp,				/* The function that implements the task. */
+            "startUp", 								/* The text name assigned to the task - for debug only as it is not used by the kernel. */
+            configMINIMAL_STACK_SIZE, 			/* The size of the stack to allocate to the task. */
+            NULL, 								/* The parameter passed to the task - not used in this case. */
+            STARTUP_TASK_PRIORITY, 	/* The priority assigned to the task. */
+            NULL );
 
     /* Start the tasks and timer running. */
 	vTaskStartScheduler();

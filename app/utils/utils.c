@@ -41,15 +41,17 @@ void init_peripherals(void)
 
 void house_keeping(void *pvParameters)
 {
-    feed_watchdog();
+    while(1) {
+        feed_watchdog();
 
-    if (interface_is_connected() && ping_interface_flag) {
-        // Send ping to the interface
-        interface_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
-        ping_interface_flag = false;
+        if (interface_is_connected() && ping_interface_flag) {
+            // Send ping to the interface
+            interface_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
+            ping_interface_flag = false;
+        }
+        TickType_t xNextWakeTime = xTaskGetTickCount();
+        vTaskDelayUntil( &xNextWakeTime, HOUSEKEEPING_FREQUENCY_MS );
     }
-    TickType_t xNextWakeTime = xTaskGetTickCount();
-    vTaskDelayUntil( &xNextWakeTime, HOUSEKEEPING_FREQUENCY_MS );
 }
 
 void send_system_status(

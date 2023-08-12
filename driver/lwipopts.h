@@ -14,6 +14,15 @@
 #ifndef NO_SYS
 #define NO_SYS                      0
 #endif
+
+#if !NO_SYS
+#define TCPIP_THREAD_STACKSIZE		1024
+#define DEFAULT_THREAD_STACKSIZE	1024
+#define DEFAULT_RAW_RECVMBOX_SIZE	8
+#define TCPIP_MBOX_SIZE				8
+#define LWIP_TIMEVAL_PRIVATE		0
+#endif
+
 // allow override in some examples
 #ifndef LWIP_SOCKET
 #define LWIP_SOCKET                 0

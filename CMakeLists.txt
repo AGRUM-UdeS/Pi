@@ -56,14 +56,4 @@ pico_add_extra_outputs(agrum)
 # Disable useless waringn
 target_link_options(agrum PRIVATE "LINKER:--no-warn-rwx-segments")
 
-target_link_libraries(agrum
-        pico_stdlib              # for core functionality
-        FreeRTOS-Kernel
-        FreeRTOS-Kernel-Heap4
-        pico_cyw43_arch_lwip_sys_freertos
-        app
-        driver
-        hal
-        )
-
 
