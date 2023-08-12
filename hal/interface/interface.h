@@ -1,6 +1,11 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+/* Scheduler include files. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
 #include "wrap_WIFI.h"
 #include "ThingsBoard.h"
 #include "timing.h"
@@ -44,6 +49,6 @@ bool interface_publish(unsigned char *topic, float value);
  * 
  * \return The state in which the state-machine was.
  */
-interface_status_t interface_sm(void);
+void interface(void *pvParameters);
 
 #endif

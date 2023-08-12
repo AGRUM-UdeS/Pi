@@ -41,7 +41,9 @@ void init_peripherals(void)
 
 void house_keeping(void *pvParameters)
 {
+    init_watchdog();
     while(1) {
+        printf("House chores..\n");
         feed_watchdog();
 
         if (interface_is_connected() && ping_interface_flag) {
@@ -49,8 +51,7 @@ void house_keeping(void *pvParameters)
             interface_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
             ping_interface_flag = false;
         }
-        TickType_t xNextWakeTime = xTaskGetTickCount();
-        vTaskDelayUntil( &xNextWakeTime, HOUSEKEEPING_FREQUENCY_MS );
+        vTaskDelay(500);
     }
 }
 

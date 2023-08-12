@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "context.h"
 #include "interface.h"
 #include "PV_management.h"
 #include "irrigation.h"
@@ -28,44 +29,51 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 void vApplicationTickHook( void );
 
 #define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
-#define STARTUP_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
+#define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
+#define INTERFACE_TASK_PRIORITY         ( tskIDLE_PRIORITY + 0 )
+
+main_context_t main_context;
 
 void startUp(void *pvParameters) {
     if (connect_to_interface() == INTERFACE_CONNECTED) {
         init_timer();
-        interface_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
     }
-    // Init watchdog before wifi connection
-    init_watchdog();
-
-    feed_watchdog();
-
     init_peripherals();
 
     // Init everything irrigation related 
-    init_irrigation();
+    // init_irrigation();
 
-    // Init everything solar panels related
-    init_PV();
+    // // Init everything solar panels related
+    // init_PV();
 
-    // Init energy management
-    enery_management();
+    // // Init energy management
+    // enery_management();
 
     // Get weather data
     // printf("\n-------- Getting weather data\n");
     // weather_current_request();
-    xTaskCreate( house_keeping,				/* The function that implements the task. */
-            "house_keeping", 								/* The text name assigned to the task - for debug only as it is not used by the kernel. */
-            configMINIMAL_STACK_SIZE, 			/* The size of the stack to allocate to the task. */
-            NULL, 								/* The parameter passed to the task - not used in this case. */
-            HOUSEKEEPING_TASK_PRIORITY, 	/* The priority assigned to the task. */
-            NULL );								/* The task handle is not required, so NULL is passed. */
+    xTaskCreate( interface,
+            "interface",
+            configMINIMAL_STACK_SIZE,
+            &(main_context.interface_status),
+            INTERFACE_TASK_PRIORITY,
+            NULL );
+    while(main_context.interface_status != INTERFACE_CONNECTED) {
+        printf("(%d)\n", main_context.interface_status);
+        vTaskDelay(1);
+    }
+
+    // xTaskCreate( house_keeping,
+    //         "house_keeping",
+    //         configMINIMAL_STACK_SIZE,
+    //         &main_context,
+    //         HOUSEKEEPING_TASK_PRIORITY,
+    //         NULL );
 
     while(1) {
-        interface_status_t status_interface = interface_sm();
-        irrigation_status_t status_irrigation = irrigation_sm();
-        energy_status_t status_energy = enery_management();
-        send_system_status(status_interface, status_irrigation, status_energy);
+        // irrigation_status_t status_irrigation = irrigation_sm();
+        // energy_status_t status_energy = enery_management();
+        //send_system_status(status_interface, status_irrigation, status_energy);
         vTaskDelay(50);
     }
 }
@@ -77,11 +85,11 @@ int main() {
     // Delay to let the developer open Putty
     usb_delay(5);
 
-    xTaskCreate( startUp,				/* The function that implements the task. */
-            "startUp", 								/* The text name assigned to the task - for debug only as it is not used by the kernel. */
-            configMINIMAL_STACK_SIZE, 			/* The size of the stack to allocate to the task. */
-            NULL, 								/* The parameter passed to the task - not used in this case. */
-            STARTUP_TASK_PRIORITY, 	/* The priority assigned to the task. */
+    xTaskCreate( startUp,               /* The function that implements the task. */
+            "startUp",                  /* The text name assigned to the task - for debug only as it is not used by the kernel. */
+            configMINIMAL_STACK_SIZE,   /* The size of the stack to allocate to the task. */
+            &main_context, 					    /* The parameter passed to the task - not used in this case. */
+            STARTUP_TASK_PRIORITY, 	    /* The priority assigned to the task. */
             NULL );
 
     /* Start the tasks and timer running. */
