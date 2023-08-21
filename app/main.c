@@ -30,7 +30,7 @@ void vApplicationTickHook( void );
 
 #define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
 #define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
-#define INTERFACE_TASK_PRIORITY         ( tskIDLE_PRIORITY + 0 )
+#define INTERFACE_TASK_PRIORITY         ( tskIDLE_PRIORITY + 2 )
 
 main_context_t main_context;
 
@@ -41,13 +41,13 @@ void startUp(void *pvParameters) {
     init_peripherals();
 
     // Init everything irrigation related 
-    // init_irrigation();
+    init_irrigation();
 
-    // // Init everything solar panels related
-    // init_PV();
+    // Init everything solar panels related
+    init_PV();
 
-    // // Init energy management
-    // enery_management();
+    // Init energy management
+    enery_management();
 
     // Get weather data
     // printf("\n-------- Getting weather data\n");
@@ -55,20 +55,20 @@ void startUp(void *pvParameters) {
     xTaskCreate( interface,
             "interface",
             configMINIMAL_STACK_SIZE,
-            &(main_context.interface_status),
+            &main_context,
             INTERFACE_TASK_PRIORITY,
             NULL );
-    while(main_context.interface_status != INTERFACE_CONNECTED) {
-        printf("(%d)\n", main_context.interface_status);
-        vTaskDelay(1);
-    }
+    // while(main_context.interface_status != INTERFACE_CONNECTED) {
+    //     printf("(%d)\n", main_context.interface_status);
+    //     vTaskDelay(10);
+    // }
 
-    // xTaskCreate( house_keeping,
-    //         "house_keeping",
-    //         configMINIMAL_STACK_SIZE,
-    //         &main_context,
-    //         HOUSEKEEPING_TASK_PRIORITY,
-    //         NULL );
+    xTaskCreate( house_keeping,
+            "house_keeping",
+            configMINIMAL_STACK_SIZE,
+            &main_context,
+            HOUSEKEEPING_TASK_PRIORITY,
+            NULL );
 
     while(1) {
         // irrigation_status_t status_irrigation = irrigation_sm();

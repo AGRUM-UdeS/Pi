@@ -3,14 +3,30 @@
 // Uncomment this for prod build
 // #define PUBLISH
 
-bool interface_publish(unsigned char *topic, float value)
+main_context_t *context;
+
+bool interface_publish(unsigned char *topic, float value) 
+{
+    if (!context) {
+        return false;
+    }
+    mqtt_message_t msg;
+    msg.value = value;
+    snprintf(msg.topic, sizeof(msg.topic), "%s\0", topic);
+    msg.topic[MAX_TOPIC_LEN - 1] = '\0';
+    if (xQueueSend(context->interface_queue_handle, &msg, 500) == pdTRUE) {
+        return true;
+    }
+    return false;
+}
+
+static bool interface_send(unsigned char *topic, float value)
 {
     if (!interface_is_connected()) {
         return false;
     }
     
 #ifdef PUBLISH
-    sleep_ms(5); // Delay not to overload wifi
     if (ThingsBoard_publish(topic, value) != THINGSBOARD_OK) {
         printf("Client not connected...\n");
         return false;
@@ -20,8 +36,8 @@ bool interface_publish(unsigned char *topic, float value)
         return true;
     }
 #else
-    unsigned char test_topic[30];
-    snprintf(test_topic, sizeof(test_topic), "TEST_%s", topic);
+    unsigned char test_topic[MAX_TOPIC_LEN];
+    snprintf(test_topic, sizeof(test_topic), "TEST_%s\0", topic);
     if (ThingsBoard_publish(test_topic, value) != THINGSBOARD_OK) {
         printf("Client not connected...\n");
         return false;
@@ -49,40 +65,33 @@ bool interface_is_connected(void)
     return ThingsBoard_is_connected();
 }
 
-void interface(void *pvParameters)
+void interface(void *pvParameter)
 {
-    interface_status_t *interface_state = (interface_status_t*)pvParameters;
-    *interface_state = INTERFACE_CONNECTING;
+    context = (main_context_t*)pvParameter; 
+    context->interface_queue_handle = xQueueCreate(10, sizeof(mqtt_message_t));
 
-    while (1) {
+    if (ThingsBoard_connect() == THINGSBOARD_CONNECTED) {
+        context->interface_status = INTERFACE_CONNECTED;
+        interface_send(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
+    }
 
-        switch (*interface_state) {
-        case INTERFACE_CONNECTED:
-            if (!interface_is_connected()) {
-                *interface_state = INTERFACE_DISCONNECTED;
-            }
-
-            break;
-
-        case INTERFACE_CONNECTING:
+    while(true){
+        if (!interface_is_connected()) {
+            printf("Interface disconnected, reconnecting\n");
+            context->interface_status = INTERFACE_DISCONNECTED;
             if (ThingsBoard_connect() == THINGSBOARD_CONNECTED) {
-                interface_publish(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
-                *interface_state = INTERFACE_CONNECTED;
+                context->interface_status = INTERFACE_CONNECTED;
+                interface_send(PI_STATUS_TOPIC, PI_STATUS_CONNECTED);
             } else {
-                printf("Unable to reconnect to thingsboard, retrying...\n");
+                printf("Unable to connect to thingsboard, retrying...\n");
+                vTaskDelay(500);
             }
-        
-            break;
-
-        case INTERFACE_DISCONNECTED:
-            printf("Interface disconnected, reconnecting...\n");
-            *interface_state = INTERFACE_CONNECTING;
-
-            break;
-
-        case INTERFACE_ERROR:
-
-            break;
+            continue;
+        } else {
+            mqtt_message_t msg;
+            if (xQueueReceive(context->interface_queue_handle, &msg, 200) == pdTRUE) {
+                interface_send(msg.topic, msg.value);
+            }
         }
         vTaskDelay(10);
     }

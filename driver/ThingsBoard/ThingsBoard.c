@@ -1,16 +1,16 @@
 #include "ThingsBoard.h"
 
-static mqtt_client_t* mqtt_client;
+static mqtt_client_t* mqtt_client = NULL;
 
-#define CONNECTION_TIMEOUT_MS     200
+#define CONNECTION_TIMEOUT_MS     2000
 #define CONNECTION_TEST_DELAY_MS  5
-#define KEEP_ALIVE_TIMEOUT        3600
+#define KEEP_ALIVE_TIMEOUT        65535
 #define THINGSBOARD_HOSTNAME      "thingsboard.cloud"
 #define MQTT_CONNECTION_RETRY     3
 
 static const struct mqtt_connect_client_info_t mqtt_client_info =
 {
-  "RaspberryPiPicoW", /* Client id */
+  "RaspberryPiPicoWTEST", /* Client id */
   "RaspberryPiPicoW", /* user, or access token in our case */
   "RaspberryPiPicoW", /* pass */
   KEEP_ALIVE_TIMEOUT,  /* keep alive */
@@ -31,7 +31,7 @@ thingsboard_state_t ThingsBoard_connect(void) {
     if (connect_status == MQTT_CONNECT_ACCEPTED) {
       break;
     }
-    sleep_ms(5);
+    vTaskDelay(5);
   }
 
   if (connect_status != MQTT_CONNECT_ACCEPTED) {
@@ -44,7 +44,7 @@ thingsboard_state_t ThingsBoard_connect(void) {
       printf("Connected after %d ms\n", i*CONNECTION_TEST_DELAY_MS);
       return THINGSBOARD_CONNECTED;
     }
-    sleep_ms(CONNECTION_TEST_DELAY_MS);
+    vTaskDelay(CONNECTION_TEST_DELAY_MS);
   }
   return THINGSBOARD_FAILED;
 }
@@ -85,9 +85,5 @@ thingsboard_state_t ThingsBoard_disconnect(void) {
 }
 
 bool ThingsBoard_is_connected(void) {
-    if (mqtt_client_is_connected(mqtt_client)) {
-        return true;
-    } else {
-        return false;
-    }
+    return broker_is_connected();
 }

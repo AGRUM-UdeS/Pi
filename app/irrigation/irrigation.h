@@ -1,18 +1,11 @@
 #ifndef IRRIGATION_H
 #define IRRIGATION_H
 
+#include "context.h"
 #include "pump.h"
 #include "valve.h"
 #include "sensors.h"
 #include "interface.h"
-
-typedef enum _irrigation_status_t{
-    IRRIGATION_IDLE,
-    IRRIGATION_MEASURING,
-    IRRIGATION_PUMPING,
-    IRRIGATION_IRRIGATING,
-    IRRIGATION_ERROR
-} irrigation_status_t;
 
 /*! \brief Init irrigation hardware
  *

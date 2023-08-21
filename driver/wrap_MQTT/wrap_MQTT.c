@@ -3,6 +3,11 @@
 #include <stdbool.h>
 #include <string.h>
 
+/* Kernel includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
 #include "wrap_MQTT.h"
 #include "lwipopts.h"
 
@@ -121,13 +126,13 @@ err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client
       return ret;
       
     }
-    sleep_ms(RESOLVE_HOSTNAME_DELAY_MS);
+    vTaskDelay(RESOLVE_HOSTNAME_DELAY_MS);
   }
 
   host_name_is_resolved = false;
   return (err_t)MQTT_CONNECT_TIMEOUT;
 }
 
-bool thingsboard_is_connected(void) {
+bool broker_is_connected(void) {
   return is_thingsboard_connected;
 }

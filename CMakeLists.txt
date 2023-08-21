@@ -35,6 +35,7 @@ add_executable(agrum
 
 # Add HAL, driver and lib directories
 include_directories(app)
+include_directories(app/utils)
 add_subdirectory(app)
 add_subdirectory(hal)
 add_subdirectory(driver)
