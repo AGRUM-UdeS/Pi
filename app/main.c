@@ -58,10 +58,6 @@ void startUp(void *pvParameters) {
             &main_context,
             INTERFACE_TASK_PRIORITY,
             NULL );
-    // while(main_context.interface_status != INTERFACE_CONNECTED) {
-    //     printf("(%d)\n", main_context.interface_status);
-    //     vTaskDelay(10);
-    // }
 
     xTaskCreate( house_keeping,
             "house_keeping",
@@ -74,6 +70,7 @@ void startUp(void *pvParameters) {
         // irrigation_status_t status_irrigation = irrigation_sm();
         // energy_status_t status_energy = enery_management();
         //send_system_status(status_interface, status_irrigation, status_energy);
+        //develop_test();
         vTaskDelay(50);
     }
 }
@@ -93,17 +90,7 @@ int main() {
             NULL );
 
     /* Start the tasks and timer running. */
-	vTaskStartScheduler();
-    // while (true) {
-    //     house_keeping();
-    //     interface_status_t status_interface = interface_sm();
-    //     irrigation_status_t status_irrigation = irrigation_sm();
-    //     energy_status_t status_energy = enery_management();
-    //     send_system_status(status_interface, status_irrigation, status_energy);
-    //     //develop_test();
-    //     sleep_ms(50);
-
-    // }
+	vTaskStartScheduler(); // Never return
     return 0;
 }
 

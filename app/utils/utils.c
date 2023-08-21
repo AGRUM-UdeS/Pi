@@ -6,7 +6,7 @@
 #include "context.h"
 #include "utils.h"
 
-#define PING_PERIOD_MS  (1*1*1000)
+#define PING_PERIOD_MS  (1*60*1000)
 
 static repeating_timer_t ping_timer;
 static bool ping_interface_flag = false;
