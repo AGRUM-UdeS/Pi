@@ -4,7 +4,7 @@ add_library(wrap_WIFI
 
 target_link_libraries(wrap_WIFI
         pico_stdlib              # for core functionality
-        pico_cyw43_arch_lwip_threadsafe_background
+        pico_cyw43_arch_lwip_sys_freertos
         secret
         driver
         )

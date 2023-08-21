@@ -1,3 +1,9 @@
+/* Kernel includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
+#include "context.h"
 #include "utils.h"
 
 #define PING_PERIOD_MS  (1*60*1000)
@@ -32,14 +38,20 @@ void init_peripherals(void)
     // init_heartbeat_led();
 }
 
-void house_keeping(void)
-{
-    feed_watchdog();
+#define HOUSEKEEPING_FREQUENCY_MS			( 1000 / portTICK_PERIOD_MS )
 
-    if (interface_is_connected() && ping_interface_flag) {
-        // Send ping to the interface
-        interface_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
-        ping_interface_flag = false;
+void house_keeping(void *pvParameters)
+{
+    init_watchdog();
+    while(1) {
+        feed_watchdog();
+
+        if (interface_is_connected() && ping_interface_flag) {
+            // Send ping to the interface
+            interface_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
+            ping_interface_flag = false;
+        }
+        vTaskDelay(500);
     }
 }
 

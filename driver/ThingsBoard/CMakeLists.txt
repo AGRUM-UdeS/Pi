@@ -4,7 +4,7 @@ add_library(ThingsBoard
 
 target_link_libraries(ThingsBoard
         pico_stdlib              # for core functionality
-        pico_cyw43_arch_lwip_threadsafe_background
+        pico_cyw43_arch_lwip_sys_freertos
 
         wrap_MQTT
         wrap_RTC

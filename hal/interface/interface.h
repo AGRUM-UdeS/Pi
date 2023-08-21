@@ -1,6 +1,12 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+/* Scheduler include files. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
+#include "context.h"
 #include "wrap_WIFI.h"
 #include "ThingsBoard.h"
 #include "timing.h"
@@ -11,13 +17,12 @@
 #define ENERGY_STATUS_TOPIC     ("Energy state")
 #define PI_STATUS_CONNECTED     (0)
 #define PI_STATUS_PING          (1)
+#define MAX_TOPIC_LEN           (64)
 
-typedef enum _interface_status_t{
-    INTERFACE_CONNECTED,
-    INTERFACE_CONNECTING,
-    INTERFACE_DISCONNECTED,
-    INTERFACE_ERROR,
-} interface_status_t;
+typedef struct _mqtt_message {
+    unsigned char topic[MAX_TOPIC_LEN];
+    float value;
+} mqtt_message_t;
 
 /*! \brief Try to connect to the remote interface
  * 
@@ -42,8 +47,7 @@ bool interface_publish(unsigned char *topic, float value);
 
 /*! \brief State-machine managing the interface connection
  * 
- * \return The state in which the state-machine was.
  */
-interface_status_t interface_sm(void);
+void interface(void *pvParameters);
 
 #endif

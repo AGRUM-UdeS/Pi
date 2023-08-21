@@ -12,6 +12,8 @@ target_link_libraries(utils
         sensors
         interface
         wrap_WATCHDOG
+        FreeRTOS-Kernel
+        FreeRTOS-Kernel-Heap4
         )
 
 target_include_directories(utils PUBLIC

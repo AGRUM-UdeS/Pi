@@ -7,5 +7,6 @@
 #include "pico/cyw43_arch.h"
 
 err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client_info_t* client_info, const char *hostname);
+bool broker_is_connected(void);
 
 #endif

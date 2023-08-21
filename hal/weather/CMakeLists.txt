@@ -5,7 +5,7 @@ add_library(weather
 
 target_link_libraries(weather
         pico_stdlib              # for core functionality
-        pico_cyw43_arch_lwip_threadsafe_background
+        pico_cyw43_arch_lwip_sys_freertos
         pico_lwip
         pico_lwip_http
         wrap_WIFI

@@ -35,7 +35,7 @@ void init_peripherals(void);
 /*! \brief Some house keeping task. (Watchdog, interface ping, etc)
  * 
  */
-void house_keeping(void);
+void house_keeping(void *pvParameters);
 
 /*! \brief Send system states to the interface
  * 

@@ -1,6 +1,11 @@
 #ifndef THINGSBOARD_H
 #define THINGSBOARD_H
 
+/* Kernel includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>

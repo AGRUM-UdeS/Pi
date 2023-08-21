@@ -9,10 +9,20 @@
 
 #define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 1)
 
+#define LWIP_PROVIDE_ERRNO          1
 // allow override in some examples
 #ifndef NO_SYS
-#define NO_SYS                      1
+#define NO_SYS                      0
 #endif
+
+#if !NO_SYS
+#define TCPIP_THREAD_STACKSIZE		1024
+#define DEFAULT_THREAD_STACKSIZE	1024
+#define DEFAULT_RAW_RECVMBOX_SIZE	8
+#define TCPIP_MBOX_SIZE				8
+#define LWIP_TIMEVAL_PRIVATE		0
+#endif
+
 // allow override in some examples
 #ifndef LWIP_SOCKET
 #define LWIP_SOCKET                 0
