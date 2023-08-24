@@ -64,11 +64,11 @@ void send_system_status(
         static system_status_t last_status = SYSTEM_ERROR;
         system_status_t status = SYSTEM_IDLE;
         // TODO: Add more states
-        if (status_irrigation == IRRIGATION_MEASURING) {
+        if (status_irrigation == IRRIGATION_MEASUREMENT) {
             status = SYSTEM_MEASURING;
-        } else if (status_irrigation == IRRIGATION_IRRIGATING) {
+        } else if (status_irrigation == IRRIGATION_WATERING) {
             status = SYSTEM_IRRIGATING;
-        } else if (status_irrigation == IRRIGATION_PUMPING) {
+        } else if (status_irrigation == IRRIGATION_RESERVOIR2BARREL) {
             status = SYSTEM_WATER_PUMPING;
         }
 

@@ -6,7 +6,6 @@
 #include "task.h"
 #include "semphr.h"
 
-#include "context.h"
 #include "wrap_WIFI.h"
 #include "ThingsBoard.h"
 #include "timing.h"
@@ -23,6 +22,12 @@ typedef struct _mqtt_message {
     unsigned char topic[MAX_TOPIC_LEN];
     float value;
 } mqtt_message_t;
+
+typedef enum _interface_status_t {
+    INTERFACE_CONNECTED,
+    INTERFACE_DISCONNECTED,
+    INTERFACE_ERROR
+} interface_status_t;
 
 /*! \brief Try to connect to the remote interface
  * 

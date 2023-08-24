@@ -2,6 +2,10 @@
 
 #include "sensors.h"
 
+#define PV_VOLTAGE_TOPIC        ("Tension PV")
+#define PV_CURRENT_TOPIC        ("Courant PV")
+// TODO: definir autre mesure
+
 // TODO: Modify voltage
 #define BATTERY_OVERCHARGED_VOLTAGE (27.0)
 #define BATTERY_FULL_VOLTAGE        (26.0)
