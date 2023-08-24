@@ -33,6 +33,7 @@ void vApplicationTickHook( void );
 #define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
 #define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
 #define INTERFACE_TASK_PRIORITY         ( tskIDLE_PRIORITY + 2 )
+#define WEATHER_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
 
 static weather_handle_t weather_forecast;
 main_context_t main_context;
@@ -77,6 +78,13 @@ void startUp(void *pvParameters) {
             HOUSEKEEPING_TASK_PRIORITY,
             NULL );
 
+        xTaskCreate( house_keeping,
+            "house_keeping",
+            configMINIMAL_STACK_SIZE,
+            &main_context,
+            WEATHER_TASK_PRIORITY,
+            NULL );
+
     while(1) {
         // irrigation_status_t status_irrigation = irrigation_sm();
         // energy_status_t status_energy = enery_management();
@@ -84,8 +92,6 @@ void startUp(void *pvParameters) {
         //develop_test();
         vTaskDelay(50);
     }
-    printf("\n-------- Getting weather data\n");
-    weather_init(&weather_forecast_h);
 }
 
 int main() {

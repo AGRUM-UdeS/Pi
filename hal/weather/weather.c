@@ -1,4 +1,5 @@
 #include "weather.h"
+#include "context.h"
 
 /* ----- Weather data fetch alarm time -----*/
 #define WEATHER_ALARM_HOUR      (6)
@@ -283,22 +284,23 @@ static void weather_alarm_callback(void)
     weather_cb_flag = true;
 }
 
-void weather_init(weather_handle_t* weather_handle)
+void weather_task(void *pvParameters)
 {
+    main_context_t *context = (main_context_t*)pvParameters;
+
     // Get weather every hour
     rtc_set_alarm(&weather_alarm, &weather_alarm_callback);
-}
 
-weather_status_t weather_task(weather_handle_t* weather_handle)
-{
-    if (!weather_cb_flag) {
-        return WEATHER_ERROR;
+    while(1) {
+        if (weather_cb_flag) {
+            weather_cb_flag = false;
+            context->weather_forecast = weather_current_request();
+            context->weather_status = WEATHER_ERROR;
+        }
+        context->weather_status = WEATHER_OK;
+        vTaskDelay(60000); // check flage every minute
     }
 
-    weather_cb_flag = false;
-    weather_handle->weather_forecast = weather_current_request();
-    weather_handle->is_received = true;
-    return WEATHER_OK;
 }
 
 static void log_weather(weather_forecast_t* forecast)
@@ -342,23 +344,23 @@ static void printf_weather(weather_forecast_t* forecast)
     }
 }
 
-void weather_printf(weather_handle_t* weather_handle, weather_print_log_t print_log)
+void weather_printf(weather_forecast_t* weather_forecast, weather_print_log_t print_log)
 {
     switch (print_log) {
     case (NO_LOG_NO_PRINT_WEATHER):
         break;
 
     case (PRINT_WEATHER):
-        printf_weather(&(weather_handle->weather_forecast));
+        printf_weather(weather_forecast);
         break;
 
     case (LOG_WEATHER):
-        log_weather(&(weather_handle->weather_forecast));
+        log_weather(weather_forecast);
         break;
 
     case (LOG_AND_PRINT_WEATHER):
-        log_weather(&(weather_handle->weather_forecast));
-        printf_weather(&(weather_handle->weather_forecast));
+        log_weather(weather_forecast);
+        printf_weather(weather_forecast);
         break;
     }
 }

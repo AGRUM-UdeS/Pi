@@ -15,7 +15,6 @@
 #define SYSTEM_STATUS_TOPIC     ("System state")
 #define ENERGY_STATUS_TOPIC     ("Energy state")
 #define PI_STATUS_CONNECTED     (0)
-#define PI_STATUS_PING          (1)
 #define MAX_TOPIC_LEN           (64)
 #define PI_STATUS_PING          (to_ms_since_boot(get_absolute_time())/1000)
 

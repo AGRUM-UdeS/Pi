@@ -45,11 +45,6 @@ typedef struct _weather_forecast_t {
     uint64_t last_updated;
 } weather_forecast_t;
 
-typedef struct _weather_handle_t {
-    bool is_received;
-    weather_forecast_t weather_forecast;
-} weather_handle_t;
-
 typedef enum _weather_print_log_t {
     NO_LOG_NO_PRINT_WEATHER,
     PRINT_WEATHER,
@@ -57,8 +52,7 @@ typedef enum _weather_print_log_t {
     LOG_AND_PRINT_WEATHER
 } weather_print_log_t;
 
-void weather_init(weather_handle_t* weather_handle);
-weather_status_t weather_task(weather_handle_t* weather_handle);
-void weather_printf(weather_handle_t* weather_handle, weather_print_log_t print_log);
+void weather_task(void *pvParameters);
+void weather_printf(weather_forecast_t* weather_forecast, weather_print_log_t print_log);
 
 #endif
