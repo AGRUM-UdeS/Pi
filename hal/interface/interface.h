@@ -6,7 +6,6 @@
 #include "task.h"
 #include "semphr.h"
 
-#include "context.h"
 #include "wrap_WIFI.h"
 #include "ThingsBoard.h"
 #include "timing.h"
@@ -16,7 +15,6 @@
 #define SYSTEM_STATUS_TOPIC     ("System state")
 #define ENERGY_STATUS_TOPIC     ("Energy state")
 #define PI_STATUS_CONNECTED     (0)
-#define PI_STATUS_PING          (1)
 #define MAX_TOPIC_LEN           (64)
 #define PI_STATUS_PING          (to_ms_since_boot(get_absolute_time())/1000)
 
@@ -24,6 +22,12 @@ typedef struct _mqtt_message {
     unsigned char topic[MAX_TOPIC_LEN];
     float value;
 } mqtt_message_t;
+
+typedef enum _interface_status_t {
+    INTERFACE_CONNECTED,
+    INTERFACE_DISCONNECTED,
+    INTERFACE_ERROR
+} interface_status_t;
 
 /*! \brief Try to connect to the remote interface
  * 
