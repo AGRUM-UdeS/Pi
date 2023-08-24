@@ -7,21 +7,10 @@
 #include "semphr.h"
 
 #include <stdio.h>
+
 #include "energy_management.h"
-
-typedef enum _interface_status_t {
-    INTERFACE_CONNECTED,
-    INTERFACE_DISCONNECTED,
-    INTERFACE_ERROR
-} interface_status_t;
-
-typedef enum _irrigation_status_t {
-    IRRIGATION_IDLE,
-    IRRIGATION_MEASURING,
-    IRRIGATION_PUMPING,
-    IRRIGATION_IRRIGATING,
-    IRRIGATION_ERROR
-} irrigation_status_t;
+#include "irrigation.h"
+#include "interface.h"
 
 // TODO: Add more states.
 typedef struct _main_context {

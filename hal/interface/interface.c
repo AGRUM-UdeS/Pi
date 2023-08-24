@@ -1,4 +1,5 @@
 #include "interface.h"
+#include "context.h"
 
 // Uncomment this for prod build
 // #define PUBLISH
