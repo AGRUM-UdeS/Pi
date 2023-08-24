@@ -4,6 +4,7 @@ add_library(pv_management
 
 target_link_libraries(pv_management
         pico_stdlib              # for core functionality
+        utils
         motor
         )
 

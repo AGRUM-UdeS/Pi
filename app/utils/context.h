@@ -11,6 +11,7 @@
 #include "energy_management.h"
 #include "irrigation.h"
 #include "interface.h"
+#include "pv_management.h"
 
 // TODO: Add more states.
 typedef struct _main_context {
@@ -18,6 +19,7 @@ typedef struct _main_context {
     interface_status_t interface_status;
     irrigation_status_t irrigation_status;
     energy_status_t energy_status;
+    PV_status_t PV_status;
 } main_context_t;
 
 extern main_context_t main_context;

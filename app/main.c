@@ -28,6 +28,7 @@ void vApplicationIdleHook( void );
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 void vApplicationTickHook( void );
 
+#define PV_MANAGEMENT_TASK_PRIORITY     ( tskIDLE_PRIORITY + 1 )
 #define IRRIGATION_TASK_PRIORITY        ( tskIDLE_PRIORITY + 1 )
 #define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
 #define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
@@ -41,15 +42,19 @@ void startUp(void *pvParameters) {
     }
     init_peripherals();
 
-    // Init everything solar panels related
-    init_PV();
-
     // Init energy management
     enery_management();
 
     // Get weather data
     // printf("\n-------- Getting weather data\n");
     // weather_current_request();
+    xTaskCreate( PV_management,
+            "PV_management",
+            configMINIMAL_STACK_SIZE,
+            &main_context,
+            PV_MANAGEMENT_TASK_PRIORITY,
+            NULL );
+
     xTaskCreate( irrigation_management,
             "irrigation_management",
             configMINIMAL_STACK_SIZE,

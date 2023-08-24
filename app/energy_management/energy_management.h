@@ -1,6 +1,11 @@
 #ifndef PV_MANAGEMENT_H
 #define PV_MANAGEMENT_H
 
+/* Scheduler include files. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
 #include <stdint.h>
 #include <stdio.h>
 #include "pico/stdlib.h"
