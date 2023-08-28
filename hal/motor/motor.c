@@ -51,6 +51,8 @@ static uint8_t motor_to_stop[MOTOR_NUM];
 #define STEP_PER_DEGREE ((int)(25600/360))
 #define GEARBOX_RATIO (47)
 
+static bool all_motor_moving_flag = false;
+
 static motor_state_t init_pul_pins(void)
 {
     for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
@@ -122,6 +124,7 @@ static int64_t stop_rotation(__unused alarm_id_t id, void *user_data)
         for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
             disable_pwm(PUL_PIN[i]);
         }
+        all_motor_moving_flag = false;
     } else {
         // Tell the code user_data is a uint8_t ptr and dereference it
         uint8_t motor_index = *((uint8_t*)(user_data));
@@ -146,6 +149,7 @@ motor_state_t rotate_all_pv(uint16_t angle, bool clockwise)
     
     // Start moving the motor
     printf("Start moving (all)!\n");
+    all_motor_moving_flag = true;
     for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
         enable_pwm(PUL_PIN[i], DUTY_CYCLE);
     }
@@ -184,5 +188,10 @@ motor_state_t rotate_single_pv(uint8_t ind_motor, uint16_t angle, bool clockwise
     add_alarm_in_ms(angle*STEP_PER_DEGREE*GEARBOX_RATIO, stop_rotation, &(motor_to_stop[ind_motor]), false);
     
     return status;
+}
+
+bool all_motor_moving(void)
+{
+    return all_motor_moving_flag;
 }
 

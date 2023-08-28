@@ -7,6 +7,9 @@
 #include "PI4IOE5V9554A.h"
 #include "wrap_PWM.h"
 
+#define COUNTERCLOCKWISE    false 
+#define CLOCKWISE           true
+
 typedef enum motor_state_t {
   MOTOR_OK,
   MOTOR_ERROR,
@@ -46,5 +49,11 @@ motor_state_t rotate_all_pv(uint16_t angle, bool clockwise);
  * \return MOTOR_OK if init was good, MOTOR_ERROR if not
  */
 motor_state_t rotate_single_pv(uint8_t ind_motor, uint16_t angle, bool clockwise);
+
+/*! \brief Tell if every motor is moving
+ *
+ * \return true if every motor is moving, false if not
+ */
+bool all_motor_moving(void);
 
 #endif

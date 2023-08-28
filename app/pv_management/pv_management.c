@@ -45,9 +45,9 @@ void PV_management(void *pvParameters)
 
         switch (PV_state) {
             case PV_INIT:
-                //JC : Init mosfet states of pumps and valves
+                init_motor();
 
-                 PV_state = PV_CALIBRATION;
+                PV_state = PV_CALIBRATION;
                 break;
 
             case PV_IDLE:
@@ -56,6 +56,7 @@ void PV_management(void *pvParameters)
                     PV_state = PV_CALIBRATION;
                 }
                 else if (PV_rotation_flag) {
+                    PV_rotation_flag = false;
                     PV_state = PV_DAYROTATION;
                 } 
                 else if (PV_badweather_flag) {
@@ -72,23 +73,39 @@ void PV_management(void *pvParameters)
                 break;
 
             case PV_CALIBRATION:
-                
-                //JC : routine de calibration
+                // Aller a droite au fond
+
+                // Stop quand limit switch
+
+                // Set position initiale
 
                 PV_state = PV_IDLE;
                 break;
 
             case PV_DAYROTATION:
-                // PV_before = PV_measure(); // measure pv power output
-                // motor = one_degree; //on fait tourner les motors de 1deg est à ouest
-                // PV_after = PV_measure();
-                // if(PV_after < 0.8*PV_before){ //drop de 20%
-                //     PV_power_decreasing_while_moving = 1;
-                // }
-                // else {
-                //     PV_power_decreasing_while_moving = 0;
-                // }
+                // Measure PV output power
+                float before_total_power = 0, after_total_power = 0;
+                for (size_t i = 0; i < NB_PV; i++) {
+                    before_total_power += (get_PV_current(i) * get_PV_voltage(i));
+                }
 
+                // rotate PV 1 deg
+                rotate_all_pv(1, CLOCKWISE);
+
+                // PWM started, wait for motor to stop
+                while(all_motor_moving()){
+                    vTaskDelay(100);
+                }
+
+                //Measure PV output power
+                for (size_t i = 0; i < NB_PV; i++) {
+                    after_total_power += (get_PV_current(i) * get_PV_voltage(i));
+                }
+
+                // backtrack if power reduce
+                if (after_total_power < (before_total_power * 0.80)) {
+                    PV_state = PV_BACKTRACKING;    
+                }
 
                 PV_state = PV_IDLE;
                 break;
