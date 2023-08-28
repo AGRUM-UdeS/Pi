@@ -1,32 +1,20 @@
 #include "weather.h"
 #include "context.h"
 
-/* ----- Weather data fetch alarm time -----*/
-#define WEATHER_ALARM_HOUR      (6)
-#define WEATHER_ALARM_MINUTE    (30)
-
-// Alarm once a minute
-    datetime_t weather_alarm = {
-        .year  = -1,
-        .month = -1,
-        .day   = -1,
-        .dotw  = -1,
-        .hour  = -1,
-        .min   = 0,
-        .sec   = 0,
-    };
+#define WEATHER_REQUEST_DELAY   vTaskDelay(5*60*1000)
 
 #define HTTP_PORT   HTTP_DEFAULT_PORT
-#define BUF_SIZE    2048
-#define BUF_NB      4
 
 #define NB_CHAR     3
+
+#define BUF_SIZE    2048
+#define BUF_NB      4
+static char myBuff[BUF_NB][BUF_SIZE];
 
 static bool weather_is_received = false;
 static bool new_weather_request = false;
 static bool weather_cb_flag = false;
 
-static char myBuff[BUF_NB][BUF_SIZE] = {0};
 static uint8_t myBuff_index = 0;
 
 const char* WEATHER_REQUEST = 
@@ -52,7 +40,8 @@ const char* WINDGUST_STR = "windgusts_10m_max";
 void httpc_result_cb(void *arg, httpc_result_t httpc_result, 
                         u32_t rx_content_len, u32_t srv_res, err_t err) {
     // printf("transfer complete\n");
-    // printf("local result=%d\n", httpc_result);
+    if (httpc_result != HTTPC_RESULT_OK)
+        printf("WEATHER http error=%d\n", httpc_result);
     // printf("http result=%d\n", srv_res);
 }
 
@@ -73,7 +62,7 @@ err_t httpc_body_cb(void *arg, struct altcp_pcb *conn, struct pbuf *p, err_t err
     if (new_weather_request != true) {
         return ERR_OK;
     }
-
+    main_context_t *context = (main_context_t*)arg;
     // Save the weather buffer in a global variable
     static uint8_t i = 0;
     pbuf_copy_partial(p, myBuff[i], p->tot_len, 0);
@@ -237,24 +226,26 @@ static void check_weather_limit(weather_forecast_t* weather_forecast)
     }
 }
 
-static weather_forecast_t weather_current_request(void) {
+static weather_forecast_t weather_current_request(main_context_t *context) {
     httpc_connection_t settings;
     settings.result_fn = httpc_result_cb;
     settings.headers_done_fn = httpc_headers_cb;
 
     // Make a new request
     new_weather_request = true;
-    httpc_get_file_dns(WEATHER_REQUEST, HTTP_PORT, MONTREAL_WEATHER, &settings, httpc_body_cb, NULL, NULL);
+    httpc_state_t * http_state;
+    httpc_get_file_dns(WEATHER_REQUEST, HTTP_PORT, MONTREAL_WEATHER,
+                        &settings, httpc_body_cb, http_state, &http_state);
 
     // Wait for all the msg to be received
     for (size_t i = 0; i < 50; i++)
     {
         feed_watchdog();
-        sleep_ms(200);
+        vTaskDelay(1000);
         if (weather_is_received) {
             break;
         }
-        if (i == 19) {
+        if (i == 49) {
             printf("http wheater timeout\n");
         }
     }
@@ -270,6 +261,7 @@ static weather_forecast_t weather_current_request(void) {
         printf("Weather data received!\n");
     } else {
         printf("Failed to receive weather data\n");
+        printf("Received string : %s\n", meteo_str);
     }
 
     check_weather_limit(&weather_forecast);
@@ -279,26 +271,16 @@ static weather_forecast_t weather_current_request(void) {
     return weather_forecast;
 }
 
-static void weather_alarm_callback(void)
-{
-    weather_cb_flag = true;
-}
-
 void weather_task(void *pvParameters)
 {
+    printf("Initializing weather forecast\n");
     main_context_t *context = (main_context_t*)pvParameters;
 
-    // Get weather every hour
-    rtc_set_alarm(&weather_alarm, &weather_alarm_callback);
-
     while(1) {
-        if (weather_cb_flag) {
-            weather_cb_flag = false;
-            context->weather_forecast = weather_current_request();
-            context->weather_status = WEATHER_ERROR;
-        }
+        WEATHER_REQUEST_DELAY; // Delay before to let time for init
+        context->weather_forecast = weather_current_request(context);
         context->weather_status = WEATHER_OK;
-        vTaskDelay(60000); // check flage every minute
+        //weather_printf(&(context->weather_forecast), PRINT_WEATHER);
     }
 
 }

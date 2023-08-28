@@ -27,12 +27,13 @@ thingsboard_state_t ThingsBoard_connect(void) {
 
   for (size_t i = 0; i < MQTT_CONNECTION_RETRY; i++) {
     feed_watchdog();
+    mqtt_client = NULL;
     connect_status = mqtt_connect(&mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
 
     if (connect_status == MQTT_CONNECT_ACCEPTED) {
       break;
     }
-    vTaskDelay(5);
+    vTaskDelay(1);
   }
 
   if (connect_status != MQTT_CONNECT_ACCEPTED) {
