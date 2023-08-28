@@ -7,9 +7,16 @@ static bool PV_rotation_flag = false;
 static bool PV_badweather_flag = false;
 static bool PV_power_decreasing_while_moving = false;
 
+static int16_t pv_current_pos = 0;
+static int16_t pv_pos_range = 0;
+static int16_t pv_init_pos = -30;
+
 void calibrate_PV_position(void)
 {
     // TODO
+
+    // Set total range in deg
+    pv_pos_range = 60;
 }
 
 static void pv_calibration_alarm_cb(void)
@@ -23,6 +30,8 @@ void PV_management(void *pvParameters)
 
     PV_status_t PV_state = PV_INIT;
     PV_status_t last_PV_state = PV_ERROR;
+
+    weather_status_t weather_status = WEATHER_OK;
 
     init_motor();
     calibrate_PV_position();
@@ -51,7 +60,8 @@ void PV_management(void *pvParameters)
                 break;
 
             case PV_IDLE:
-                
+                weather_status = forecast_is_bad_weather(&(context->weather_forecast));
+
                 if (PV_calibration_flag) {   //si entre 5am et 6am
                     PV_state = PV_CALIBRATION;
                 }
@@ -59,7 +69,7 @@ void PV_management(void *pvParameters)
                     PV_rotation_flag = false;
                     PV_state = PV_DAYROTATION;
                 } 
-                else if (PV_badweather_flag) {
+                else if (weather_status != WEATHER_OK) {
                     PV_state = PV_BADWEATHER;
                 }
                 else if (PV_power_decreasing_while_moving) {
@@ -78,6 +88,7 @@ void PV_management(void *pvParameters)
                 // Stop quand limit switch
 
                 // Set position initiale
+                pv_current_pos = -30;
 
                 PV_state = PV_IDLE;
                 break;
@@ -111,11 +122,40 @@ void PV_management(void *pvParameters)
                 break;
 
             case PV_BADWEATHER:
-                
-                //Touch limit switch and stay there
-                //Only when wind is fucking crazy in the head
+                if (weather_status == WEATHER_WIND) {
+                    // Go back to initial position
+                    rotate_all_pv(pv_current_pos - pv_init_pos, COUNTERCLOCKWISE);
 
-                PV_state = PV_IDLE;
+                    while(all_motor_moving()) {
+                        vTaskDelay(100);
+                    }
+
+                    pv_current_pos = pv_init_pos;
+
+                    PV_state = PV_IDLE;
+                } else if (weather_status == WEATHER_RAIN) {
+                    // Straight to catch rainwater
+                    if (pv_current_pos > 0) {
+                        rotate_all_pv(pv_current_pos, COUNTERCLOCKWISE); 
+                    } else if (pv_current_pos < 0) {
+                        rotate_all_pv(-pv_current_pos, CLOCKWISE);
+                    } else {
+                        // Already straight
+                        PV_state = PV_IDLE;
+                        break;
+                    }
+
+                    while(all_motor_moving()) {
+                        vTaskDelay(100);
+                    }
+
+                    pv_current_pos = 0;
+                    PV_state = PV_IDLE;
+                } else {
+                    // Error
+                    PV_state = PV_ERROR;
+                }
+                
                 break;
 
             case PV_BACKTRACKING:
@@ -143,6 +183,6 @@ void PV_management(void *pvParameters)
         }
         last_PV_state = PV_state;
         context->PV_status = PV_state;
-        vTaskDelay(100);
+        vTaskDelay(1000);
     }
 }

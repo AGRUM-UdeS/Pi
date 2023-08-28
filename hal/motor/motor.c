@@ -137,6 +137,10 @@ static int64_t stop_rotation(__unused alarm_id_t id, void *user_data)
 
 motor_state_t rotate_all_pv(uint16_t angle, bool clockwise)
 {
+    if (!angle) {
+        return MOTOR_OFF;
+    }
+
     if (clockwise) {
         for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
             IO_clear_pin(IO_MOTOR_ADDRESS, DIR_PIN[i]);

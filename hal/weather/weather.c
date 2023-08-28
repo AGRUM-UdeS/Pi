@@ -346,3 +346,14 @@ void weather_printf(weather_forecast_t* weather_forecast, weather_print_log_t pr
         break;
     }
 }
+
+weather_status_t forecast_is_bad_weather(weather_forecast_t* forecast) {
+    // looks for heavy wind or rain
+
+    // if heavy wind today
+    //    return WEATHER_WIND;
+    // if heavy rain
+    //    return WEATHER_RAIN;
+    // else, all good
+    return WEATHER_OK;
+}
