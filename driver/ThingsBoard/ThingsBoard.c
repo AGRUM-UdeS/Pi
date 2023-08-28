@@ -3,10 +3,10 @@
 static mqtt_client_t* mqtt_client = NULL;
 
 #define CONNECTION_TIMEOUT_MS     2000
-#define CONNECTION_TEST_DELAY_MS  5
+#define CONNECTION_TEST_DELAY_MS  10
 #define KEEP_ALIVE_TIMEOUT        65535
 #define THINGSBOARD_HOSTNAME      "thingsboard.cloud"
-#define MQTT_CONNECTION_RETRY     3
+#define MQTT_CONNECTION_RETRY     10
 
 static const struct mqtt_connect_client_info_t mqtt_client_info =
 {
@@ -26,12 +26,14 @@ thingsboard_state_t ThingsBoard_connect(void) {
   err_t connect_status;
 
   for (size_t i = 0; i < MQTT_CONNECTION_RETRY; i++) {
+    feed_watchdog();
+    mqtt_client = NULL;
     connect_status = mqtt_connect(&mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
 
     if (connect_status == MQTT_CONNECT_ACCEPTED) {
       break;
     }
-    vTaskDelay(5);
+    vTaskDelay(1);
   }
 
   if (connect_status != MQTT_CONNECT_ACCEPTED) {

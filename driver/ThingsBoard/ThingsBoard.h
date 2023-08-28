@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "wrap_WATCHDOG.h"
 #include "wrap_RTC.h"
 
 #include "wrap_MQTT.h"

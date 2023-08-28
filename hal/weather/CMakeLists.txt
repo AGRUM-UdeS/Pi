@@ -9,6 +9,8 @@ target_link_libraries(weather
         pico_lwip
         pico_lwip_http
         wrap_WIFI
+        wrap_RTC
+        interface
         )
 
 target_include_directories(weather PUBLIC

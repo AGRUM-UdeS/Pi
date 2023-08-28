@@ -28,11 +28,12 @@ void vApplicationIdleHook( void );
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 void vApplicationTickHook( void );
 
-#define PV_MANAGEMENT_TASK_PRIORITY     ( tskIDLE_PRIORITY + 1 )
+#define PV_MANAGEMENT_TASK_PRIORITY     ( tskIDLE_PRIORITY + 2 )
 #define IRRIGATION_TASK_PRIORITY        ( tskIDLE_PRIORITY + 1 )
-#define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
-#define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
-#define INTERFACE_TASK_PRIORITY         ( tskIDLE_PRIORITY + 2 )
+#define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 2 )
+#define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
+#define INTERFACE_TASK_PRIORITY         ( tskIDLE_PRIORITY + 5 )
+#define WEATHER_TASK_PRIORITY           ( tskIDLE_PRIORITY + 4 )
 
 main_context_t main_context;
 
@@ -76,12 +77,19 @@ void startUp(void *pvParameters) {
             HOUSEKEEPING_TASK_PRIORITY,
             NULL );
 
+        // xTaskCreate( weather_task,
+        //     "weather_task",
+        //     configMINIMAL_STACK_SIZE,
+        //     &main_context,
+        //     WEATHER_TASK_PRIORITY,
+        //     NULL );
+
     while(1) {
         // irrigation_status_t status_irrigation = irrigation_sm();
         // energy_status_t status_energy = enery_management();
         //send_system_status(status_interface, status_irrigation, status_energy);
         //develop_test();
-        vTaskDelay(50);
+        vTaskDelay(portMAX_DELAY);
     }
 }
 

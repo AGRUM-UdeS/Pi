@@ -11,6 +11,7 @@ target_link_libraries(utils
         energy_management
         sensors
         interface
+        weather
         wrap_WATCHDOG
         FreeRTOS-Kernel
         FreeRTOS-Kernel-Heap4
