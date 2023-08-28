@@ -77,12 +77,12 @@ void startUp(void *pvParameters) {
             HOUSEKEEPING_TASK_PRIORITY,
             NULL );
 
-        xTaskCreate( weather_task,
-            "weather_task",
-            configMINIMAL_STACK_SIZE,
-            &main_context,
-            WEATHER_TASK_PRIORITY,
-            NULL );
+        // xTaskCreate( weather_task,
+        //     "weather_task",
+        //     configMINIMAL_STACK_SIZE,
+        //     &main_context,
+        //     WEATHER_TASK_PRIORITY,
+        //     NULL );
 
     while(1) {
         // irrigation_status_t status_irrigation = irrigation_sm();
