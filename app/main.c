@@ -44,17 +44,11 @@ void startUp(void *pvParameters) {
     init_peripherals();
 
     // Init energy management
-    enery_management();
+    // enery_management();
 
     // Get weather data
     // printf("\n-------- Getting weather data\n");
     // weather_current_request();
-    xTaskCreate( PV_management,
-            "PV_management",
-            configMINIMAL_STACK_SIZE,
-            &main_context,
-            PV_MANAGEMENT_TASK_PRIORITY,
-            NULL );
 
     xTaskCreate( irrigation_management,
             "irrigation_management",
@@ -75,6 +69,13 @@ void startUp(void *pvParameters) {
             configMINIMAL_STACK_SIZE,
             &main_context,
             HOUSEKEEPING_TASK_PRIORITY,
+            NULL );
+
+    xTaskCreate( PV_management,
+            "PV_management",
+            configMINIMAL_STACK_SIZE,
+            &main_context,
+            PV_MANAGEMENT_TASK_PRIORITY,
             NULL );
 
         // xTaskCreate( weather_task,

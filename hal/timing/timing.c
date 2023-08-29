@@ -5,11 +5,15 @@ uint8_t init_timer(void)
     printf("\n----- Getting current date & time -----\n");
     // Get the time online
     datetime_t time;
-    if (get_time_ntp(&time) != NTP_OK)
+    if (get_time_ntp(&time) != NTP_OK) {
+        printf("failed ntp init\n");
         return TIMING_FAILED;
+    }
     
-    if (init_RTC(time) != RTC_OK)
+    if (init_RTC(time) != RTC_OK) {
+        printf("failed rtc init\n");
         return TIMING_FAILED;
+    }
 
     return TIMING_OK;
 }

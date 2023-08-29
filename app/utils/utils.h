@@ -45,4 +45,11 @@ void send_system_status(
     irrigation_status_t status_irrigation,
     energy_status_t status_energy);
 
+void clear_pv_calib_flag (void);
+bool morning_pv_calibration(void);
+void clear_weather_flag (void);
+bool morning_weather(void);
+void clear_irrigation_flag (void);
+bool morning_irrigation(void);
+
 #endif

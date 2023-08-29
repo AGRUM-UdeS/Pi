@@ -120,7 +120,6 @@ static int64_t stop_rotation(__unused alarm_id_t id, void *user_data)
 {
     if (user_data == NULL) {
         // Set all duty cycle to 0
-        printf("Stop moving (all)!\n");
         for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
             disable_pwm(PUL_PIN[i]);
         }
@@ -152,7 +151,6 @@ motor_state_t rotate_all_pv(uint16_t angle, bool clockwise)
     }
     
     // Start moving the motor
-    printf("Start moving (all)!\n");
     all_motor_moving_flag = true;
     for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
         enable_pwm(PUL_PIN[i], DUTY_CYCLE);

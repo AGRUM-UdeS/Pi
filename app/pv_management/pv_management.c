@@ -2,6 +2,10 @@
 
 #include "context.h"
 
+#define PV_MOVE_PERIOD_MS       (60 * 1000)
+
+static repeating_timer_t pv_move_timer;
+
 static bool PV_calibration_flag = false;
 static bool PV_rotation_flag = false;
 static bool PV_badweather_flag = false;
@@ -19,9 +23,11 @@ void calibrate_PV_position(void)
     pv_pos_range = 60;
 }
 
-static void pv_calibration_alarm_cb(void)
+static bool pv_move_callback(repeating_timer_t *rt)
 {
-    PV_calibration_flag = true;
+    printf("PV start moving\n");
+    PV_rotation_flag = true;
+    return PV_rotation_flag;
 }
 
 void PV_management(void *pvParameters)
@@ -36,18 +42,10 @@ void PV_management(void *pvParameters)
     init_motor();
     calibrate_PV_position();
 
-    // Alarm once a day
-    datetime_t pv_calibration_alarm = {
-        .year  = -1,
-        .month = -1,
-        .day   = -1,
-        .dotw  = -1,
-        .hour  = 5,
-        .min   = 30,
-        .sec   = 0,
-    };
-
-    rtc_set_alarm(&pv_calibration_alarm, &pv_calibration_alarm_cb);
+    // negative timeout means exact delay (rather than delay between callbacks)
+    if (!add_repeating_timer_ms(-PV_MOVE_PERIOD_MS, pv_move_callback, NULL, &pv_move_timer)) {
+        printf("Failed to add pv move timer\n");
+    }
 
     while(1) {
         last_PV_state = PV_state;
@@ -56,13 +54,14 @@ void PV_management(void *pvParameters)
             case PV_INIT:
                 init_motor();
 
-                PV_state = PV_CALIBRATION;
+                PV_state = PV_IDLE;
                 break;
 
             case PV_IDLE:
                 weather_status = forecast_is_bad_weather(&(context->weather_forecast));
 
-                if (PV_calibration_flag) {   //si entre 5am et 6am
+                if (morning_pv_calibration()) {   //si entre 5am et 6am
+                    clear_pv_calib_flag();
                     PV_state = PV_CALIBRATION;
                 }
                 else if (PV_rotation_flag) {
@@ -83,12 +82,13 @@ void PV_management(void *pvParameters)
                 break;
 
             case PV_CALIBRATION:
+                printf("PV calibration starting\n");
                 // Aller a droite au fond
 
                 // Stop quand limit switch
 
                 // Set position initiale
-                pv_current_pos = -30;
+                // pv_current_pos = -30;
 
                 PV_state = PV_IDLE;
                 break;
