@@ -68,18 +68,6 @@ void irrigation_management(void *pvParameters)
     if (!add_repeating_timer_ms(-MEASUREMENTS_PERIOD_MS, meas_callback, NULL, &measure_timer)) {
         printf("Failed to add irrigation timer\n");
     }
-    // Alarm once a day
-    datetime_t watering_alarm = {
-        .year  = -1,
-        .month = -1,
-        .day   = -1,
-        .dotw  = -1,
-        .hour  = 5,
-        .min   = 30,
-        .sec   = 0,
-    };
-
-    rtc_set_alarm(&watering_alarm, &watering_alarm_callback);
 
     while(1) {
         last_irrigation_state = irrigation_state;
@@ -102,7 +90,8 @@ void irrigation_management(void *pvParameters)
                 if (time_to_measure()) {
                     irrigation_state = IRRIGATION_MEASUREMENT;
                 }
-                else if (irrigation_watering_flag) {
+                else if (morning_irrigation()) {
+                    clear_irrigation_flag();
                     irrigation_state = IRRIGATION_WATERING;
                 } 
                 else if (irrigation_waterlevel_trigger) {
