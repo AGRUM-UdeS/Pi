@@ -28,7 +28,7 @@ void vApplicationIdleHook( void );
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 void vApplicationTickHook( void );
 
-#define PV_MANAGEMENT_TASK_PRIORITY     ( tskIDLE_PRIORITY + 2 )
+#define PV_MANAGEMENT_TASK_PRIORITY     ( tskIDLE_PRIORITY + 3 )
 #define IRRIGATION_TASK_PRIORITY        ( tskIDLE_PRIORITY + 1 )
 #define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 2 )
 #define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )

@@ -246,3 +246,8 @@ bool any_limit_switch_touched(uint8_t lm_pin_value[], uint16_t switch_nb, uint8_
     }
     return false;
 }
+
+uint32_t ms2angle(uint32_t time)
+{
+    return (time/(STEP_PER_DEGREE*GEARBOX_RATIO));
+}

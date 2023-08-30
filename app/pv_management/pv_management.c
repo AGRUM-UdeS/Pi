@@ -13,7 +13,7 @@ static bool PV_power_decreasing_while_moving = false;
 
 static int16_t pv_current_pos = 0;
 static int16_t pv_pos_range = 0;
-static int16_t pv_init_pos = -30;
+static int16_t pv_init_pos = 0;
 
 void calibrate_PV_position(void)
 {
@@ -38,11 +38,6 @@ void PV_management(void *pvParameters)
     PV_status_t last_PV_state = PV_ERROR;
 
     weather_status_t weather_status = WEATHER_OK;
-
-    // negative timeout means exact delay (rather than delay between callbacks)
-    if (!add_repeating_timer_ms(-PV_MOVE_PERIOD_MS, pv_move_callback, NULL, &pv_move_timer)) {
-        printf("Failed to add pv move timer\n");
-    }
 
     while(1) {
         last_PV_state = PV_state;
@@ -80,21 +75,42 @@ void PV_management(void *pvParameters)
 
             case PV_CALIBRATION:
                 printf("PV calibration starting\n");
-                // Aller a droite au fond
-                rotate_all_pv((pv_current_pos - pv_init_pos), COUNTERCLOCKWISE);
+                // Go to final position
+                rotate_all_pv(180, COUNTERCLOCKWISE); // Will stop beore 180 deg
 
-                // Stop quand limit switch
                 uint8_t lm_pin_value[NB_PV*2];
                 uint8_t lm_touched = 0; // bit set for lm touched
                 // i.e. lm_touched = 00000101 means switch 0 and 2 are pushed 
+                // Stop quand limit switch
                 do {
                     vTaskDelay(1);
                     any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
                 } while(countSetBits(lm_touched) < NB_PV);
+                lm_touched = 0;
 
+                // Rotate the whole range
+                rotate_all_pv(180, CLOCKWISE); // Will stop before 180 deg
+                unsigned long start = xTaskGetTickCount();
+                vTaskDelay(5000); // Delay to go away from final limit switches
+                do {
+                    vTaskDelay(1);
+                    any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
+                } while(countSetBits(lm_touched) < NB_PV);
+                unsigned long end = xTaskGetTickCount();
 
-                // Set position initiale
-                pv_current_pos = -30;
+                // Set position and range
+                pv_pos_range = ms2angle(end - start);
+                pv_current_pos = pv_init_pos = -pv_pos_range/2;
+
+                // negative timeout means exact delay (rather than delay between callbacks)
+                static bool once = true;
+                if (once) {
+                    once = false;
+                    if (!add_repeating_timer_ms(-(12*60*60*1000)/pv_pos_range,
+                            pv_move_callback, NULL, &pv_move_timer)) {
+                        printf("Failed to add pv move timer\n");
+                    }
+                }
 
                 PV_state = PV_IDLE;
                 break;
@@ -113,6 +129,7 @@ void PV_management(void *pvParameters)
                 while(all_motor_moving()){
                     vTaskDelay(100);
                 }
+                pv_current_pos++;
 
                 //Measure PV output power
                 for (size_t i = 0; i < NB_PV; i++) {
@@ -130,7 +147,7 @@ void PV_management(void *pvParameters)
             case PV_BADWEATHER:
                 if (weather_status == WEATHER_WIND) {
                     // Go back to initial position
-                    rotate_all_pv(pv_current_pos - pv_init_pos, COUNTERCLOCKWISE);
+                    rotate_all_pv(pv_current_pos - pv_init_pos, CLOCKWISE);
 
                     while(all_motor_moving()) {
                         vTaskDelay(100);
@@ -142,9 +159,9 @@ void PV_management(void *pvParameters)
                 } else if (weather_status == WEATHER_RAIN) {
                     // Straight to catch rainwater
                     if (pv_current_pos > 0) {
-                        rotate_all_pv(pv_current_pos, COUNTERCLOCKWISE); 
+                        rotate_all_pv(pv_current_pos, CLOCKWISE); 
                     } else if (pv_current_pos < 0) {
-                        rotate_all_pv(-pv_current_pos, CLOCKWISE);
+                        rotate_all_pv(-pv_current_pos, COUNTERCLOCKWISE);
                     } else {
                         // Already straight
                         PV_state = PV_IDLE;

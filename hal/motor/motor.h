@@ -72,4 +72,7 @@ bool all_motor_moving(void);
  */
 bool any_limit_switch_touched(uint8_t lm_pin_value[], uint16_t switch_nb, uint8_t* lm_touched);
 
+/*! \brief Convert timing to angle
+ */
+uint32_t ms2angle(uint32_t time);
 #endif
