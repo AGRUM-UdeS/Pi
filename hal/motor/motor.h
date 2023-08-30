@@ -50,10 +50,26 @@ motor_state_t rotate_all_pv(uint16_t angle, bool clockwise);
  */
 motor_state_t rotate_single_pv(uint8_t ind_motor, uint16_t angle, bool clockwise);
 
+/*! \brief Stop single motor rotation
+ *
+ * \param ind_motor Index of the motor to move
+ * 
+ * \return MOTOR_OK if init was good, MOTOR_ERROR if not
+ */
+motor_state_t stop_single_pv(uint8_t ind_motor);
+
 /*! \brief Tell if every motor is moving
  *
  * \return true if every motor is moving, false if not
  */
 bool all_motor_moving(void);
+ 
+/*! \brief Stop single motor rotation
+ *
+ * \param switch_nb Number of limit switch used
+ * \param lm_touched One hot variable telling which limit switch is trrigered
+ * \return true if a limit switch is touched, false if not
+ */
+bool any_limit_switch_touched(uint8_t lm_pin_value[], uint16_t switch_nb, uint8_t* lm_touched);
 
 #endif

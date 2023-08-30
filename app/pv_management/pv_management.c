@@ -39,9 +39,6 @@ void PV_management(void *pvParameters)
 
     weather_status_t weather_status = WEATHER_OK;
 
-    init_motor();
-    calibrate_PV_position();
-
     // negative timeout means exact delay (rather than delay between callbacks)
     if (!add_repeating_timer_ms(-PV_MOVE_PERIOD_MS, pv_move_callback, NULL, &pv_move_timer)) {
         printf("Failed to add pv move timer\n");
@@ -84,11 +81,20 @@ void PV_management(void *pvParameters)
             case PV_CALIBRATION:
                 printf("PV calibration starting\n");
                 // Aller a droite au fond
+                rotate_all_pv((pv_current_pos - pv_init_pos), COUNTERCLOCKWISE);
 
                 // Stop quand limit switch
+                uint8_t lm_pin_value[NB_PV*2];
+                uint8_t lm_touched = 0; // bit set for lm touched
+                // i.e. lm_touched = 00000101 means switch 0 and 2 are pushed 
+                do {
+                    vTaskDelay(1);
+                    any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
+                } while(countSetBits(lm_touched) < NB_PV);
+
 
                 // Set position initiale
-                // pv_current_pos = -30;
+                pv_current_pos = -30;
 
                 PV_state = PV_IDLE;
                 break;
@@ -101,7 +107,7 @@ void PV_management(void *pvParameters)
                 }
 
                 // rotate PV 1 deg
-                rotate_all_pv(1, CLOCKWISE);
+                rotate_all_pv(1, COUNTERCLOCKWISE);
 
                 // PWM started, wait for motor to stop
                 while(all_motor_moving()){

@@ -2,7 +2,7 @@
 #include "context.h"
 
 // Uncomment this for prod build
-// #define PUBLISH
+#define PUBLISH
 
 main_context_t *context;
 

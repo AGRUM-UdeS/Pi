@@ -52,4 +52,6 @@ bool morning_weather(void);
 void clear_irrigation_flag (void);
 bool morning_irrigation(void);
 
+unsigned int countSetBits(unsigned int n);
+
 #endif

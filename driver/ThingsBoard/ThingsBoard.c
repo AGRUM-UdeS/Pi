@@ -10,7 +10,7 @@ static mqtt_client_t* mqtt_client = NULL;
 
 static const struct mqtt_connect_client_info_t mqtt_client_info =
 {
-  "RaspberryPiPicoWTEST", /* Client id */
+  "RaspberryPiPicoW", /* Client id */
   "RaspberryPiPicoW", /* user, or access token in our case */
   "RaspberryPiPicoW", /* pass */
   KEEP_ALIVE_TIMEOUT,  /* keep alive */
@@ -27,7 +27,6 @@ thingsboard_state_t ThingsBoard_connect(void) {
 
   for (size_t i = 0; i < MQTT_CONNECTION_RETRY; i++) {
     feed_watchdog();
-    mqtt_client = NULL;
     connect_status = mqtt_connect(&mqtt_client, &mqtt_client_info, THINGSBOARD_HOSTNAME);
 
     if (connect_status == MQTT_CONNECT_ACCEPTED) {
