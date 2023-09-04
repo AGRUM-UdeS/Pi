@@ -48,6 +48,7 @@ char *soil_humidity_topic[] = {
 #define PUMP_BAC2BARREL (5)
 
 #define WATERING_DURATION_MS    (60*1000)
+#define BAC2BARREL_DURATION_MS  (60*1000)
 
 #define MEASUREMENTS_PERIOD_MS  (5*60*1000)
 
@@ -183,9 +184,12 @@ void irrigation_management(void *pvParameters)
                 break;
 
             case IRRIGATION_RESERVOIR2BARREL:
-                // pompe_reservoir = OPEN //JC : à définir les output de pompes et le "on" "off"
-                vTaskDelay(60*1000); //JC : à définir. En ce moment on pompe pendant 1min. À voir s'il est précoce ou pas
-                //pompe_reservoir = CLOSE //JC : à définir les output de pompes et le "on" "off"
+                enable_pump(PUMP_BAC2BARREL);
+
+                vTaskDelay(BAC2BARREL_DURATION_MS);
+                
+                disable_pump(PUMP_BAC2BARREL);
+
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
