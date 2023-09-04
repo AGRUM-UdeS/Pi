@@ -42,6 +42,13 @@ char *soil_humidity_topic[] = {
     HUMIDITY_SOIL_3
 };
 
+#define VALVE_SPRINKLER (2)
+#define VALVE_SOAKER    (3)
+#define PUMP_IRRIGATION (4)
+#define PUMP_BAC2BARREL (5)
+
+#define WATERING_DURATION_MS    (60*1000)
+
 #define MEASUREMENTS_PERIOD_MS  (5*60*1000)
 
 static repeating_timer_t measure_timer;
@@ -158,24 +165,20 @@ void irrigation_management(void *pvParameters)
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
-            case IRRIGATION_WATERING:                
-                /*
-                valve_1 = OPEN //JC : à définir les output de valves et le "on" "off"
-                vulve_2 = OPEN //JC : à définir les output de vulves et le "on" "off"
-                pompe_baril = OPEN //JC : à définir les output de pompes et le "on" "off"
-                */
+            case IRRIGATION_WATERING:
+                // Spray water
+                if (open_valve(VALVE_SPRINKLER) == VALVE_OPEN) {
+                    enable_pump(PUMP_IRRIGATION);
+                }
+                
+                // Wait for plants to get wet
+                vTaskDelay(WATERING_DURATION_MS);
 
-                /* 
-                    JC : à définir. En ce moment ça arrose pendant 1min puis 
-                    on retourne dans idle puis si les mesures montre que c'est 
-                    toujours pas assez trempe apres avoir arrosé on revient arroser 1min    
-                */
-                vTaskDelay(60*1000);
-                /*
-                pompe_baril = OPEN //JC : à définir les output de pompes et le "on" "off"
-                valve_1 = CLOSE //JC : à définir les output de valves et le "on" "off"
-                vulve_2 = CLOSE //JC : à définir les output de vulves et le "on" "off"
-                */
+                // Stop watering
+                if (disable_pump(PUMP_IRRIGATION) == PUMP_OFF) {
+                    close_valve(VALVE_SPRINKLER);
+                }
+
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
