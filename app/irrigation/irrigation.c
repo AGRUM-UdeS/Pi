@@ -41,15 +41,16 @@ char *soil_humidity_topic[] = {
 #define HUMIDITY_SOL_2              (1)
 #define HUMIDITY_SOL_3              (2)
 
-#define VALVE_SPRINKLER (2)
-#define VALVE_SOAKER    (3)
-#define PUMP_IRRIGATION (4)
-#define PUMP_BAC2BARREL (5)
+#define BARREL_WATER_LEVEL_PIN  (0)
+#define BAC_WATER_LEVEL_PIN     (1)
+#define VALVE_SPRINKLER         (2)
+#define VALVE_SOAKER            (3)
+#define PUMP_IRRIGATION         (4)
+#define PUMP_BAC2BARREL         (5)
 
 // State flag
 static bool irrigation_watering_flag = false;
 static bool irrigation_soaking_flag = false;
-static bool irrigation_waterlevel_trigger = false;
 static bool irrigation_measurement_flag = false;
 
 // Irrigation timing
@@ -124,11 +125,11 @@ void irrigation_management(void *pvParameters)
                 if (time_to_measure()) {
                     irrigation_state = IRRIGATION_MEASUREMENT;
                 }
-                else if (morning_irrigation()) {
+                else if (morning_irrigation() && !barrel_is_full()) {
                     clear_irrigation_flag();
                     irrigation_state = IRRIGATION_WATERING;
                 } 
-                else if (irrigation_waterlevel_trigger) {
+                else if (bac_is_full()) {
                     irrigation_state = IRRIGATION_RESERVOIR2BARREL;
                 }
                 else if (irrigation_soaking_flag) {
