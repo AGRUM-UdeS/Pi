@@ -50,12 +50,12 @@ void startUp(void *pvParameters) {
     // printf("\n-------- Getting weather data\n");
     // weather_current_request();
 
-    // xTaskCreate( irrigation_management,
-    //         "irrigation_management",
-    //         configMINIMAL_STACK_SIZE,
-    //         &main_context,
-    //         IRRIGATION_TASK_PRIORITY,
-    //         NULL );
+    xTaskCreate( irrigation_management,
+            "irrigation_management",
+            configMINIMAL_STACK_SIZE,
+            &main_context,
+            IRRIGATION_TASK_PRIORITY,
+            NULL );
 
     xTaskCreate( interface,
             "interface",
