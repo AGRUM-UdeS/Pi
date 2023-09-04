@@ -76,27 +76,24 @@ void irrigation_management(void *pvParameters)
         switch (irrigation_state) {
             case IRRIGATION_INIT:
                 // Close valves
-                init_valve();
+                close_all_valve();
 
                 // Close pumps
-                init_pump();
+                disable_all_pump();
 
                 // Init level sensor as input
                 init_water_level_sensors();
 
                 // Init leds
-                init_irigation_led();
+                clear_all_irigation_led();
 
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
             case IRRIGATION_IDLE:
-                /*
-                valve_1 = CLOSE //JC : à définir les output de valves et le "on" "off"
-                vulve_2 = CLOSE //JC : à définir les output de vulves et le "on" "off"
-                pompe_baril = CLOSE //JC : à définir les output de pompes et le "on" "off"
-                pompe_reservoir = CLOSE //JC : à définir les output de pompes et le "on" "off"
-                */
+                close_all_valve();
+                disable_all_pump();
+                clear_all_irigation_led();
 
                 if (time_to_measure()) {
                     irrigation_state = IRRIGATION_MEASUREMENT;

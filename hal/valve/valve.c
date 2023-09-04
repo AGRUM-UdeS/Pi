@@ -4,7 +4,7 @@
 #define VALVE1_PIN  (2)
 #define VALVE2_PIN  (3)
 
-void init_valve(void)
+void close_all_valve(void)
 {
     // Clear pin before setting them as output
     // because default state is HIGH

@@ -8,6 +8,6 @@
 
 void init_heartbeat_led(void);
 
-void init_irigation_led(void);
+void clear_all_irigation_led(void);
 
 #endif

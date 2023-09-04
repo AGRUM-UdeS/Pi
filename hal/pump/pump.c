@@ -4,7 +4,7 @@
 #define PUMP1_PIN  (4)
 #define PUMP2_PIN  (5)
 
-void init_pump(void)
+void disable_all_pump(void)
 {
     // Clear pin before setting it as output
     // because default state is HIGH

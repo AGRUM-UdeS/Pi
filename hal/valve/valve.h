@@ -9,6 +9,6 @@ typedef enum {
   VALVE_UNKNOWN
 } valve_state_t;
 
-void init_valve(void);
+void close_all_valve(void);
 
 #endif
