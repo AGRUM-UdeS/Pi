@@ -29,7 +29,7 @@ bool bac_is_full(void)
     return false;
 }
 
-bool barrel_is_full(void)
+bool barrel_is_empty(void)
 {
     uint8_t value;
     IO_status_t status = IO_read_pin(IO_IRRIGATION_ADDRESS, BARREL_WATER_LEVEL_PIN, &value);

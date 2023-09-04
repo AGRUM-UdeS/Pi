@@ -47,6 +47,8 @@ char *soil_humidity_topic[] = {
 #define VALVE_SOAKER            (3)
 #define PUMP_IRRIGATION         (4)
 #define PUMP_BAC2BARREL         (5)
+#define LED_BARIL               (6)
+#define LED_BAC                 (7)
 
 // State flag
 static bool irrigation_watering_flag = false;
@@ -122,20 +124,22 @@ void irrigation_management(void *pvParameters)
                 disable_all_pump();
                 clear_all_irigation_led();
 
+                if (barrel_is_empty()) {
+                    turn_on_irrigation_led(LED_BAC);
+                } else {
+                    turn_off_irrigation_led(LED_BAC);
+                }
+
                 if (time_to_measure()) {
                     irrigation_state = IRRIGATION_MEASUREMENT;
-                }
-                else if (morning_irrigation() && !barrel_is_full()) {
+                } else if (morning_irrigation() && !barrel_is_empty()) {
                     clear_irrigation_flag();
                     irrigation_state = IRRIGATION_WATERING;
-                } 
-                else if (bac_is_full()) {
+                } else if (bac_is_full()) {
                     irrigation_state = IRRIGATION_RESERVOIR2BARREL;
-                }
-                else if (irrigation_soaking_flag) {
+                } else if (irrigation_soaking_flag) {
                     irrigation_state = IRRIGATION_SOAKING;
-                }
-                else {
+                } else {
                     irrigation_state = IRRIGATION_IDLE;
                 }
                 break;
@@ -199,11 +203,15 @@ void irrigation_management(void *pvParameters)
             case IRRIGATION_RESERVOIR2BARREL:
                 interface_publish(IRRIGATION_STATUS, IRRIGATION_RESERVOIR2BARREL);
 
+                turn_on_irrigation_led(LED_BAC);
+
                 enable_pump(PUMP_BAC2BARREL);
 
                 vTaskDelay(BAC2BARREL_DURATION_MS);
                 
                 disable_pump(PUMP_BAC2BARREL);
+
+                turn_off_irrigation_led(LED_BAC);
 
                 irrigation_state = IRRIGATION_IDLE;
                 break;

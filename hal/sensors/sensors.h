@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "ADS7828.h"
+#include "PI4IOE5V9554A.h"
 #include "SHT.h"
 
 #define ENVIRO_SENSOR_NB        (4)
@@ -20,6 +21,10 @@ enum enviro_sensor_location_t {
 extern uint8_t enviro_sensor_location[ENVIRO_SENSOR_NB];
 
 void read_soil_humidity(uint8_t adc_pin, float *value);
+
+bool bac_is_full(void);
+
+bool barrel_is_empty(void);
 
 void init_water_level_sensors(void);
 

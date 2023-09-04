@@ -26,9 +26,19 @@ void clear_all_irigation_led(void)
 {
     // Clear led baril
     IO_clear_pin(IO_IRRIGATION_ADDRESS, LED_BARIL);
-    IO_set_pin(IO_IRRIGATION_ADDRESS, LED_BARIL);
+    IO_set_as_output(IO_IRRIGATION_ADDRESS, LED_BARIL);
 
     // Clear led bac
     IO_clear_pin(IO_IRRIGATION_ADDRESS, LED_BAC);
-    IO_set_pin(IO_IRRIGATION_ADDRESS, LED_BAC);
+    IO_set_as_output(IO_IRRIGATION_ADDRESS, LED_BAC);
+}
+
+void turn_on_irrigation_led(uint8_t del_id)
+{
+    IO_set_pin(IO_IRRIGATION_ADDRESS, del_id);
+}
+
+void turn_off_irrigation_led(uint8_t del_id)
+{
+    IO_clear_pin(IO_IRRIGATION_ADDRESS, del_id);
 }

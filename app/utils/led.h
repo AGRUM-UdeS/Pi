@@ -10,4 +10,8 @@ void init_heartbeat_led(void);
 
 void clear_all_irigation_led(void);
 
+void turn_on_irrigation_led(uint8_t del_id);
+
+void turn_off_irrigation_led(uint8_t del_id);
+
 #endif
