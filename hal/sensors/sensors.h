@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "ADS7828.h"
 #include "SHT.h"
 
 #define ENVIRO_SENSOR_NB    (4)

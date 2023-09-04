@@ -10,6 +10,10 @@
 #define TEMP_TOPIC_4              ("Temperature sans PV 2")
 #define HUMIDITY_TOPIC_4          ("Humidite sans PV 2")
 
+#define HUMIDITY_SOL_1              (0)
+#define HUMIDITY_SOL_2              (1)
+#define HUMIDITY_SOL_3              (2)
+
 static bool irrigation_watering_flag = false;
 static bool irrigation_soaking_flag = false;
 static bool irrigation_waterlevel_trigger = false;
@@ -61,9 +65,6 @@ void irrigation_management(void *pvParameters)
     irrigation_status_t irrigation_state = IRRIGATION_INIT;
     irrigation_status_t last_irrigation_state = IRRIGATION_ERROR;
 
-    init_water_level_sensors();
-    init_pump();
-    init_valve();
     // negative timeout means exact delay (rather than delay between callbacks)
     if (!add_repeating_timer_ms(-MEASUREMENTS_PERIOD_MS, meas_callback, NULL, &measure_timer)) {
         printf("Failed to add irrigation timer\n");
@@ -74,7 +75,17 @@ void irrigation_management(void *pvParameters)
 
         switch (irrigation_state) {
             case IRRIGATION_INIT:
-                //JC : Init mosfet states of pumps and valves
+                // Close valves
+                init_valve();
+
+                // Close pumps
+                init_pump();
+
+                // Init level sensor as input
+                init_water_level_sensors();
+
+                // Init leds
+                init_irigation_led();
 
                 irrigation_state = IRRIGATION_IDLE;
                 break;
