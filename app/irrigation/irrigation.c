@@ -1,6 +1,9 @@
 #include "irrigation.h"
 #include "context.h"
 
+#define IRRIGATION_STATUS         ("Status irrigation")
+
+// Thingsboard irrigation measurement topic
 #define TEMP_TOPIC_1              ("Temperature avec PV 1")
 #define HUMIDITY_TOPIC_1          ("Humidite avec PV 1")
 #define TEMP_TOPIC_2              ("Temperature avec PV 2")
@@ -12,15 +15,6 @@
 #define HUMIDITY_SOIL_1           ("Humidite sol 1")
 #define HUMIDITY_SOIL_2           ("Humidite sol 2")
 #define HUMIDITY_SOIL_3           ("Humidite sol 3")
-
-#define HUMIDITY_SOL_1              (0)
-#define HUMIDITY_SOL_2              (1)
-#define HUMIDITY_SOL_3              (2)
-
-static bool irrigation_watering_flag = false;
-static bool irrigation_soaking_flag = false;
-static bool irrigation_waterlevel_trigger = false;
-static bool irrigation_measurement_flag = false;
 
 char *temperature_topic[] = {
     TEMP_TOPIC_1,
@@ -42,11 +36,23 @@ char *soil_humidity_topic[] = {
     HUMIDITY_SOIL_3
 };
 
+// Sensor IO defines
+#define HUMIDITY_SOL_1              (0)
+#define HUMIDITY_SOL_2              (1)
+#define HUMIDITY_SOL_3              (2)
+
 #define VALVE_SPRINKLER (2)
 #define VALVE_SOAKER    (3)
 #define PUMP_IRRIGATION (4)
 #define PUMP_BAC2BARREL (5)
 
+// State flag
+static bool irrigation_watering_flag = false;
+static bool irrigation_soaking_flag = false;
+static bool irrigation_waterlevel_trigger = false;
+static bool irrigation_measurement_flag = false;
+
+// Irrigation timing
 #define WATERING_DURATION_MS    (60*1000)
 #define BAC2BARREL_DURATION_MS  (60*1000)
 #define SOAKING_DURATION_MS     (3*60*1000)
@@ -77,6 +83,7 @@ static void watering_alarm_callback(void)
     irrigation_watering_flag = true;
 }
 
+// Irrigation state machine
 void irrigation_management(void *pvParameters)
 {
     main_context_t *context = (main_context_t*)pvParameters;
@@ -109,6 +116,7 @@ void irrigation_management(void *pvParameters)
                 break;
 
             case IRRIGATION_IDLE:
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 close_all_valve();
                 disable_all_pump();
                 clear_all_irigation_led();
@@ -132,6 +140,7 @@ void irrigation_management(void *pvParameters)
                 break;
 
             case IRRIGATION_MEASUREMENT:
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_MEASUREMENT);
                 SHT_measure_t meas[ENVIRO_SENSOR_NB];
 
                 // Read every enviro sensor and publish data
@@ -168,6 +177,8 @@ void irrigation_management(void *pvParameters)
                 break;
 
             case IRRIGATION_WATERING:
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_WATERING);
+
                 // Spray water
                 if (open_valve(VALVE_SPRINKLER) == VALVE_OPEN) {
                     enable_pump(PUMP_IRRIGATION);
@@ -185,6 +196,8 @@ void irrigation_management(void *pvParameters)
                 break;
 
             case IRRIGATION_RESERVOIR2BARREL:
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_RESERVOIR2BARREL);
+
                 enable_pump(PUMP_BAC2BARREL);
 
                 vTaskDelay(BAC2BARREL_DURATION_MS);
@@ -195,6 +208,8 @@ void irrigation_management(void *pvParameters)
                 break;
 
             case IRRIGATION_SOAKING:
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_SOAKING);
+
                 // Start soaking
                 if (open_valve(VALVE_SOAKER) == VALVE_OPEN) {
                     enable_pump(PUMP_IRRIGATION);
@@ -212,8 +227,9 @@ void irrigation_management(void *pvParameters)
                 break;
 
             case IRRIGATION_ERROR:
-            // Print error message on thingsboard
-            irrigation_state = IRRIGATION_INIT;
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_ERROR);
+                // Print error message on thingsboard
+                irrigation_state = IRRIGATION_INIT;
 
             break;
         }
