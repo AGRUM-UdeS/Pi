@@ -49,6 +49,7 @@ char *soil_humidity_topic[] = {
 
 #define WATERING_DURATION_MS    (60*1000)
 #define BAC2BARREL_DURATION_MS  (60*1000)
+#define SOAKING_DURATION_MS     (3*60*1000)
 
 #define MEASUREMENTS_PERIOD_MS  (5*60*1000)
 
@@ -194,14 +195,19 @@ void irrigation_management(void *pvParameters)
                 break;
 
             case IRRIGATION_SOAKING:
-            
-                //valve_1 = OPEN //JC : à définir les output de valves et le "on" "off"
-                //vulve_2 = OPEN //JC : à définir les output de vulves et le "on" "off"
-                //pompe_baril = OPEN //JC : à définir les output de pompes et le "on" "off"
-                vTaskDelay(60*1000);
-                //pompe_baril = OPEN //JC : à définir les output de pompes et le "on" "off"
-                //valve_1 = CLOSE //JC : à définir les output de valves et le "on" "off"
-                //vulve_2 = CLOSE //JC : à définir les output de vulves et le "on" "off"
+                // Start soaking
+                if (open_valve(VALVE_SOAKER) == VALVE_OPEN) {
+                    enable_pump(PUMP_IRRIGATION);
+                }
+                
+                // Wait for plants to get soaked
+                vTaskDelay(SOAKING_DURATION_MS);
+
+                // Stop soaking
+                if (disable_pump(PUMP_IRRIGATION) == PUMP_OFF) {
+                    close_valve(VALVE_SOAKER);
+                }
+
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
