@@ -9,6 +9,9 @@
 #define HUMIDITY_TOPIC_3          ("Humidite sans PV 1")
 #define TEMP_TOPIC_4              ("Temperature sans PV 2")
 #define HUMIDITY_TOPIC_4          ("Humidite sans PV 2")
+#define HUMIDITY_SOIL_1           ("Humidite sol 1")
+#define HUMIDITY_SOIL_2           ("Humidite sol 2")
+#define HUMIDITY_SOIL_3           ("Humidite sol 3")
 
 #define HUMIDITY_SOL_1              (0)
 #define HUMIDITY_SOL_2              (1)
@@ -31,6 +34,12 @@ char *humidity_topic[] = {
     HUMIDITY_TOPIC_2,
     HUMIDITY_TOPIC_3,
     HUMIDITY_TOPIC_4
+};
+
+char *soil_humidity_topic[] = {
+    HUMIDITY_SOIL_1,
+    HUMIDITY_SOIL_2,
+    HUMIDITY_SOIL_3
 };
 
 #define MEASUREMENTS_PERIOD_MS  (5*60*1000)
@@ -126,6 +135,14 @@ void irrigation_management(void *pvParameters)
                     } else {
                         printf("Failed to take temp&humidity measurements (%d)\n", i);
                     }
+                }
+
+                for (size_t i = 0; i < SOIL_HUMIDITY_SENSOR_NB; i++) {
+                    // Read soil humidity
+                    float soil_humidity[SOIL_HUMIDITY_SENSOR_NB];
+                    read_soil_humidity(HUMIDITY_SOL_1, &(soil_humidity[i]));
+                    // Publish soil humidity
+                    interface_publish(soil_humidity_topic[i], soil_humidity[i]);
                 }
 
                 //JC : Weather

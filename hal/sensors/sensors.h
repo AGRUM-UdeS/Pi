@@ -7,7 +7,8 @@
 #include "ADS7828.h"
 #include "SHT.h"
 
-#define ENVIRO_SENSOR_NB    (4)
+#define ENVIRO_SENSOR_NB        (4)
+#define SOIL_HUMIDITY_SENSOR_NB (3)
 
 enum enviro_sensor_location_t {
     UNDER_PV_0,
@@ -17,6 +18,8 @@ enum enviro_sensor_location_t {
 };
 
 extern uint8_t enviro_sensor_location[ENVIRO_SENSOR_NB];
+
+void read_soil_humidity(uint8_t adc_pin, float *value);
 
 void init_water_level_sensors(void);
 

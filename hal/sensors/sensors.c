@@ -1,6 +1,7 @@
 #include "sensors.h"
 
 /********** Irrigation sensors **********/
+#define ADC_IRRIGATION_ADDRESS  (ADC_address_1)
 #define IO_IRRIGATION_ADDRESS   (IO_address_0)
 #define BARREL_WATER_LEVEL_PIN  (0)
 #define BIN_WATER_LEVEL_PIN     (1)
@@ -57,6 +58,16 @@ SHT_measure_t read_temp_humidity(uint8_t sensor)
     }
 
     return meas;
+}
+
+void read_soil_humidity(uint8_t adc_pin, float *value)
+{
+    // Read raw adc value
+    uint16_t raw_adc_value;
+    ADC_read_pin(ADC_IRRIGATION_ADDRESS, adc_pin, &raw_adc_value);
+
+    // Convert adc value to relative humidity
+    *value = ((float)raw_adc_value * (-100.0) / 1023.0);
 }
 
 /********** Energy sensors **********/
