@@ -40,7 +40,10 @@ void init_i2c(void) {
  * PICO_ERROR_TIMEOUT if a timeout occurred.
  */
 int32_t i2c0_write(uint8_t addr, const uint8_t *src, size_t len) {
-    return (i2c_write_blocking_until(i2c0, addr, src, len, false, I2C_WRITE_TIMEOUT));
+    taskENTER_CRITICAL();
+    int rv = (i2c_write_blocking_until(i2c0, addr, src, len, false, I2C_WRITE_TIMEOUT));
+    taskEXIT_CRITICAL();
+    return rv;
 }
 
 /*! \brief Read with i2c0 peripheral
@@ -56,7 +59,10 @@ int32_t i2c0_write(uint8_t addr, const uint8_t *src, size_t len) {
  * PICO_ERROR_TIMEOUT if a timeout occurred.
  */
 int32_t i2c0_read(uint8_t addr, uint8_t *dst, size_t len) {
-    return (i2c_read_blocking_until(i2c0, addr, dst, len, false, I2C_READ_TIMEOUT));
+    taskENTER_CRITICAL();
+    int rv = (i2c_read_blocking_until(i2c0, addr, dst, len, false, I2C_READ_TIMEOUT));
+    taskEXIT_CRITICAL();
+    return rv;
 }
 
 /*! \brief Write with i2c1 peripheral
@@ -72,7 +78,10 @@ int32_t i2c0_read(uint8_t addr, uint8_t *dst, size_t len) {
  * PICO_ERROR_TIMEOUT if a timeout occurred.
  */
 int32_t i2c1_write(uint8_t addr, const uint8_t *src, size_t len) {
-    return (i2c_write_blocking_until(i2c1, addr, src, len, false, I2C_WRITE_TIMEOUT));
+    taskENTER_CRITICAL();
+    int rv = (i2c_write_blocking_until(i2c1, addr, src, len, false, I2C_WRITE_TIMEOUT));
+    taskEXIT_CRITICAL();
+    return rv;
 }
 
 /*! \brief Read with i2c1 peripheral
@@ -88,5 +97,8 @@ int32_t i2c1_write(uint8_t addr, const uint8_t *src, size_t len) {
  * PICO_ERROR_TIMEOUT if a timeout occurred.
  */
 int32_t i2c1_read(uint8_t addr, uint8_t *dst, size_t len) {
-    return (i2c_read_blocking_until(i2c1, addr, dst, len, false, I2C_READ_TIMEOUT));
+    taskENTER_CRITICAL();
+    int rv = (i2c_read_blocking_until(i2c1, addr, dst, len, false, I2C_READ_TIMEOUT));
+    taskEXIT_CRITICAL();
+    return rv;
 }

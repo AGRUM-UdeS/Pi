@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
+/* Scheduler include files. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
 #include "hardware/i2c.h"
 
 void init_i2c(void);
