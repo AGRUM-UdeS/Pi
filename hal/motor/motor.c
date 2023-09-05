@@ -1,6 +1,7 @@
 #include "motor.h"
 
 #define IO_MOTOR_ADDRESS   (IO_address_2)
+#define IO_LS_ADDRESS      (IO_address_1)
 
 #define MOTOR_NUM    4
 
@@ -52,19 +53,6 @@ static uint8_t motor_to_stop[MOTOR_NUM];
 #define GEARBOX_RATIO (47)
 
 static bool all_motor_moving_flag = false;
-
-// Limit switch
-#define LS_1_PIN   6
-#define LS_2_PIN   4
-#define LS_3_PIN   3
-#define LS_4_PIN   1
-
-const uint8_t LIMIT_SWITCH_PIN[] = {
-    LS_1_PIN,
-    LS_2_PIN,
-    LS_3_PIN,
-    LS_4_PIN
-};
 
 static bool any_limit_switch_touched_flag = false;
 
@@ -124,8 +112,12 @@ motor_state_t init_motor(void)
 {
     motor_state_t status = MOTOR_OK;
 
+    // Reset limit switch interrupt pin by readng input register
+    IO_status_t stat = IO_read_pin(IO_LS_ADDRESS, 0, NULL);
+
     // Init limit switch gpio ext. interrupt pin
-    gpio_set_irq_enabled_with_callback(28, GPIO_IRQ_EDGE_RISE, true, &limit_switch_callback);
+    gpio_set_irq_enabled_with_callback(28, GPIO_IRQ_EDGE_FALL
+    , true, &limit_switch_callback);
     
     // Init pins to control motor drives
     if (init_pul_pins() != MOTOR_OK) {
@@ -233,18 +225,24 @@ motor_state_t stop_single_pv(uint8_t ind_motor)
 
 bool any_limit_switch_touched(uint8_t lm_pin_value[], uint16_t switch_nb, uint8_t* lm_touched)
 {
-    if (any_limit_switch_touched_flag) {
-        for (size_t i = 0; i < switch_nb; i++) {
-            uint8_t last_val = lm_pin_value[i];
-            IO_read_pin(IO_MOTOR_ADDRESS, DIR_PIN[i], &(lm_touched[i]));
-            if (last_val != lm_pin_value[i]) {
-                stop_single_pv(i/2);
-                *lm_touched |= (1 << i);
-            }
+    // if (!any_limit_switch_touched_flag) {
+    //     return false;
+    // }
+    // any_limit_switch_touched_flag = false;
+    bool return_value = true;
+
+    for (size_t i = 0; i < switch_nb; i++) {
+        IO_status_t rv = IO_read_pin(IO_LS_ADDRESS, i, &(lm_pin_value[i]));
+        if ((rv == IO_ok) && lm_pin_value[i]) {
+            stop_single_pv(i/2);
+            *lm_touched |= (1 << i); // Set bit
+        } else if ((rv == IO_ok) && !lm_pin_value[i]) {
+            *lm_touched &= ~(1 << i); // Clear bit
+        } else if (rv != IO_ok) {
+            return_value = false;
         }
-        return true;
     }
-    return false;
+    return return_value;
 }
 
 uint32_t ms2angle(uint32_t time)

@@ -4,6 +4,8 @@
 
 #define PV_MOVE_PERIOD_MS       (60 * 1000)
 
+#define PV_STATUS_TOPIC         ("Status PV")
+
 static repeating_timer_t pv_move_timer;
 
 static bool PV_calibration_flag = false;
@@ -39,6 +41,9 @@ void PV_management(void *pvParameters)
 
     weather_status_t weather_status = WEATHER_OK;
 
+    uint8_t lm_pin_value[NB_PV*2];
+    uint8_t lm_touched = 0; // bit set for lm touched
+
     while(1) {
         last_PV_state = PV_state;
 
@@ -46,10 +51,11 @@ void PV_management(void *pvParameters)
             case PV_INIT:
                 init_motor();
 
-                PV_state = PV_IDLE;
+                PV_state = PV_CALIBRATION;
                 break;
 
             case PV_IDLE:
+                interface_publish(PV_STATUS_TOPIC, PV_IDLE);
                 weather_status = forecast_is_bad_weather(&(context->weather_forecast));
 
                 if (morning_pv_calibration()) {   //si entre 5am et 6am
@@ -70,17 +76,17 @@ void PV_management(void *pvParameters)
                     PV_state = PV_IDLE;
                 }
 
+                any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
+
 
                 break;
 
             case PV_CALIBRATION:
                 printf("PV calibration starting\n");
+                interface_publish(PV_STATUS_TOPIC, PV_CALIBRATION);
                 // Go to final position
-                rotate_all_pv(180, COUNTERCLOCKWISE); // Will stop beore 180 deg
+                rotate_all_pv(180, CLOCKWISE); // Will stop beore 180 deg
 
-                uint8_t lm_pin_value[NB_PV*2];
-                uint8_t lm_touched = 0; // bit set for lm touched
-                // i.e. lm_touched = 00000101 means switch 0 and 2 are pushed 
                 // Stop quand limit switch
                 do {
                     vTaskDelay(1);
@@ -95,12 +101,16 @@ void PV_management(void *pvParameters)
                 do {
                     vTaskDelay(1);
                     any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
-                } while(countSetBits(lm_touched) < NB_PV);
+                // } while(countSetBits(lm_touched) < NB_PV);
+                } while(!(lm_pin_value[1]));
+                stop_single_pv(0);
                 unsigned long end = xTaskGetTickCount();
 
                 // Set position and range
                 pv_pos_range = ms2angle(end - start);
                 pv_current_pos = pv_init_pos = -pv_pos_range/2;
+
+                interface_publish("PV range", (float)pv_pos_range);
 
                 // negative timeout means exact delay (rather than delay between callbacks)
                 static bool once = true;
@@ -116,6 +126,7 @@ void PV_management(void *pvParameters)
                 break;
 
             case PV_DAYROTATION:
+                interface_publish(PV_STATUS_TOPIC, PV_DAYROTATION);
                 // Measure PV output power
                 float before_total_power = 0, after_total_power = 0;
                 for (size_t i = 0; i < NB_PV; i++) {
@@ -127,9 +138,9 @@ void PV_management(void *pvParameters)
 
                 // PWM started, wait for motor to stop
                 while(all_motor_moving()){
-                    vTaskDelay(100);
+                    any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
                 }
-                pv_current_pos++;
+                interface_publish("PV position", (float)(++pv_current_pos));
 
                 //Measure PV output power
                 for (size_t i = 0; i < NB_PV; i++) {
@@ -138,7 +149,8 @@ void PV_management(void *pvParameters)
 
                 // backtrack if power reduce
                 if (after_total_power < (before_total_power * 0.80)) {
-                    PV_state = PV_BACKTRACKING;    
+                    PV_state = PV_BACKTRACKING;  
+                    break;  
                 }
 
                 PV_state = PV_IDLE;
