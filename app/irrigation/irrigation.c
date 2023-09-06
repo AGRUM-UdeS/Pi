@@ -119,7 +119,7 @@ void irrigation_management(void *pvParameters)
                 break;
 
             case IRRIGATION_IDLE:
-                interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
+                // interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 close_all_valve();
                 disable_all_pump();
                 clear_all_irigation_led();
