@@ -71,11 +71,18 @@ void startUp(void *pvParameters) {
             HOUSEKEEPING_TASK_PRIORITY,
             NULL );
 
-    xTaskCreate( PV_management,
-            "PV_management",
+    // xTaskCreate( PV_management,
+    //         "PV_management",
+    //         configMINIMAL_STACK_SIZE,
+    //         &main_context,
+    //         PV_MANAGEMENT_TASK_PRIORITY,
+    //         NULL );
+    
+    xTaskCreate( test_task,
+            "test_task",
             configMINIMAL_STACK_SIZE,
             &main_context,
-            PV_MANAGEMENT_TASK_PRIORITY,
+            HOUSEKEEPING_TASK_PRIORITY,
             NULL );
 
         // xTaskCreate( weather_task,

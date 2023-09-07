@@ -9,6 +9,6 @@
 /*! \brief For testing and debugging purpose. Put anything you want in this
  *
  */
-void develop_test(void);
+void test_task(void *pvParameters);
 
 #endif
