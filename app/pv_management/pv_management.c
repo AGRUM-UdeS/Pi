@@ -41,7 +41,7 @@ void PV_management(void *pvParameters)
 
     weather_status_t weather_status = WEATHER_OK;
 
-    uint8_t lm_pin_value[NB_PV*2];
+    uint8_t lm_pin_value[NB_PV*2] = {0};
     uint8_t lm_touched = 0; // bit set for lm touched
 
     while(1) {
@@ -55,7 +55,6 @@ void PV_management(void *pvParameters)
                 break;
 
             case PV_IDLE:
-                interface_publish(PV_STATUS_TOPIC, PV_IDLE);
                 weather_status = forecast_is_bad_weather(&(context->weather_forecast));
 
                 if (morning_pv_calibration()) {   //si entre 5am et 6am
@@ -76,7 +75,7 @@ void PV_management(void *pvParameters)
                     PV_state = PV_IDLE;
                 }
 
-                any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
+                // any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
 
 
                 break;
@@ -85,14 +84,16 @@ void PV_management(void *pvParameters)
                 printf("PV calibration starting\n");
                 interface_publish(PV_STATUS_TOPIC, PV_CALIBRATION);
                 // Go to final position
-                rotate_all_pv(180, CLOCKWISE); // Will stop beore 180 deg
-
+                rotate_all_pv(180, COUNTERCLOCKWISE); // Will stop beore 180 deg
                 // Stop quand limit switch
                 do {
                     vTaskDelay(1);
-                    any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
-                } while(countSetBits(lm_touched) < NB_PV);
+                    limit_switch_touched(lm_pin_value, NB_PV*2);
+                // } while(countSetBits(lm_touched) < 1);
+                } while(!lm_pin_value[0]);
+                stop_single_pv(0);
                 lm_touched = 0;
+                lm_pin_value[0] = 0;
 
                 // Rotate the whole range
                 rotate_all_pv(180, CLOCKWISE); // Will stop before 180 deg
@@ -100,10 +101,13 @@ void PV_management(void *pvParameters)
                 vTaskDelay(5000); // Delay to go away from final limit switches
                 do {
                     vTaskDelay(1);
-                    any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
-                // } while(countSetBits(lm_touched) < NB_PV);
-                } while(!(lm_pin_value[1]));
+                    limit_switch_touched(lm_pin_value, NB_PV*2);
+                // } while(countSetBits(lm_touched) < 1);
+                } while(!lm_pin_value[0]);
                 stop_single_pv(0);
+                lm_touched = 0;
+                lm_pin_value[0] = 0;
+
                 unsigned long end = xTaskGetTickCount();
 
                 // Set position and range
@@ -123,6 +127,7 @@ void PV_management(void *pvParameters)
                 }
 
                 PV_state = PV_IDLE;
+                interface_publish(PV_STATUS_TOPIC, PV_IDLE);
                 break;
 
             case PV_DAYROTATION:
@@ -138,7 +143,7 @@ void PV_management(void *pvParameters)
 
                 // PWM started, wait for motor to stop
                 while(all_motor_moving()){
-                    any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
+                    limit_switch_touched(lm_pin_value, NB_PV*2);
                 }
                 interface_publish("PV position", (float)(++pv_current_pos));
 
@@ -154,9 +159,11 @@ void PV_management(void *pvParameters)
                 }
 
                 PV_state = PV_IDLE;
+                interface_publish(PV_STATUS_TOPIC, PV_IDLE);
                 break;
 
             case PV_BADWEATHER:
+                interface_publish(PV_STATUS_TOPIC, PV_BADWEATHER);
                 if (weather_status == WEATHER_WIND) {
                     // Go back to initial position
                     rotate_all_pv(pv_current_pos - pv_init_pos, CLOCKWISE);
@@ -177,6 +184,7 @@ void PV_management(void *pvParameters)
                     } else {
                         // Already straight
                         PV_state = PV_IDLE;
+                        interface_publish(PV_STATUS_TOPIC, PV_IDLE);
                         break;
                     }
 
@@ -186,6 +194,7 @@ void PV_management(void *pvParameters)
 
                     pv_current_pos = 0;
                     PV_state = PV_IDLE;
+                    interface_publish(PV_STATUS_TOPIC, PV_IDLE);
                 } else {
                     // Error
                     PV_state = PV_ERROR;
@@ -194,6 +203,7 @@ void PV_management(void *pvParameters)
                 break;
 
             case PV_BACKTRACKING:
+                interface_publish(PV_STATUS_TOPIC, PV_BACKTRACKING);
                 
                 //backtrack, only at the end of the day
 
@@ -208,9 +218,11 @@ void PV_management(void *pvParameters)
                 // }
 
                 PV_state = PV_IDLE;
+                interface_publish(PV_STATUS_TOPIC, PV_IDLE);
                 break;
 
             case PV_ERROR:
+                interface_publish(PV_STATUS_TOPIC, PV_ERROR);
                 // Print error message on thingsboard
                 PV_state = PV_INIT;
 

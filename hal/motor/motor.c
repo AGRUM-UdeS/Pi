@@ -223,7 +223,7 @@ motor_state_t stop_single_pv(uint8_t ind_motor)
 }
  
 
-bool any_limit_switch_touched(uint8_t lm_pin_value[], uint16_t switch_nb, uint8_t* lm_touched)
+bool limit_switch_touched(uint8_t lm_pin_value[], uint16_t switch_nb)
 {
     // if (!any_limit_switch_touched_flag) {
     //     return false;
@@ -234,10 +234,7 @@ bool any_limit_switch_touched(uint8_t lm_pin_value[], uint16_t switch_nb, uint8_
     for (size_t i = 0; i < switch_nb; i++) {
         IO_status_t rv = IO_read_pin(IO_LS_ADDRESS, i, &(lm_pin_value[i]));
         if ((rv == IO_ok) && lm_pin_value[i]) {
-            stop_single_pv(i/2);
-            *lm_touched |= (1 << i); // Set bit
-        } else if ((rv == IO_ok) && !lm_pin_value[i]) {
-            *lm_touched &= ~(1 << i); // Clear bit
+            //stop_single_pv(i/2);
         } else if (rv != IO_ok) {
             return_value = false;
         }

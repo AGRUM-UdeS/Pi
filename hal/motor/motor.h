@@ -70,7 +70,7 @@ bool all_motor_moving(void);
  * \param lm_touched One hot variable telling which limit switch is trrigered
  * \return true if a limit switch is touched, false if not
  */
-bool any_limit_switch_touched(uint8_t lm_pin_value[], uint16_t switch_nb, uint8_t* lm_touched);
+bool limit_switch_touched(uint8_t lm_pin_value[], uint16_t switch_nb);
 
 /*! \brief Convert timing to angle
  */
