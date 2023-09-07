@@ -12,6 +12,7 @@
 #include "pico/stdlib.h"
 #include "wrap_WATCHDOG.h"
 #include "wrap_RTC.h"
+#include "secret.h"
 
 #include "wrap_MQTT.h"
 

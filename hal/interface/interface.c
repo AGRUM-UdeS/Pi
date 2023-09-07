@@ -1,9 +1,6 @@
 #include "interface.h"
 #include "context.h"
 
-// Uncomment this for prod build
-#define PUBLISH
-
 main_context_t *context;
 
 bool interface_publish(unsigned char *topic, float value) 
@@ -27,7 +24,7 @@ static bool interface_send(unsigned char *topic, float value)
         return false;
     }
     
-#ifdef PUBLISH
+#ifdef PROD_BUILD
     if (ThingsBoard_publish(topic, value) != THINGSBOARD_OK) {
         printf("Client not connected...\n");
         return false;

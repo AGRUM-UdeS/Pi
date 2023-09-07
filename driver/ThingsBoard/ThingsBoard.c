@@ -10,9 +10,9 @@ static mqtt_client_t* mqtt_client = NULL;
 
 static const struct mqtt_connect_client_info_t mqtt_client_info =
 {
-  "RaspberryPiPicoW", /* Client id */
-  "RaspberryPiPicoW", /* user, or access token in our case */
-  "RaspberryPiPicoW", /* pass */
+  TB_CLIENT_ID, /* Client id */
+  TB_USER, /* user, or access token in our case */
+  TB_PASS, /* pass */
   KEEP_ALIVE_TIMEOUT,  /* keep alive */
   NULL, /* will_topic */
   NULL, /* will_msg */
