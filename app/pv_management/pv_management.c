@@ -42,7 +42,6 @@ void PV_management(void *pvParameters)
     weather_status_t weather_status = WEATHER_OK;
 
     uint8_t lm_pin_value[NB_PV*2] = {0};
-    uint8_t lm_touched = 0; // bit set for lm touched
 
     while(1) {
         last_PV_state = PV_state;
@@ -75,9 +74,6 @@ void PV_management(void *pvParameters)
                     PV_state = PV_IDLE;
                 }
 
-                // any_limit_switch_touched(lm_pin_value, NB_PV*2, &lm_touched);
-
-
                 break;
 
             case PV_CALIBRATION:
@@ -85,36 +81,35 @@ void PV_management(void *pvParameters)
                 interface_publish(PV_STATUS_TOPIC, PV_CALIBRATION);
                 // Go to final position
                 rotate_all_pv(180, COUNTERCLOCKWISE); // Will stop beore 180 deg
+                vTaskDelay(5000); // Delay to go away from initial limit switches
                 // Stop quand limit switch
                 do {
                     vTaskDelay(1);
                     limit_switch_touched(lm_pin_value, NB_PV*2);
-                // } while(countSetBits(lm_touched) < 1);
-                } while(!lm_pin_value[0]);
-                stop_single_pv(0);
-                lm_touched = 0;
-                lm_pin_value[0] = 0;
+                } while(!(lm_pin_value[0] && lm_pin_value[2] &&
+                          lm_pin_value[4] && lm_pin_value[6]));
 
                 // Rotate the whole range
                 rotate_all_pv(180, CLOCKWISE); // Will stop before 180 deg
                 uint32_t start = to_ms_since_boot(get_absolute_time());
-                vTaskDelay(5000); // Delay to go away from final limit switches
+                vTaskDelay(10000); // Delay to go away from final limit switches
                 do {
                     vTaskDelay(1);
                     limit_switch_touched(lm_pin_value, NB_PV*2);
-                // } while(countSetBits(lm_touched) < 1);
-                } while(!lm_pin_value[0]);
-                stop_single_pv(0);
-                lm_touched = 0;
-                lm_pin_value[0] = 0;
+                } while(!(lm_pin_value[1] && lm_pin_value[3] &&
+                          lm_pin_value[5] && lm_pin_value[7]));
 
                 uint32_t end = to_ms_since_boot(get_absolute_time());
 
                 // Set position and range
-                pv_pos_range = ms2angle(end - start);
-                pv_current_pos = pv_init_pos = -pv_pos_range/2;
+                pv_pos_range = ms2angle(end - start) - 20;
+                pv_current_pos = pv_init_pos = -pv_pos_range/2 + 10;
 
                 interface_publish("PV range", (float)pv_pos_range);
+                rotate_all_pv(10, COUNTERCLOCKWISE);
+                while(all_motor_moving()) {
+                    vTaskDelay(1);
+                }
 
                 // negative timeout means exact delay (rather than delay between callbacks)
                 static bool once = true;

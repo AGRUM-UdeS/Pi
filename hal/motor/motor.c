@@ -234,7 +234,7 @@ bool limit_switch_touched(uint8_t lm_pin_value[], uint16_t switch_nb)
     for (size_t i = 0; i < switch_nb; i++) {
         IO_status_t rv = IO_read_pin(IO_LS_ADDRESS, i, &(lm_pin_value[i]));
         if ((rv == IO_ok) && lm_pin_value[i]) {
-            //stop_single_pv(i/2);
+            stop_single_pv(i/2);
         } else if (rv != IO_ok) {
             return_value = false;
         }
