@@ -97,7 +97,7 @@ void PV_management(void *pvParameters)
 
                 // Rotate the whole range
                 rotate_all_pv(180, CLOCKWISE); // Will stop before 180 deg
-                unsigned long start = xTaskGetTickCount();
+                uint32_t start = to_ms_since_boot(get_absolute_time());
                 vTaskDelay(5000); // Delay to go away from final limit switches
                 do {
                     vTaskDelay(1);
@@ -108,7 +108,7 @@ void PV_management(void *pvParameters)
                 lm_touched = 0;
                 lm_pin_value[0] = 0;
 
-                unsigned long end = xTaskGetTickCount();
+                uint32_t end = to_ms_since_boot(get_absolute_time());
 
                 // Set position and range
                 pv_pos_range = ms2angle(end - start);
