@@ -32,6 +32,6 @@ float get_instant_power_PV(void);
  *
  * \return Last state of state-machine
  */
-energy_status_t enery_management(void);
+void enery_management(void *pvParameters);
 
 #endif

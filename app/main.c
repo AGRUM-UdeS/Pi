@@ -34,6 +34,7 @@ void vApplicationTickHook( void );
 #define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
 #define INTERFACE_TASK_PRIORITY         ( tskIDLE_PRIORITY + 5 )
 #define WEATHER_TASK_PRIORITY           ( tskIDLE_PRIORITY + 4 )
+#define ENERGY_TASK_PRIORITY            ( tskIDLE_PRIORITY + 4 )
 
 main_context_t main_context;
 
@@ -76,6 +77,13 @@ void startUp(void *pvParameters) {
             configMINIMAL_STACK_SIZE,
             &main_context,
             PV_MANAGEMENT_TASK_PRIORITY,
+            NULL );
+
+    xTaskCreate( enery_management,
+            "enery_management",
+            configMINIMAL_STACK_SIZE,
+            &main_context,
+            ENERGY_TASK_PRIORITY,
             NULL );
 
         // xTaskCreate( weather_task,

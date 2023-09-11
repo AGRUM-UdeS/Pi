@@ -106,7 +106,7 @@ float get_instant_power_PV(void)
     return PV_power;
 }
 
-energy_status_t enery_management(void)
+void enery_management(void *pvParameters)
 {
     static energy_status_t energy_state = ENERGY_INIT;
     static energy_status_t last_energy_state = ENERGY_ERROR;
