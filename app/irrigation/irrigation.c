@@ -178,6 +178,7 @@ void irrigation_management(void *pvParameters)
                     -irrigation_waterlevel_trigger
                     -irrigation_soaking_flag
                 */
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
@@ -197,6 +198,7 @@ void irrigation_management(void *pvParameters)
                     close_valve(VALVE_SPRINKLER);
                 }
 
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
@@ -213,6 +215,7 @@ void irrigation_management(void *pvParameters)
 
                 turn_off_irrigation_led(LED_BAC);
 
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
@@ -232,6 +235,7 @@ void irrigation_management(void *pvParameters)
                     close_valve(VALVE_SOAKER);
                 }
 
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
