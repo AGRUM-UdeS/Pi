@@ -9,6 +9,7 @@ target_link_libraries(ThingsBoard
         wrap_MQTT
         wrap_RTC
         wrap_WATCHDOG
+        secret
         )
 
 target_include_directories(ThingsBoard PUBLIC

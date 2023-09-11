@@ -28,7 +28,7 @@ void vApplicationIdleHook( void );
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
 void vApplicationTickHook( void );
 
-#define PV_MANAGEMENT_TASK_PRIORITY     ( tskIDLE_PRIORITY + 2 )
+#define PV_MANAGEMENT_TASK_PRIORITY     ( tskIDLE_PRIORITY + 3 )
 #define IRRIGATION_TASK_PRIORITY        ( tskIDLE_PRIORITY + 1 )
 #define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 2 )
 #define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
@@ -44,24 +44,18 @@ void startUp(void *pvParameters) {
     init_peripherals();
 
     // Init energy management
-    enery_management();
+    // enery_management();
 
     // Get weather data
     // printf("\n-------- Getting weather data\n");
     // weather_current_request();
-    xTaskCreate( PV_management,
-            "PV_management",
-            configMINIMAL_STACK_SIZE,
-            &main_context,
-            PV_MANAGEMENT_TASK_PRIORITY,
-            NULL );
 
-    xTaskCreate( irrigation_management,
-            "irrigation_management",
-            configMINIMAL_STACK_SIZE,
-            &main_context,
-            IRRIGATION_TASK_PRIORITY,
-            NULL );
+    // xTaskCreate( irrigation_management,
+    //         "irrigation_management",
+    //         configMINIMAL_STACK_SIZE,
+    //         &main_context,
+    //         IRRIGATION_TASK_PRIORITY,
+    //         NULL );
 
     xTaskCreate( interface,
             "interface",
@@ -75,6 +69,13 @@ void startUp(void *pvParameters) {
             configMINIMAL_STACK_SIZE,
             &main_context,
             HOUSEKEEPING_TASK_PRIORITY,
+            NULL );
+
+    xTaskCreate( PV_management,
+            "PV_management",
+            configMINIMAL_STACK_SIZE,
+            &main_context,
+            PV_MANAGEMENT_TASK_PRIORITY,
             NULL );
 
         // xTaskCreate( weather_task,

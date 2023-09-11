@@ -10,6 +10,7 @@ static rtc_status_t set_RTC_time(datetime_t rtc_time) {
     // Initialize the real time clock
     if (!is_init) {
         rtc_init();
+        printf("rtc initialized\n");
         is_init = true;
     }
 

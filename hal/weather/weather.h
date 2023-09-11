@@ -33,6 +33,8 @@
 
 typedef enum _weather_status_t {
     WEATHER_OK,
+    WEATHER_WIND,
+    WEATHER_RAIN,
     WEATHER_ERROR
 } weather_status_t;
 
@@ -54,5 +56,7 @@ typedef enum _weather_print_log_t {
 
 void weather_task(void *pvParameters);
 void weather_printf(weather_forecast_t* weather_forecast, weather_print_log_t print_log);
+
+weather_status_t forecast_is_bad_weather(weather_forecast_t* forecast);
 
 #endif
