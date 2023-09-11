@@ -115,7 +115,7 @@ void irrigation_management(void *pvParameters)
                 // Init leds
                 clear_all_irigation_led();
 
-                irrigation_state = IRRIGATION_IDLE;
+                irrigation_state = IRRIGATION_MEASUREMENT;
                 break;
 
             case IRRIGATION_IDLE:
