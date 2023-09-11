@@ -163,7 +163,7 @@ void irrigation_management(void *pvParameters)
                 for (size_t i = 0; i < SOIL_HUMIDITY_SENSOR_NB; i++) {
                     // Read soil humidity
                     float soil_humidity[SOIL_HUMIDITY_SENSOR_NB];
-                    read_soil_humidity(HUMIDITY_SOL_1, &(soil_humidity[i]));
+                    read_soil_humidity(i, &(soil_humidity[i]));
                     // Publish soil humidity
                     interface_publish(soil_humidity_topic[i], soil_humidity[i]);
                 }
