@@ -76,7 +76,6 @@ void interface(void *pvParameter)
     while(true){
         if (!interface_is_connected()) {
             printf("Interface disconnected, reconnecting\n");
-            ThingsBoard_disconnect();
             context->interface_status = INTERFACE_DISCONNECTED;
             if (ThingsBoard_connect() == THINGSBOARD_CONNECTED) {
                 context->interface_status = INTERFACE_CONNECTED;

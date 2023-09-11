@@ -105,6 +105,7 @@ mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len)
 }
 
 err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client_info_t* client_info, const char *hostname) {
+  memset(mqtt_client, 0, sizeof(*mqtt_client));
   *mqtt_client = mqtt_client_new();
 
   mqtt_set_inpub_callback(*mqtt_client,
