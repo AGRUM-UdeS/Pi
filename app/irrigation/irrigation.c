@@ -45,8 +45,8 @@ char *soil_humidity_topic[] = {
 #define BAC_WATER_LEVEL_PIN     (1)
 #define VALVE_SPRINKLER         (2)
 #define VALVE_SOAKER            (3)
-#define PUMP_IRRIGATION         (4)
-#define PUMP_BAC2BARREL         (5)
+#define PUMP_IRRIGATION         (5)
+#define PUMP_BAC2BARREL         (4)
 #define LED_BARIL               (6)
 #define LED_BAC                 (7)
 
@@ -56,9 +56,9 @@ static bool irrigation_soaking_flag = false;
 static bool irrigation_measurement_flag = false;
 
 // Irrigation timing
-#define WATERING_DURATION_MS    (60*1000)
-#define BAC2BARREL_DURATION_MS  (60*1000)
-#define SOAKING_DURATION_MS     (3*60*1000)
+#define WATERING_DURATION_MS    pdMSTOTICKS(10*60*1000)
+#define BAC2BARREL_DURATION_MS  pdMSTOTICKS(30*1000)
+#define SOAKING_DURATION_MS     pdMSTOTICKS(10*60*1000)
 
 #define MEASUREMENTS_PERIOD_MS  (5*60*1000)
 
@@ -186,17 +186,15 @@ void irrigation_management(void *pvParameters)
                 interface_publish(IRRIGATION_STATUS, IRRIGATION_WATERING);
 
                 // Spray water
-                if (open_valve(VALVE_SPRINKLER) == VALVE_OPEN) {
-                    enable_pump(PUMP_IRRIGATION);
-                }
+                open_valve(VALVE_SPRINKLER);
+                enable_pump(PUMP_IRRIGATION);
                 
                 // Wait for plants to get wet
                 vTaskDelay(WATERING_DURATION_MS);
 
                 // Stop watering
-                if (disable_pump(PUMP_IRRIGATION) == PUMP_OFF) {
-                    close_valve(VALVE_SPRINKLER);
-                }
+                disable_pump(PUMP_IRRIGATION);
+                close_valve(VALVE_SPRINKLER);
 
                 interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 irrigation_state = IRRIGATION_IDLE;
@@ -223,17 +221,15 @@ void irrigation_management(void *pvParameters)
                 interface_publish(IRRIGATION_STATUS, IRRIGATION_SOAKING);
 
                 // Start soaking
-                if (open_valve(VALVE_SOAKER) == VALVE_OPEN) {
-                    enable_pump(PUMP_IRRIGATION);
-                }
+                open_valve(VALVE_SOAKER);
+                enable_pump(PUMP_IRRIGATION);
                 
                 // Wait for plants to get soaked
                 vTaskDelay(SOAKING_DURATION_MS);
 
                 // Stop soaking
-                if (disable_pump(PUMP_IRRIGATION) == PUMP_OFF) {
-                    close_valve(VALVE_SOAKER);
-                }
+                disable_pump(PUMP_IRRIGATION);
+                close_valve(VALVE_SOAKER);
 
                 interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 irrigation_state = IRRIGATION_IDLE;
@@ -248,6 +244,6 @@ void irrigation_management(void *pvParameters)
         }
         last_irrigation_state = irrigation_state;
         context->irrigation_status = irrigation_state;
-        vTaskDelay(10000);
+        vTaskDelay(pdMSTOTICKS(500));
     }
 }
