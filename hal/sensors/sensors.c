@@ -87,7 +87,7 @@ void read_soil_humidity(uint8_t adc_pin, float *value)
     ADC_read_pin(ADC_IRRIGATION_ADDRESS, adc_pin, &raw_adc_value);
 
     // Convert adc value to relative humidity
-    *value = ((float)raw_adc_value * (-100.0) / 1023.0);
+    *value = ((float)raw_adc_value * (100.0) / 4096.0);
 }
 
 /********** Energy sensors **********/
