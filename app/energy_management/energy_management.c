@@ -113,6 +113,11 @@ void enery_management(void *pvParameters)
 
     last_energy_state = energy_state;
 
+    // Start measurement timer
+    if (!add_repeating_timer_ms(-MEASUREMENTS_PERIOD_MS, meas_callback, NULL, &measure_timer)) {
+        printf("Failed to add energy timer\n");
+    }
+
     static float battery_voltage[NB_PV] = {0};
 
     if (time_to_measure()) {
@@ -124,11 +129,6 @@ void enery_management(void *pvParameters)
         // Init relays states
 
         // Validate states
-
-        // Start measurement timer
-        if (!add_repeating_timer_ms(-MEASUREMENTS_PERIOD_MS, meas_callback, NULL, &measure_timer)) {
-            printf("Failed to add energy timer\n");
-        }
 
         energy_state = ENERGY_MEASUREMENT;
 
@@ -207,6 +207,4 @@ void enery_management(void *pvParameters)
 
         break;
     }
-
-    return energy_state;
 }
