@@ -23,7 +23,7 @@ bool bac_is_full(void)
 {
     uint8_t value;
     IO_status_t status = IO_read_pin(IO_IRRIGATION_ADDRESS, BAC_WATER_LEVEL_PIN, &value);
-    if (status == IO_ok && value) {
+    if (status == IO_ok && !value) {
         return true;
     }
     return false;
