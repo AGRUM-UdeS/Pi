@@ -80,14 +80,16 @@ SHT_measure_t read_temp_humidity(uint8_t sensor)
     return meas;
 }
 
-void read_soil_humidity(uint8_t adc_pin, float *value)
+void read_soil_humidity(uint8_t pin, float *value)
 {
     // Read raw adc value
-    uint16_t raw_adc_value;
-    ADC_read_pin(ADC_IRRIGATION_ADDRESS, adc_pin, &raw_adc_value);
+    uint16_t received_value;
+    ADC_read_pin(ADC_IRRIGATION_ADDRESS, ADC_pin[pin], &received_value);
 
     // Convert adc value to relative humidity
-    *value = ((float)raw_adc_value * (100.0) / 4096.0);
+    float adc_voltage = ADC_bits2voltage(received_value);
+
+    *value = adc_voltage * 100.0 / 5.0;
 }
 
 /********** Energy sensors **********/
@@ -104,8 +106,8 @@ void read_soil_humidity(uint8_t adc_pin, float *value)
 #define PV_CURRENT3_PIN 6
 #define PV_CURRENT4_PIN 7
 
-#define BAT_CURRENT_ADC_PIN     4
-#define INSTRU_CURRENT_ADC_PIN  5
+#define BAT_CURRENT_ADC_PIN     6
+#define INSTRU_CURRENT_ADC_PIN  7
 
 #define VREF_PV         (1.615)
 #define VREF_INSTRU     (2.51)
@@ -122,7 +124,7 @@ float get_PV_voltage(uint8_t PV_index)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[PV_index], &received_value);
+    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[PV_index*2 + 1], &received_value);
 
     // Convert bits to ADC 5V ref voltage
     float adc_voltage = ADC_bits2voltage(received_value);
@@ -135,7 +137,7 @@ float get_battery_voltage(uint8_t battery_index)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[battery_index + 2], &received_value);
+    ADC_read_pin(ADC_address_2, ADC_pin[battery_index+2], &received_value);
 
     // Convert bits to ADC 5V ref voltage
     float adc_voltage = ADC_bits2voltage(received_value);
@@ -154,7 +156,7 @@ float get_PV_current(uint8_t PV_index)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_PV_CURRENT_ADDRESS, ADC_pin[(PV_index + 3)], &received_value);
+    ADC_read_pin(ADC_address_2, ADC_pin[PV_index], &received_value);
 
     // Convert bits to ADC voltage
     float adc_voltage = ADC_bits2voltage(received_value);
