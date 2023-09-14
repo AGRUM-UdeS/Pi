@@ -1,6 +1,5 @@
 #include "energy_management.h"
-
-#include "sensors.h"
+#include "context.h"
 
 #define STATUS_ENERGY_TOPIC         ("Status Contacteurs")
 #define PV_VOLTAGE_TOPIC_12         ("Tension PV1_2")
@@ -95,9 +94,9 @@ static bool battery_is_empty(float voltage[], uint16_t size)
     return false;
 }
 
-static bool inverter_is_connected(void)
+static bool load_is_connected(void)
 {
-    if (1 /* Read inverter ctrl pin state */) {
+    if (1 /* Read load relay pin state */) {
         return true;
     } else {
         return false;
@@ -127,6 +126,7 @@ float get_instant_power_PV(void)
 
 void enery_management(void *pvParameters)
 {
+    main_context_t *context = (main_context_t*)pvParameters;
     static energy_status_t energy_state = ENERGY_INIT;
     static energy_status_t last_energy_state = ENERGY_ERROR;
 
@@ -202,45 +202,33 @@ void enery_management(void *pvParameters)
 
     case LOAD_SHEDDING:
         // Disable irrigation
-        if (inverter_is_connected()) {
+        if (load_is_connected()) {
             // Disconnect inverter
-        }
-
-        if (!(battery_is_connected())) {
-            // Connect battery
+            gpio_put(LOAD_RELAY_GPIO, false);
         }
 
         break;
 
     case POWER_SAVING:
-        if (inverter_is_connected()) {
+        if (load_is_connected()) {
             // Disconnect inverter
-        }
-
-        if (!(battery_is_connected())) {
-            // Connect battery
+            gpio_put(LOAD_RELAY_GPIO, false);
         }
 
         break;
 
     case NORMAL_USE:
-        if (!(inverter_is_connected())) {
+        if (!(load_is_connected())) {
             // Connect inverter
-        }
-
-        if (!(battery_is_connected())) {
-            // Connect battery
+            gpio_put(LOAD_RELAY_GPIO, true);
         }
 
         break;
 
     case OVERCHARGED:
-        if (!(inverter_is_connected())) {
-            // Connect inverter
-        }
-
-        if (battery_is_connected()) {
-            // Disconnect battery
+        if (!(load_is_connected())) {
+            // Connect load
+            gpio_put(LOAD_RELAY_GPIO, true);
         }
 
         break;

@@ -11,6 +11,7 @@
 #include "pico/stdlib.h"
 
 #include "interface.h"
+#include "sensors.h"
 
 typedef enum _energy_status_t {
     ENERGY_INIT,
