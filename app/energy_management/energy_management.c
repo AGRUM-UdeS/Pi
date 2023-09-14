@@ -149,9 +149,6 @@ void enery_management(void *pvParameters)
 
     switch (energy_state) {
     case ENERGY_INIT:
-        // Init relays states
-
-        // Validate states
 
         energy_state = ENERGY_MEASUREMENT;
 
@@ -206,6 +203,7 @@ void enery_management(void *pvParameters)
             // Disconnect inverter
             gpio_put(LOAD_RELAY_GPIO, false);
         }
+        context->irrifation_enable = false;
 
         break;
 
@@ -214,6 +212,7 @@ void enery_management(void *pvParameters)
             // Disconnect inverter
             gpio_put(LOAD_RELAY_GPIO, false);
         }
+        context->irrifation_enable = false;
 
         break;
 
@@ -222,6 +221,7 @@ void enery_management(void *pvParameters)
             // Connect inverter
             gpio_put(LOAD_RELAY_GPIO, true);
         }
+        context->irrifation_enable = true;
 
         break;
 
@@ -230,6 +230,7 @@ void enery_management(void *pvParameters)
             // Connect load
             gpio_put(LOAD_RELAY_GPIO, true);
         }
+        context->irrifation_enable = true;
 
         break;
 

@@ -58,6 +58,7 @@ void init_peripherals(void)
     rtc_set_alarm(&morning_alarm, &morning_alarm_cb);
     // negative timeout means exact delay (rather than delay between callbacks)
     if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
+        interface_publish("GOOD MORNING", 0);
         printf("Failed to add ping timer\n");
     }
     // init_heartbeat_led();

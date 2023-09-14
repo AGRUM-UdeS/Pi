@@ -132,12 +132,12 @@ void irrigation_management(void *pvParameters)
 
                 if (time_to_measure()) {
                     irrigation_state = IRRIGATION_MEASUREMENT;
-                } else if (morning_irrigation() && !barrel_is_empty()) {
+                } else if (morning_irrigation() && !barrel_is_empty() && context->irrifation_enable) {
                     clear_irrigation_flag();
                     irrigation_state = IRRIGATION_WATERING;
-                } else if (bac_is_full()) {
+                } else if (bac_is_full() && context->irrifation_enable) {
                     irrigation_state = IRRIGATION_RESERVOIR2BARREL;
-                } else if (irrigation_soaking_flag) {
+                } else if (irrigation_soaking_flag && context->irrifation_enable) {
                     irrigation_state = IRRIGATION_SOAKING;
                 } else {
                     irrigation_state = IRRIGATION_IDLE;
