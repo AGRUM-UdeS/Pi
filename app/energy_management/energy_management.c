@@ -2,8 +2,22 @@
 
 #include "sensors.h"
 
-#define PV_VOLTAGE_TOPIC        ("Tension PV")
+#define STATUS_ENERGY_TOPIC         ("Status Contacteurs")
+#define PV_VOLTAGE_TOPIC_12         ("Tension PV1_2")
+#define PV_VOLTAGE_TOPIC_34         ("Tension PV3_4")
+#define BATTERY_VOLTAGE_1           ("Tension PV1_2")
+#define BATTERY_VOLTAGE_12          ("Tension PV3_4")
 #define PV_CURRENT_TOPIC        ("Courant PV")
+
+char *pv_voltage_topic[] = {
+    PV_VOLTAGE_TOPIC_12,
+    PV_VOLTAGE_TOPIC_34
+};
+
+char *battery_voltage_topic[] = {
+    BATTERY_VOLTAGE_1,
+    BATTERY_VOLTAGE_12
+};
 // TODO: definir autre mesure
 
 // TODO: Modify voltage
@@ -135,21 +149,38 @@ void enery_management(void *pvParameters)
         break;
 
     case ENERGY_MEASUREMENT:
+        interface_publish(STATUS_ENERGY_TOPIC, ENERGY_MEASUREMENT);
+
         // Take and publish measurement
         /* Test */
         for (size_t i = 0; i < NB_PV; i++)
         {
-            battery_voltage[i] = BATTERY_LOW_VOLTAGE + 1;
+            PV_voltage[i] = get_PV_voltage(i);
+            interface_publish(pv_voltage_topic[i], PV_voltage[i]);
+        }
+
+        for (size_t i = 0; i < NB_BAT; i++)
+        {
+            battery_voltage[i] = get_battery_voltage(i+2);
+            interface_publish(battery_voltage_topic[i], battery_voltage[i]);
         }
 
         if (battery_is_overcharged(battery_voltage, NB_PV)) {
+            interface_publish(STATUS_ENERGY_TOPIC, OVERCHARGED);
             energy_state = OVERCHARGED;
+
         } else if (battery_is_ok(battery_voltage, NB_PV)) {
+            interface_publish(STATUS_ENERGY_TOPIC, NORMAL_USE);
             energy_state = NORMAL_USE;
+
         } else if (battery_is_low(battery_voltage, NB_PV)) {
+            interface_publish(STATUS_ENERGY_TOPIC, POWER_SAVING);
             energy_state = POWER_SAVING;
+
         } else if (battery_is_empty(battery_voltage, NB_PV)) {
+            interface_publish(STATUS_ENERGY_TOPIC, LOAD_SHEDDING);
             energy_state = LOAD_SHEDDING;
+
         } else {
             energy_state = ENERGY_ERROR;
         }
