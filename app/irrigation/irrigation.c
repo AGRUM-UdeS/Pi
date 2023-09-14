@@ -1,6 +1,9 @@
 #include "irrigation.h"
 #include "context.h"
 
+#define IRRIGATION_STATUS         ("Status irrigation")
+
+// Thingsboard irrigation measurement topic
 #define TEMP_TOPIC_1              ("Temperature avec PV 1")
 #define HUMIDITY_TOPIC_1          ("Humidite avec PV 1")
 #define TEMP_TOPIC_2              ("Temperature avec PV 2")
@@ -9,11 +12,9 @@
 #define HUMIDITY_TOPIC_3          ("Humidite sans PV 1")
 #define TEMP_TOPIC_4              ("Temperature sans PV 2")
 #define HUMIDITY_TOPIC_4          ("Humidite sans PV 2")
-
-static bool irrigation_watering_flag = false;
-static bool irrigation_soaking_flag = false;
-static bool irrigation_waterlevel_trigger = false;
-static bool irrigation_measurement_flag = false;
+#define HUMIDITY_SOIL_1           ("Humidite sol 1")
+#define HUMIDITY_SOIL_2           ("Humidite sol 2")
+#define HUMIDITY_SOIL_3           ("Humidite sol 3")
 
 char *temperature_topic[] = {
     TEMP_TOPIC_1,
@@ -28,6 +29,36 @@ char *humidity_topic[] = {
     HUMIDITY_TOPIC_3,
     HUMIDITY_TOPIC_4
 };
+
+char *soil_humidity_topic[] = {
+    HUMIDITY_SOIL_1,
+    HUMIDITY_SOIL_2,
+    HUMIDITY_SOIL_3
+};
+
+// Sensor IO defines
+#define HUMIDITY_SOL_1              (0)
+#define HUMIDITY_SOL_2              (1)
+#define HUMIDITY_SOL_3              (2)
+
+#define BARREL_WATER_LEVEL_PIN  (0)
+#define BAC_WATER_LEVEL_PIN     (1)
+#define VALVE_SPRINKLER         (2)
+#define VALVE_SOAKER            (3)
+#define PUMP_IRRIGATION         (5)
+#define PUMP_BAC2BARREL         (4)
+#define LED_BARIL               (6)
+#define LED_BAC                 (7)
+
+// State flag
+static bool irrigation_watering_flag = false;
+static bool irrigation_soaking_flag = false;
+static bool irrigation_measurement_flag = false;
+
+// Irrigation timing
+#define WATERING_DURATION_MS    pdMSTOTICKS(10*60*1000)
+#define BAC2BARREL_DURATION_MS  pdMSTOTICKS(30*1000)
+#define SOAKING_DURATION_MS     pdMSTOTICKS(10*60*1000)
 
 #define MEASUREMENTS_PERIOD_MS  (5*60*1000)
 
@@ -55,15 +86,13 @@ static void watering_alarm_callback(void)
     irrigation_watering_flag = true;
 }
 
+// Irrigation state machine
 void irrigation_management(void *pvParameters)
 {
     main_context_t *context = (main_context_t*)pvParameters;
     irrigation_status_t irrigation_state = IRRIGATION_INIT;
     irrigation_status_t last_irrigation_state = IRRIGATION_ERROR;
 
-    init_water_level_sensors();
-    init_pump();
-    init_valve();
     // negative timeout means exact delay (rather than delay between callbacks)
     if (!add_repeating_timer_ms(-MEASUREMENTS_PERIOD_MS, meas_callback, NULL, &measure_timer)) {
         printf("Failed to add irrigation timer\n");
@@ -74,38 +103,49 @@ void irrigation_management(void *pvParameters)
 
         switch (irrigation_state) {
             case IRRIGATION_INIT:
-                //JC : Init mosfet states of pumps and valves
+                // Close valves
+                close_all_valve();
 
-                irrigation_state = IRRIGATION_IDLE;
+                // Close pumps
+                disable_all_pump();
+
+                // Init level sensor as input
+                init_water_level_sensors();
+
+                // Init leds
+                clear_all_irigation_led();
+
+                irrigation_state = IRRIGATION_MEASUREMENT;
                 break;
 
             case IRRIGATION_IDLE:
-                /*
-                valve_1 = CLOSE //JC : à définir les output de valves et le "on" "off"
-                vulve_2 = CLOSE //JC : à définir les output de vulves et le "on" "off"
-                pompe_baril = CLOSE //JC : à définir les output de pompes et le "on" "off"
-                pompe_reservoir = CLOSE //JC : à définir les output de pompes et le "on" "off"
-                */
+                // interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
+                close_all_valve();
+                disable_all_pump();
+                clear_all_irigation_led();
+
+                if (barrel_is_empty()) {
+                    turn_on_irrigation_led(LED_BAC);
+                } else {
+                    turn_off_irrigation_led(LED_BAC);
+                }
 
                 if (time_to_measure()) {
                     irrigation_state = IRRIGATION_MEASUREMENT;
-                }
-                else if (morning_irrigation()) {
+                } else if (morning_irrigation() && !barrel_is_empty()) {
                     clear_irrigation_flag();
                     irrigation_state = IRRIGATION_WATERING;
-                } 
-                else if (irrigation_waterlevel_trigger) {
+                } else if (bac_is_full()) {
                     irrigation_state = IRRIGATION_RESERVOIR2BARREL;
-                }
-                else if (irrigation_soaking_flag) {
+                } else if (irrigation_soaking_flag) {
                     irrigation_state = IRRIGATION_SOAKING;
-                }
-                else {
+                } else {
                     irrigation_state = IRRIGATION_IDLE;
                 }
                 break;
 
             case IRRIGATION_MEASUREMENT:
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_MEASUREMENT);
                 SHT_measure_t meas[ENVIRO_SENSOR_NB];
 
                 // Read every enviro sensor and publish data
@@ -120,6 +160,14 @@ void irrigation_management(void *pvParameters)
                     }
                 }
 
+                for (size_t i = 0; i < SOIL_HUMIDITY_SENSOR_NB; i++) {
+                    // Read soil humidity
+                    float soil_humidity[SOIL_HUMIDITY_SENSOR_NB];
+                    read_soil_humidity(i, &(soil_humidity[i]));
+                    // Publish soil humidity
+                    interface_publish(soil_humidity_topic[i], soil_humidity[i]);
+                }
+
                 //JC : Weather
                 /*
                     JC : 
@@ -130,57 +178,72 @@ void irrigation_management(void *pvParameters)
                     -irrigation_waterlevel_trigger
                     -irrigation_soaking_flag
                 */
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
-            case IRRIGATION_WATERING:                
-                /*
-                valve_1 = OPEN //JC : à définir les output de valves et le "on" "off"
-                vulve_2 = OPEN //JC : à définir les output de vulves et le "on" "off"
-                pompe_baril = OPEN //JC : à définir les output de pompes et le "on" "off"
-                */
+            case IRRIGATION_WATERING:
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_WATERING);
 
-                /* 
-                    JC : à définir. En ce moment ça arrose pendant 1min puis 
-                    on retourne dans idle puis si les mesures montre que c'est 
-                    toujours pas assez trempe apres avoir arrosé on revient arroser 1min    
-                */
-                vTaskDelay(60*1000);
-                /*
-                pompe_baril = OPEN //JC : à définir les output de pompes et le "on" "off"
-                valve_1 = CLOSE //JC : à définir les output de valves et le "on" "off"
-                vulve_2 = CLOSE //JC : à définir les output de vulves et le "on" "off"
-                */
+                // Spray water
+                open_valve(VALVE_SPRINKLER);
+                enable_pump(PUMP_IRRIGATION);
+                
+                // Wait for plants to get wet
+                vTaskDelay(WATERING_DURATION_MS);
+
+                // Stop watering
+                disable_pump(PUMP_IRRIGATION);
+                close_valve(VALVE_SPRINKLER);
+
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
             case IRRIGATION_RESERVOIR2BARREL:
-                // pompe_reservoir = OPEN //JC : à définir les output de pompes et le "on" "off"
-                vTaskDelay(60*1000); //JC : à définir. En ce moment on pompe pendant 1min. À voir s'il est précoce ou pas
-                //pompe_reservoir = CLOSE //JC : à définir les output de pompes et le "on" "off"
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_RESERVOIR2BARREL);
+
+                turn_on_irrigation_led(LED_BAC);
+
+                enable_pump(PUMP_BAC2BARREL);
+
+                vTaskDelay(BAC2BARREL_DURATION_MS);
+                
+                disable_pump(PUMP_BAC2BARREL);
+
+                turn_off_irrigation_led(LED_BAC);
+
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
             case IRRIGATION_SOAKING:
-            
-                //valve_1 = OPEN //JC : à définir les output de valves et le "on" "off"
-                //vulve_2 = OPEN //JC : à définir les output de vulves et le "on" "off"
-                //pompe_baril = OPEN //JC : à définir les output de pompes et le "on" "off"
-                vTaskDelay(60*1000);
-                //pompe_baril = OPEN //JC : à définir les output de pompes et le "on" "off"
-                //valve_1 = CLOSE //JC : à définir les output de valves et le "on" "off"
-                //vulve_2 = CLOSE //JC : à définir les output de vulves et le "on" "off"
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_SOAKING);
+
+                // Start soaking
+                open_valve(VALVE_SOAKER);
+                enable_pump(PUMP_IRRIGATION);
+                
+                // Wait for plants to get soaked
+                vTaskDelay(SOAKING_DURATION_MS);
+
+                // Stop soaking
+                disable_pump(PUMP_IRRIGATION);
+                close_valve(VALVE_SOAKER);
+
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 irrigation_state = IRRIGATION_IDLE;
                 break;
 
             case IRRIGATION_ERROR:
-            // Print error message on thingsboard
-            irrigation_state = IRRIGATION_INIT;
+                interface_publish(IRRIGATION_STATUS, IRRIGATION_ERROR);
+                // Print error message on thingsboard
+                irrigation_state = IRRIGATION_INIT;
 
             break;
         }
         last_irrigation_state = irrigation_state;
         context->irrigation_status = irrigation_state;
-        vTaskDelay(100);
+        vTaskDelay(pdMSTOTICKS(500));
     }
 }

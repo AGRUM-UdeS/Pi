@@ -28,6 +28,7 @@ static datetime_t morning_alarm = {
 
 static void morning_alarm_cb(void)
 {
+    interface_publish("GOOD MORNING", 1);
     printf("Good morning!\n");
     pv_calibration_flag = true;
     weather_flag = true;

@@ -54,6 +54,7 @@ void PV_management(void *pvParameters)
                 break;
 
             case PV_IDLE:
+                // interface_publish(PV_STATUS_TOPIC, PV_IDLE);
                 weather_status = forecast_is_bad_weather(&(context->weather_forecast));
 
                 if (morning_pv_calibration()) {   //si entre 5am et 6am

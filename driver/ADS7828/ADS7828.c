@@ -30,9 +30,10 @@ static ADC_status_t return_ADC_status(int value)
 ADC_status_t ADC_read_pin(uint8_t addr, uint8_t pin_to_read, uint16_t* received_value)
 {
     ADC_status_t status = ADC_ok;
+    uint8_t send_byte = ADC_pin[pin_to_read];
 
     // Send the command byte to the ADC
-    i2c0_write(addr, &pin_to_read, (size_t)1);
+    i2c0_write(addr, &send_byte, (size_t)1);
     
     // Read the bytes from the ADC
     uint8_t received_byte[ADC_BUF_LEN];

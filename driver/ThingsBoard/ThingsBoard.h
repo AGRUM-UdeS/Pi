@@ -16,6 +16,8 @@
 
 #include "wrap_MQTT.h"
 
+#define MAX_TOPIC_LEN           (64)
+
 typedef enum _thingsboard_state_t{
     THINGSBOARD_IDLE,
     THINGSBOARD_SEND_DATA,

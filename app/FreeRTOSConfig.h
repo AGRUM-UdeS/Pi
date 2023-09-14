@@ -136,6 +136,7 @@ to exclude the API function. */
 /* A header file that defines trace macro can be included here. */
 
 #define portTICK_RATE_MS portTICK_PERIOD_MS
+#define pdMSTOTICKS(x)      (x/3)
 
 #endif /* FREERTOS_CONFIG_H */
 
