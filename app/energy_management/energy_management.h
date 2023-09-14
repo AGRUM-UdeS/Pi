@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
+#include "interface.h"
+
 typedef enum _energy_status_t {
     ENERGY_INIT,
     ENERGY_MEASUREMENT,
@@ -20,7 +22,9 @@ typedef enum _energy_status_t {
     ENERGY_ERROR
 } energy_status_t;
 
-#define NB_PV   4
+#define NB_PV   2
+#define NB_BAT  2
+#define LOAD_RELAY_GPIO     0
 
 float get_instant_power_PV(void);
 

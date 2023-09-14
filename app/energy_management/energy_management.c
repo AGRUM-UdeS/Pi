@@ -133,6 +133,7 @@ void enery_management(void *pvParameters)
     }
 
     static float battery_voltage[NB_PV] = {0};
+    static float PV_voltage[NB_BAT] = {0};
 
     if (time_to_measure()) {
          energy_state = ENERGY_MEASUREMENT;

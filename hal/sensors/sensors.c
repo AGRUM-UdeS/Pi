@@ -110,24 +110,36 @@ static float signal2current(float signal)
     return current;
 }
 
-static float signal2voltage(float signal)
-{
-    // Do a real conversion here
-    float voltage = signal;
-    return voltage;
-}
-
 float get_PV_voltage(uint8_t PV_index)
 {
     // Read from ADC
     uint16_t received_value;
     ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[PV_index], &received_value);
 
-    // Convert bits to ADC voltage
+    // Convert bits to ADC 5V ref voltage
     float adc_voltage = ADC_bits2voltage(received_value);
 
     // Convert voltage to PV voltage
-    return signal2voltage(adc_voltage);
+    return adc_voltage*(100+1500)/100;
+}
+
+float get_battery_voltage(uint8_t battery_index)
+{
+    // Read from ADC
+    uint16_t received_value;
+    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[battery_index + 2], &received_value);
+
+    // Convert bits to ADC 5V ref voltage
+    float adc_voltage = ADC_bits2voltage(received_value);
+
+    // Convert voltage to PV voltage
+    if (battery_index == 0) {
+        return adc_voltage*(100+200)/100;
+    } else if (battery_index == 1) {
+        return adc_voltage*(100+510)/100;
+    }  else {
+        return -1.0;
+    }
 }
 
 float get_PV_current(uint8_t PV_index)

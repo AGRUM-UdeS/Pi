@@ -36,6 +36,7 @@ SHT_measure_t read_temp_humidity(uint8_t sensor);
 
 
 float get_PV_voltage(uint8_t PV_index);
+float get_battery_voltage(uint8_t battery_index);
 float get_PV_current(uint8_t PV_index);
 
 #endif
