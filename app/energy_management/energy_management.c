@@ -7,7 +7,8 @@
 #define PV_VOLTAGE_TOPIC_34         ("Tension PV3_4")
 #define BATTERY_VOLTAGE_1           ("Tension PV1_2")
 #define BATTERY_VOLTAGE_12          ("Tension PV3_4")
-#define PV_CURRENT_TOPIC        ("Courant PV")
+#define PV_CURRENT_TOPIC_12         ("Courant PV1_2")
+#define PV_CURRENT_TOPIC_34         ("Courant PV3_4")
 
 char *pv_voltage_topic[] = {
     PV_VOLTAGE_TOPIC_12,
@@ -18,7 +19,11 @@ char *battery_voltage_topic[] = {
     BATTERY_VOLTAGE_1,
     BATTERY_VOLTAGE_12
 };
-// TODO: definir autre mesure
+
+char *pv_current_topic[] = {
+    PV_CURRENT_TOPIC_12,
+    PV_CURRENT_TOPIC_34
+};
 
 // TODO: Modify voltage
 #define BATTERY_OVERCHARGED_VOLTAGE (27.0)
@@ -132,8 +137,11 @@ void enery_management(void *pvParameters)
         printf("Failed to add energy timer\n");
     }
 
-    static float battery_voltage[NB_PV] = {0};
-    static float PV_voltage[NB_BAT] = {0};
+    float battery_voltage[NB_BAT] = {0};
+    float PV_voltage[NB_PV] = {0};
+    float PV_current[NB_PV] = {0};
+    float instru_current = 0;
+    float battery_current = 0;
 
     if (time_to_measure()) {
          energy_state = ENERGY_MEASUREMENT;
@@ -153,11 +161,12 @@ void enery_management(void *pvParameters)
         interface_publish(STATUS_ENERGY_TOPIC, ENERGY_MEASUREMENT);
 
         // Take and publish measurement
-        /* Test */
         for (size_t i = 0; i < NB_PV; i++)
         {
             PV_voltage[i] = get_PV_voltage(i);
             interface_publish(pv_voltage_topic[i], PV_voltage[i]);
+            PV_current[i] = get_PV_current(i);
+            interface_publish(pv_current_topic[i], PV_current[i]);
         }
 
         for (size_t i = 0; i < NB_BAT; i++)
@@ -165,6 +174,9 @@ void enery_management(void *pvParameters)
             battery_voltage[i] = get_battery_voltage(i+2);
             interface_publish(battery_voltage_topic[i], battery_voltage[i]);
         }
+
+        instru_current = get_instrumentation_current();
+        battery_current = get_battery_current();
 
         if (battery_is_overcharged(battery_voltage, NB_PV)) {
             interface_publish(STATUS_ENERGY_TOPIC, OVERCHARGED);

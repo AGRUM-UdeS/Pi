@@ -92,7 +92,8 @@ void read_soil_humidity(uint8_t adc_pin, float *value)
 
 /********** Energy sensors **********/
 #include "ADS7828.h"
-#define ADC_ENERGY_ADDRESS   (ADC_address_0)
+#define ADC_ENERGY_ADDRESS      (ADC_address_0)
+#define ADC_PV_CURRENT_ADDRESS  (ADC_address_1)
 // To adjust with real set-up
 #define PV_VOLTAGE1_PIN 0
 #define PV_VOLTAGE2_PIN 1
@@ -102,6 +103,13 @@ void read_soil_humidity(uint8_t adc_pin, float *value)
 #define PV_CURRENT2_PIN 5
 #define PV_CURRENT3_PIN 6
 #define PV_CURRENT4_PIN 7
+
+#define BAT_CURRENT_ADC_PIN     4
+#define INSTRU_CURRENT_ADC_PIN  5
+
+#define VREF_PV         (1.615)
+#define VREF_INSTRU     (2.51)
+#define VREF_BAT        (2.51)
 
 static float signal2current(float signal)
 {
@@ -146,11 +154,33 @@ float get_PV_current(uint8_t PV_index)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[(PV_index + 4)], &received_value);
+    ADC_read_pin(ADC_PV_CURRENT_ADDRESS, ADC_pin[(PV_index + 3)], &received_value);
 
     // Convert bits to ADC voltage
     float adc_voltage = ADC_bits2voltage(received_value);
 
     // Convert voltage to PV current
-    return signal2current(adc_voltage);
+    return  (adc_voltage - VREF_PV)*(25/1.15);
+}
+
+float get_instrumentation_current(void)
+{
+    // Read from ADC
+    uint16_t received_value;
+    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[INSTRU_CURRENT_ADC_PIN], &received_value);
+
+    // Convert bits to ADC voltage
+    float adc_voltage = ADC_bits2voltage(received_value);
+    return  (adc_voltage - VREF_INSTRU)*(25/1.15);
+}
+
+float get_battery_current(void)
+{
+    // Read from ADC
+    uint16_t received_value;
+    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[BAT_CURRENT_ADC_PIN], &received_value);
+
+    // Convert bits to ADC voltage
+    float adc_voltage = ADC_bits2voltage(received_value);
+    return  (adc_voltage - VREF_BAT)*(25/1.15);
 }
