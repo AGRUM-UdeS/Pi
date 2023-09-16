@@ -192,7 +192,7 @@ void enery_management(void *pvParameters)
                 // Disconnect inverter
                 gpio_put(LOAD_RELAY_GPIO, false);
             }
-            context->irrifation_enable = false;
+            context->irrigation_enable = false;
 
             energy_state = ENERGY_IDLE;
 
@@ -203,7 +203,7 @@ void enery_management(void *pvParameters)
                 // Disconnect inverter
                 gpio_put(LOAD_RELAY_GPIO, false);
             }
-            context->irrifation_enable = false;
+            context->irrigation_enable = false;
 
             energy_state = ENERGY_IDLE;
 
@@ -214,7 +214,7 @@ void enery_management(void *pvParameters)
                 // Connect inverter
                 gpio_put(LOAD_RELAY_GPIO, true);
             }
-            context->irrifation_enable = true;
+            context->irrigation_enable = true;
 
             energy_state = ENERGY_IDLE;
 
@@ -225,7 +225,7 @@ void enery_management(void *pvParameters)
                 // Connect load
                 gpio_put(LOAD_RELAY_GPIO, true);
             }
-            context->irrifation_enable = true;
+            context->irrigation_enable = true;
 
             energy_state = ENERGY_IDLE;
 
