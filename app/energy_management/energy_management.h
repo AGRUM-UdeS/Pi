@@ -15,7 +15,7 @@
 
 typedef enum _energy_status_t {
     ENERGY_INIT,
-    ENERGY_MEASUREMENT,
+    ENERGY_IDLE,
     LOAD_SHEDDING,
     POWER_SAVING,
     NORMAL_USE,

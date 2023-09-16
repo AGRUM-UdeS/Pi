@@ -37,14 +37,6 @@ void init_peripherals(void);
  */
 void house_keeping(void *pvParameters);
 
-/*! \brief Send system states to the interface
- * 
- */
-void send_system_status(
-    interface_status_t status_interface,
-    irrigation_status_t status_irrigation,
-    energy_status_t status_energy);
-
 void clear_pv_calib_flag (void);
 bool morning_pv_calibration(void);
 void clear_weather_flag (void);
