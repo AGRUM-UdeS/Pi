@@ -10,6 +10,7 @@
 #define PV_CURRENT_TOPIC_34         ("Courant PV3_4")
 
 #define INTRUMENTATION_CURRENT_TOPIC    ("Courant instru")
+#define INTRUMENTATION_POWER_TOPIC      ("Puissance instru")
 #define BATTERY_CURRENT_TOPIC           ("Courant battery")
 
 char *pv_voltage_topic[] = {
@@ -28,10 +29,10 @@ char *pv_current_topic[] = {
 };
 
 // TODO: Modify voltage
-#define BATTERY_OVERCHARGED_VOLTAGE (27.0)
+#define BATTERY_OVERCHARGED_VOLTAGE (26.8)
 #define BATTERY_FULL_VOLTAGE        (26.0)
-#define BATTERY_LOW_VOLTAGE         (23.0)
-#define BATTERY_EMPTY_VOLTAGE       (22.0)
+#define BATTERY_LOW_VOLTAGE         (24.0)
+#define BATTERY_EMPTY_VOLTAGE       (23.0)
 
 #define MEASUREMENTS_PERIOD_MS  (1*1000)
 #define PUBLISH_PERIOD_MS       (30*1000)
@@ -73,7 +74,7 @@ static bool battery_is_empty(float voltage[], uint16_t size)
 {
     // Detect empty battery
     for (size_t i = 0; i < size; i++) {
-        if (voltage[i] <= BATTERY_LOW_VOLTAGE) {
+        if (voltage[i] <= BATTERY_EMPTY_VOLTAGE) {
             return true;
         }
     }
@@ -83,15 +84,6 @@ static bool battery_is_empty(float voltage[], uint16_t size)
 static bool load_is_connected(void)
 {
     if (1 /* Read load relay pin state */) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-static bool battery_is_connected(void)
-{
-    if (1 /* Read battery relay pin state */) {
         return true;
     } else {
         return false;
@@ -119,6 +111,7 @@ void enery_management(void *pvParameters)
     last_energy_state = energy_state;
 
     float battery_voltage[NB_BAT] = {0};
+    float battery_bus_voltage = 0;
     float PV_voltage[NB_PV] = {0};
     float PV_current[NB_PV] = {0};
     float instru_current = 0;
@@ -142,6 +135,11 @@ void enery_management(void *pvParameters)
         for (size_t i = 0; i < NB_BAT; i++)
         {
             battery_voltage[i] = get_battery_voltage(i+2);
+
+            // Compute bus and 2nd battery voltage
+            battery_bus_voltage = battery_voltage[1];
+            battery_voltage[1] = battery_bus_voltage - battery_voltage[0];
+
             if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
                 interface_publish(battery_voltage_topic[i], battery_voltage[i]);
             }
@@ -152,6 +150,7 @@ void enery_management(void *pvParameters)
 
         if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
             interface_publish(INTRUMENTATION_CURRENT_TOPIC, instru_current);
+            interface_publish(INTRUMENTATION_POWER_TOPIC, instru_current*battery_bus_voltage);
             interface_publish(BATTERY_CURRENT_TOPIC, battery_current);
         }
 
@@ -163,17 +162,17 @@ void enery_management(void *pvParameters)
             break;
 
         case ENERGY_IDLE:
-            if (battery_is_overcharged(battery_voltage, NB_PV)) {
+            if (battery_is_overcharged(battery_voltage, NB_BAT)) {
                 energy_state = OVERCHARGED;
 
-            } else if (battery_is_ok(battery_voltage, NB_PV)) {
-                energy_state = NORMAL_USE;
+            } else if (battery_is_empty(battery_voltage, NB_BAT)) {
+                energy_state = LOAD_SHEDDING;
 
-            } else if (battery_is_low(battery_voltage, NB_PV)) {
+            } else if (battery_is_low(battery_voltage, NB_BAT)) {
                 energy_state = POWER_SAVING;
 
-            } else if (battery_is_empty(battery_voltage, NB_PV)) {
-                energy_state = LOAD_SHEDDING;
+            } else if (battery_is_ok(battery_voltage, NB_BAT)) {
+                energy_state = NORMAL_USE;
 
             } else {
                 energy_state = ENERGY_ERROR;
