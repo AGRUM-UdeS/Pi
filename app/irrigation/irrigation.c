@@ -244,6 +244,6 @@ void irrigation_management(void *pvParameters)
         }
         last_irrigation_state = irrigation_state;
         context->irrigation_status = irrigation_state;
-        vTaskDelay(pdMSTOTICKS(500));
+        vTaskDelay(500);
     }
 }
