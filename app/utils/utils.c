@@ -81,35 +81,6 @@ void house_keeping(void *pvParameters)
     }
 }
 
-void send_system_status(
-    interface_status_t status_interface,
-    irrigation_status_t status_irrigation,
-    energy_status_t status_energy)
-{
-    if (interface_is_connected()) {
-        static system_status_t last_status = SYSTEM_ERROR;
-        system_status_t status = SYSTEM_IDLE;
-        // TODO: Add more states
-        if (status_irrigation == IRRIGATION_MEASUREMENT) {
-            status = SYSTEM_MEASURING;
-        } else if (status_irrigation == IRRIGATION_WATERING) {
-            status = SYSTEM_IRRIGATING;
-        } else if (status_irrigation == IRRIGATION_RESERVOIR2BARREL) {
-            status = SYSTEM_WATER_PUMPING;
-        }
-
-        // Energy states
-        static energy_status_t last_energy_status;
-        if (status_energy != ENERGY_MEASUREMENT
-            && last_energy_status != status_energy) {
-            interface_publish(ENERGY_STATUS_TOPIC, status_energy);
-        }
-        last_energy_status = status_energy;
-    } else {
-        // Turn on error LED
-    }
-}
-
 void clear_pv_calib_flag (void) {
     pv_calibration_flag = false;
 }
