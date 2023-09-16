@@ -8,6 +8,7 @@
 #define BATTERY_VOLTAGE_12          ("Tension PV3_4")
 #define PV_CURRENT_TOPIC_12         ("Courant PV1_2")
 #define PV_CURRENT_TOPIC_34         ("Courant PV3_4")
+#define PV_POWER_TOPIC                  ("Puissance PV")
 
 #define INTRUMENTATION_CURRENT_TOPIC    ("Courant instru")
 #define INTRUMENTATION_POWER_TOPIC      ("Puissance instru")
@@ -129,6 +130,7 @@ void enery_management(void *pvParameters)
             if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
                 interface_publish(pv_voltage_topic[i], PV_voltage[i]);
                 interface_publish(pv_current_topic[i], PV_current[i]);
+                interface_publish(PV_POWER_TOPIC, PV_current[0]*PV_voltage[0] + PV_current[1]*PV_voltage[1]);
             }
         }
 
