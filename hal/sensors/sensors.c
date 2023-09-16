@@ -84,7 +84,7 @@ void read_soil_humidity(uint8_t pin, float *value)
 {
     // Read raw adc value
     uint16_t received_value;
-    ADC_read_pin(ADC_IRRIGATION_ADDRESS, ADC_pin[pin], &received_value);
+    ADC_read_pin(ADC_IRRIGATION_ADDRESS, pin, &received_value);
 
     // Convert adc value to relative humidity
     float adc_voltage = ADC_bits2voltage(received_value);
@@ -124,7 +124,7 @@ float get_PV_voltage(uint8_t PV_index)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[PV_index*2 + 1], &received_value);
+    ADC_read_pin(ADC_address_2, PV_index + 2, &received_value);
 
     // Convert bits to ADC 5V ref voltage
     float adc_voltage = ADC_bits2voltage(received_value);
@@ -137,16 +137,16 @@ float get_battery_voltage(uint8_t battery_index)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_address_2, ADC_pin[battery_index+2], &received_value);
+    ADC_read_pin(ADC_ENERGY_ADDRESS, battery_index, &received_value);
 
     // Convert bits to ADC 5V ref voltage
     float adc_voltage = ADC_bits2voltage(received_value);
 
     // Convert voltage to PV voltage
-    if (battery_index == 0) {
-        return adc_voltage*(100+200)/100;
-    } else if (battery_index == 1) {
-        return adc_voltage*(100+510)/100;
+    if (battery_index == 1) {
+        return adc_voltage*(100.0+200)/100.0;
+    } else if (battery_index == 3) {
+        return adc_voltage*(100.0+510)/100.0;
     }  else {
         return -1.0;
     }
@@ -156,7 +156,7 @@ float get_PV_current(uint8_t PV_index)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_address_2, ADC_pin[PV_index], &received_value);
+    ADC_read_pin(ADC_address_2, PV_index, &received_value);
 
     // Convert bits to ADC voltage
     float adc_voltage = ADC_bits2voltage(received_value);
@@ -169,7 +169,7 @@ float get_instrumentation_current(void)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[INSTRU_CURRENT_ADC_PIN], &received_value);
+    ADC_read_pin(ADC_ENERGY_ADDRESS, INSTRU_CURRENT_ADC_PIN, &received_value);
 
     // Convert bits to ADC voltage
     float adc_voltage = ADC_bits2voltage(received_value);
@@ -180,7 +180,7 @@ float get_battery_current(void)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[BAT_CURRENT_ADC_PIN], &received_value);
+    ADC_read_pin(ADC_ENERGY_ADDRESS, BAT_CURRENT_ADC_PIN, &received_value);
 
     // Convert bits to ADC voltage
     float adc_voltage = ADC_bits2voltage(received_value);
