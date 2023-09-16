@@ -155,6 +155,16 @@ void PV_management(void *pvParameters)
                     break;  
                 }
 
+                // If rotation over, go back to 0 deg
+                if (pv_current_pos >= pv_pos_range/2) {
+                    rotate_all_pv(pv_current_pos, CLOCKWISE);
+                    while(all_motor_moving()){
+                        limit_switch_touched(lm_pin_value, NB_PV*2);
+                    }
+                    // Turn of timer
+                    cancel_repeating_timer(&pv_move_timer);
+                }
+
                 PV_state = PV_IDLE;
                 interface_publish(PV_STATUS_TOPIC, PV_IDLE);
                 break;
