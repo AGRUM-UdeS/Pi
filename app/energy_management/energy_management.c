@@ -36,7 +36,7 @@ char *pv_current_topic[] = {
 #define BATTERY_EMPTY_VOLTAGE       (23.0)
 
 #define MEASUREMENTS_PERIOD_MS  (1*1000)
-#define PUBLISH_PERIOD_MS       (30*1000)
+#define PUBLISH_PERIOD_MS       (5*60*1000)
 
 static bool battery_is_overcharged(float voltage[], uint16_t size)
 {
