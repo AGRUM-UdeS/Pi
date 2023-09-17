@@ -80,19 +80,22 @@ SHT_measure_t read_temp_humidity(uint8_t sensor)
     return meas;
 }
 
-void read_soil_humidity(uint8_t adc_pin, float *value)
+void read_soil_humidity(uint8_t pin, float *value)
 {
     // Read raw adc value
-    uint16_t raw_adc_value;
-    ADC_read_pin(ADC_IRRIGATION_ADDRESS, adc_pin, &raw_adc_value);
+    uint16_t received_value;
+    ADC_read_pin(ADC_IRRIGATION_ADDRESS, pin, &received_value);
 
     // Convert adc value to relative humidity
-    *value = ((float)raw_adc_value * (100.0) / 4096.0);
+    float adc_voltage = ADC_bits2voltage(received_value);
+
+    *value = adc_voltage * 100.0 / 5.0;
 }
 
 /********** Energy sensors **********/
 #include "ADS7828.h"
-#define ADC_ENERGY_ADDRESS   (ADC_address_0)
+#define ADC_ENERGY_ADDRESS      (ADC_address_0)
+#define ADC_PV_CURRENT_ADDRESS  (ADC_address_1)
 // To adjust with real set-up
 #define PV_VOLTAGE1_PIN 0
 #define PV_VOLTAGE2_PIN 1
@@ -103,6 +106,13 @@ void read_soil_humidity(uint8_t adc_pin, float *value)
 #define PV_CURRENT3_PIN 6
 #define PV_CURRENT4_PIN 7
 
+#define BAT_CURRENT_ADC_PIN     6
+#define INSTRU_CURRENT_ADC_PIN  7
+
+#define VREF_PV         (1.615)
+#define VREF_INSTRU     (2.51)
+#define VREF_BAT        (2.51)
+
 static float signal2current(float signal)
 {
     // Do a real conversion here
@@ -110,35 +120,69 @@ static float signal2current(float signal)
     return current;
 }
 
-static float signal2voltage(float signal)
-{
-    // Do a real conversion here
-    float voltage = signal;
-    return voltage;
-}
-
 float get_PV_voltage(uint8_t PV_index)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[PV_index], &received_value);
+    ADC_read_pin(ADC_address_2, PV_index + 2, &received_value);
 
-    // Convert bits to ADC voltage
+    // Convert bits to ADC 5V ref voltage
     float adc_voltage = ADC_bits2voltage(received_value);
 
     // Convert voltage to PV voltage
-    return signal2voltage(adc_voltage);
+    return adc_voltage*(100+1500)/100;
+}
+
+float get_battery_voltage(uint8_t battery_index)
+{
+    // Read from ADC
+    uint16_t received_value;
+    ADC_read_pin(ADC_ENERGY_ADDRESS, battery_index, &received_value);
+
+    // Convert bits to ADC 5V ref voltage
+    float adc_voltage = ADC_bits2voltage(received_value);
+
+    // Convert voltage to PV voltage
+    if (battery_index == 1) {
+        return adc_voltage*(100.0+200)/100.0;
+    } else if (battery_index == 3) {
+        return adc_voltage*(100.0+510)/100.0;
+    }  else {
+        return -1.0;
+    }
 }
 
 float get_PV_current(uint8_t PV_index)
 {
     // Read from ADC
     uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, ADC_pin[(PV_index + 4)], &received_value);
+    ADC_read_pin(ADC_address_2, PV_index, &received_value);
 
     // Convert bits to ADC voltage
     float adc_voltage = ADC_bits2voltage(received_value);
 
     // Convert voltage to PV current
-    return signal2current(adc_voltage);
+    return  (adc_voltage - VREF_PV)*(25/1.15);
+}
+
+float get_instrumentation_current(void)
+{
+    // Read from ADC
+    uint16_t received_value;
+    ADC_read_pin(ADC_ENERGY_ADDRESS, INSTRU_CURRENT_ADC_PIN, &received_value);
+
+    // Convert bits to ADC voltage
+    float adc_voltage = ADC_bits2voltage(received_value);
+    return  (adc_voltage - VREF_INSTRU)*(25/1.15);
+}
+
+float get_battery_current(void)
+{
+    // Read from ADC
+    uint16_t received_value;
+    ADC_read_pin(ADC_ENERGY_ADDRESS, BAT_CURRENT_ADC_PIN, &received_value);
+
+    // Convert bits to ADC voltage
+    float adc_voltage = ADC_bits2voltage(received_value);
+    return  (adc_voltage - VREF_BAT)*(25/1.15);
 }

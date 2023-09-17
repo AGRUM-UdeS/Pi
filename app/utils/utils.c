@@ -58,6 +58,7 @@ void init_peripherals(void)
     rtc_set_alarm(&morning_alarm, &morning_alarm_cb);
     // negative timeout means exact delay (rather than delay between callbacks)
     if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
+        interface_publish("GOOD MORNING", 0);
         printf("Failed to add ping timer\n");
     }
     // init_heartbeat_led();
@@ -77,35 +78,6 @@ void house_keeping(void *pvParameters)
             ping_interface_flag = false;
         }
         vTaskDelay(500);
-    }
-}
-
-void send_system_status(
-    interface_status_t status_interface,
-    irrigation_status_t status_irrigation,
-    energy_status_t status_energy)
-{
-    if (interface_is_connected()) {
-        static system_status_t last_status = SYSTEM_ERROR;
-        system_status_t status = SYSTEM_IDLE;
-        // TODO: Add more states
-        if (status_irrigation == IRRIGATION_MEASUREMENT) {
-            status = SYSTEM_MEASURING;
-        } else if (status_irrigation == IRRIGATION_WATERING) {
-            status = SYSTEM_IRRIGATING;
-        } else if (status_irrigation == IRRIGATION_RESERVOIR2BARREL) {
-            status = SYSTEM_WATER_PUMPING;
-        }
-
-        // Energy states
-        static energy_status_t last_energy_status;
-        if (status_energy != ENERGY_MEASUREMENT
-            && last_energy_status != status_energy) {
-            interface_publish(ENERGY_STATUS_TOPIC, status_energy);
-        }
-        last_energy_status = status_energy;
-    } else {
-        // Turn on error LED
     }
 }
 

@@ -20,6 +20,7 @@ typedef struct _main_context {
     QueueHandle_t interface_queue_handle;
     interface_status_t interface_status;
     irrigation_status_t irrigation_status;
+    bool irrigation_enable;
     energy_status_t energy_status;
     PV_status_t PV_status;
     weather_forecast_t weather_forecast;

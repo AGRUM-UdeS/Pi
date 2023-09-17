@@ -1,93 +1,77 @@
 #include "energy_management.h"
+#include "context.h"
 
-#include "sensors.h"
+#define STATUS_ENERGY_TOPIC         ("Status Contacteurs")
+#define PV_VOLTAGE_TOPIC_12         ("Tension PV1_2")
+#define PV_VOLTAGE_TOPIC_34         ("Tension PV3_4")
+#define BATTERY_VOLTAGE_1           ("Tension Batterie 1")
+#define BATTERY_VOLTAGE_12          ("Tension Batterie 1_2")
+#define PV_CURRENT_TOPIC_12         ("Courant PV1_2")
+#define PV_CURRENT_TOPIC_34         ("Courant PV3_4")
+#define PV_POWER_TOPIC                  ("Puissance PV")
 
-#define PV_VOLTAGE_TOPIC        ("Tension PV")
-#define PV_CURRENT_TOPIC        ("Courant PV")
-// TODO: definir autre mesure
+#define INTRUMENTATION_CURRENT_TOPIC    ("Entree Instrumentation")
+#define INTRUMENTATION_POWER_TOPIC      ("Puissance Instrumentation")
+#define BATTERY_CURRENT_TOPIC           ("Sortie Batterie")
+
+char *pv_voltage_topic[] = {
+    PV_VOLTAGE_TOPIC_12,
+    PV_VOLTAGE_TOPIC_34
+};
+
+char *battery_voltage_topic[] = {
+    BATTERY_VOLTAGE_1,
+    BATTERY_VOLTAGE_12
+};
+
+char *pv_current_topic[] = {
+    PV_CURRENT_TOPIC_12,
+    PV_CURRENT_TOPIC_34
+};
 
 // TODO: Modify voltage
-#define BATTERY_OVERCHARGED_VOLTAGE (27.0)
-#define BATTERY_FULL_VOLTAGE        (26.0)
-#define BATTERY_LOW_VOLTAGE         (23.0)
-#define BATTERY_EMPTY_VOLTAGE       (22.0)
+#define BATTERY_CONNECT_LOAD_VOLTAGE        (26.0)
+#define BATTERY_LOAD_SHEDDING_VOLTAGE       (24.5)
 
-#define MEASUREMENTS_PERIOD_MS  (10*1000)
-static repeating_timer_t measure_timer;
-static bool energy_measurement_flag = false;
+#define MEASUREMENTS_PERIOD_MS  (1*1000)
+#define PUBLISH_PERIOD_MS       (1*1000)
 
-static bool meas_callback(repeating_timer_t *rt)
-{
-    energy_measurement_flag = true;
-    return energy_measurement_flag;
-}
-
-static bool time_to_measure(void)
-{
-    if (energy_measurement_flag == true) {
-        energy_measurement_flag = false;
-        return true;
-    } else {
-        return false;
-    }
-}
-
-static bool battery_is_overcharged(float voltage[], uint16_t size)
+static bool battery_need_discharge(float voltage[], uint16_t size)
 {
     // Detect first overvoltage battery
     for (size_t i = 0; i < size; i++) {
-        if (voltage[i] >= BATTERY_OVERCHARGED_VOLTAGE) {
+        if (voltage[i] >= BATTERY_CONNECT_LOAD_VOLTAGE) {
             return true;
         }
     }
     return false;
 }
 
-static bool battery_is_ok(float voltage[], uint16_t size)
+static bool battery_low_charge(float voltage[], uint16_t size)
 {
     // Make sure battery voltage is below limit
     for (size_t i = 0; i < size; i++) {
-        if (voltage[i] <= BATTERY_FULL_VOLTAGE) {
+        if (voltage[i] <= BATTERY_LOAD_SHEDDING_VOLTAGE) {
             return true;
         }
     }
     return false;
 }
 
-static bool battery_is_low(float voltage[], uint16_t size)
+static bool battery_good(float voltage[], uint16_t size)
 {
-    // Detect empty battery
     for (size_t i = 0; i < size; i++) {
-        if (voltage[i] <= BATTERY_LOW_VOLTAGE) {
+        if (voltage[i] >= BATTERY_LOAD_SHEDDING_VOLTAGE
+            && voltage[i] <= (BATTERY_CONNECT_LOAD_VOLTAGE - 0.5)) {
             return true;
         }
     }
     return false;
 }
 
-static bool battery_is_empty(float voltage[], uint16_t size)
+static bool load_is_connected(void)
 {
-    // Detect empty battery
-    for (size_t i = 0; i < size; i++) {
-        if (voltage[i] <= BATTERY_LOW_VOLTAGE) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool inverter_is_connected(void)
-{
-    if (1 /* Read inverter ctrl pin state */) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-static bool battery_is_connected(void)
-{
-    if (1 /* Read battery relay pin state */) {
+    if (1 /* Read load relay pin state */) {
         return true;
     } else {
         return false;
@@ -106,107 +90,127 @@ float get_instant_power_PV(void)
     return PV_power;
 }
 
-energy_status_t enery_management(void)
+void enery_management(void *pvParameters)
 {
+    main_context_t *context = (main_context_t*)pvParameters;
     static energy_status_t energy_state = ENERGY_INIT;
     static energy_status_t last_energy_state = ENERGY_ERROR;
 
     last_energy_state = energy_state;
 
-    static float battery_voltage[NB_PV] = {0};
+    float battery_voltage[NB_BAT] = {0};
+    float battery_bus_voltage = 0;
+    float PV_voltage[NB_PV] = {0};
+    float PV_current[NB_PV] = {0};
+    float instru_current = 0;
+    float battery_current = 0;
+    uint32_t publish_measurements = 0;
 
-    if (time_to_measure()) {
-         energy_state = ENERGY_MEASUREMENT;
-    }
-
-    switch (energy_state) {
-    case ENERGY_INIT:
-        // Init relays states
-
-        // Validate states
-
-        // Start measurement timer
-        if (!add_repeating_timer_ms(-MEASUREMENTS_PERIOD_MS, meas_callback, NULL, &measure_timer)) {
-            printf("Failed to add energy timer\n");
-        }
-
-        energy_state = ENERGY_MEASUREMENT;
-
-        break;
-
-    case ENERGY_MEASUREMENT:
+    while(1) {
         // Take and publish measurement
-        /* Test */
+        publish_measurements++;
         for (size_t i = 0; i < NB_PV; i++)
         {
-            battery_voltage[i] = BATTERY_LOW_VOLTAGE + 1;
+            PV_voltage[i] = get_PV_voltage(i);
+            PV_current[i] = get_PV_current(i);
+            
+            if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
+                interface_publish(pv_voltage_topic[i], PV_voltage[i]);
+                interface_publish(pv_current_topic[i], PV_current[i]);
+                interface_publish(PV_POWER_TOPIC, PV_current[0]*PV_voltage[0] + PV_current[1]*PV_voltage[1]);
+            }
         }
 
-        if (battery_is_overcharged(battery_voltage, NB_PV)) {
-            energy_state = OVERCHARGED;
-        } else if (battery_is_ok(battery_voltage, NB_PV)) {
-            energy_state = NORMAL_USE;
-        } else if (battery_is_low(battery_voltage, NB_PV)) {
-            energy_state = POWER_SAVING;
-        } else if (battery_is_empty(battery_voltage, NB_PV)) {
-            energy_state = LOAD_SHEDDING;
-        } else {
-            energy_state = ENERGY_ERROR;
+        for (size_t i = 0; i < NB_BAT; i++)
+        {
+            battery_voltage[i] = get_battery_voltage(i*2 + 1);
+
+            if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
+                interface_publish(battery_voltage_topic[i], battery_voltage[i]);
+            }
         }
 
-        break;
+        instru_current = get_instrumentation_current();
+        battery_current = get_battery_current();
 
-    case LOAD_SHEDDING:
-        // Disable irrigation
-        if (inverter_is_connected()) {
-            // Disconnect inverter
+        if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
+            interface_publish(INTRUMENTATION_CURRENT_TOPIC, instru_current);
+            interface_publish(INTRUMENTATION_POWER_TOPIC, instru_current*battery_voltage[1]);
+            interface_publish(BATTERY_CURRENT_TOPIC, battery_current);
         }
 
-        if (!(battery_is_connected())) {
-            // Connect battery
+        switch (energy_state) {
+        case ENERGY_INIT:
+
+            energy_state = ENERGY_IDLE;
+
+            break;
+
+        case ENERGY_IDLE:
+            if (battery_need_discharge(battery_voltage, NB_BAT)) {
+                energy_state = OVERCHARGED;
+
+            } else if (battery_low_charge(battery_voltage, NB_BAT)) {
+                energy_state = LOAD_SHEDDING;
+
+            } else if (battery_good(battery_voltage, NB_BAT)){
+                energy_state = NORMAL_USE;
+            }
+
+            // Publish on state change
+            if (last_energy_state != energy_state) {
+                interface_publish(STATUS_ENERGY_TOPIC, energy_state);
+            }
+
+            break;
+
+        case LOAD_SHEDDING:
+            // Disconnect load
+            gpio_put(LOAD_RELAY_GPIO, false);
+
+            // Disable irrigation
+            context->irrigation_enable = false;
+
+            energy_state = ENERGY_IDLE;
+
+            break;
+
+        case POWER_SAVING:
+            // Disconnect load
+            gpio_put(LOAD_RELAY_GPIO, false);
+            context->irrigation_enable = true;
+
+            energy_state = ENERGY_IDLE;
+
+            break;
+
+        case NORMAL_USE:
+            // Disconnect load
+            gpio_put(LOAD_RELAY_GPIO, false);
+            context->irrigation_enable = true;
+
+            energy_state = ENERGY_IDLE;
+
+            break;
+
+        case OVERCHARGED:
+            // Connect load
+            gpio_put(LOAD_RELAY_GPIO, true);
+            context->irrigation_enable = true;
+            vTaskDelay(15000); // Let battery discharge
+
+            energy_state = ENERGY_IDLE;
+
+            break;
+
+        case ENERGY_ERROR:
+            // Print error message on thingsboard
+            energy_state = ENERGY_INIT;
+
+            break;
         }
-
-        break;
-
-    case POWER_SAVING:
-        if (inverter_is_connected()) {
-            // Disconnect inverter
-        }
-
-        if (!(battery_is_connected())) {
-            // Connect battery
-        }
-
-        break;
-
-    case NORMAL_USE:
-        if (!(inverter_is_connected())) {
-            // Connect inverter
-        }
-
-        if (!(battery_is_connected())) {
-            // Connect battery
-        }
-
-        break;
-
-    case OVERCHARGED:
-        if (!(inverter_is_connected())) {
-            // Connect inverter
-        }
-
-        if (battery_is_connected()) {
-            // Disconnect battery
-        }
-
-        break;
-
-    case ENERGY_ERROR:
-        // Print error message on thingsboard
-        energy_state = ENERGY_INIT;
-
-        break;
+    // Do not update when next state is idle
+    last_energy_state = (energy_state == ENERGY_IDLE) ? last_energy_state : energy_state;
+    vTaskDelay(MEASUREMENTS_PERIOD_MS);
     }
-
-    return energy_state;
 }

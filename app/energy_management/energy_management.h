@@ -10,9 +10,12 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
+#include "interface.h"
+#include "sensors.h"
+
 typedef enum _energy_status_t {
     ENERGY_INIT,
-    ENERGY_MEASUREMENT,
+    ENERGY_IDLE,
     LOAD_SHEDDING,
     POWER_SAVING,
     NORMAL_USE,
@@ -20,7 +23,9 @@ typedef enum _energy_status_t {
     ENERGY_ERROR
 } energy_status_t;
 
-#define NB_PV   4
+#define NB_PV   2
+#define NB_BAT  2
+#define LOAD_RELAY_GPIO     0
 
 float get_instant_power_PV(void);
 
@@ -32,6 +37,6 @@ float get_instant_power_PV(void);
  *
  * \return Last state of state-machine
  */
-energy_status_t enery_management(void);
+void enery_management(void *pvParameters);
 
 #endif

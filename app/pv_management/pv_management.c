@@ -85,7 +85,7 @@ void PV_management(void *pvParameters)
                 vTaskDelay(5000); // Delay to go away from initial limit switches
                 // Stop quand limit switch
                 do {
-                    vTaskDelay(1);
+                    vTaskDelay(5);
                     limit_switch_touched(lm_pin_value, NB_PV*2);
                 } while(!(lm_pin_value[0] && lm_pin_value[2] &&
                           lm_pin_value[4] && lm_pin_value[6]));
@@ -95,7 +95,7 @@ void PV_management(void *pvParameters)
                 uint32_t start = to_ms_since_boot(get_absolute_time());
                 vTaskDelay(10000); // Delay to go away from final limit switches
                 do {
-                    vTaskDelay(1);
+                    vTaskDelay(5);
                     limit_switch_touched(lm_pin_value, NB_PV*2);
                 } while(!(lm_pin_value[1] && lm_pin_value[3] &&
                           lm_pin_value[5] && lm_pin_value[7]));
@@ -109,7 +109,7 @@ void PV_management(void *pvParameters)
                 interface_publish("PV range", (float)pv_pos_range);
                 rotate_all_pv(10, COUNTERCLOCKWISE);
                 while(all_motor_moving()) {
-                    vTaskDelay(1);
+                    vTaskDelay(5);
                 }
 
                 // negative timeout means exact delay (rather than delay between callbacks)
@@ -139,6 +139,7 @@ void PV_management(void *pvParameters)
 
                 // PWM started, wait for motor to stop
                 while(all_motor_moving()){
+                    vTaskDelay(5);
                     limit_switch_touched(lm_pin_value, NB_PV*2);
                 }
                 interface_publish("PV position", (float)(++pv_current_pos));
@@ -152,6 +153,16 @@ void PV_management(void *pvParameters)
                 if (after_total_power < (before_total_power * 0.80)) {
                     PV_state = PV_BACKTRACKING;  
                     break;  
+                }
+
+                // If rotation over, go back to 0 deg
+                if (pv_current_pos >= pv_pos_range/2) {
+                    rotate_all_pv(pv_current_pos, CLOCKWISE);
+                    while(all_motor_moving()){
+                        limit_switch_touched(lm_pin_value, NB_PV*2);
+                    }
+                    // Turn of timer
+                    cancel_repeating_timer(&pv_move_timer);
                 }
 
                 PV_state = PV_IDLE;

@@ -60,15 +60,14 @@ static bool irrigation_measurement_flag = false;
 #define BAC2BARREL_DURATION_MS  pdMSTOTICKS(30*1000)
 #define SOAKING_DURATION_MS     pdMSTOTICKS(10*60*1000)
 
-#define MEASUREMENTS_PERIOD_MS  (5*60*1000)
+#define MEASUREMENTS_PERIOD_MS  (2*60*1000)
 
 static repeating_timer_t measure_timer;
-static bool measure_flag = false;
 
 static bool meas_callback(repeating_timer_t *rt)
 {
-    measure_flag = true;
-    return measure_flag;
+    irrigation_measurement_flag = true;
+    return irrigation_measurement_flag;
 }
 
 static bool time_to_measure(void)
@@ -132,12 +131,12 @@ void irrigation_management(void *pvParameters)
 
                 if (time_to_measure()) {
                     irrigation_state = IRRIGATION_MEASUREMENT;
-                } else if (morning_irrigation() && !barrel_is_empty()) {
+                } else if (morning_irrigation() && !barrel_is_empty() && context->irrigation_enable) {
                     clear_irrigation_flag();
                     irrigation_state = IRRIGATION_WATERING;
-                } else if (bac_is_full()) {
+                } else if (bac_is_full() && context->irrigation_enable) {
                     irrigation_state = IRRIGATION_RESERVOIR2BARREL;
-                } else if (irrigation_soaking_flag) {
+                } else if (irrigation_soaking_flag && context->irrigation_enable) {
                     irrigation_state = IRRIGATION_SOAKING;
                 } else {
                     irrigation_state = IRRIGATION_IDLE;
@@ -160,7 +159,7 @@ void irrigation_management(void *pvParameters)
                     }
                 }
 
-                for (size_t i = 0; i < SOIL_HUMIDITY_SENSOR_NB; i++) {
+                for (size_t i = 1; i < SOIL_HUMIDITY_SENSOR_NB + 1; i++) {
                     // Read soil humidity
                     float soil_humidity[SOIL_HUMIDITY_SENSOR_NB];
                     read_soil_humidity(i, &(soil_humidity[i]));
@@ -244,6 +243,6 @@ void irrigation_management(void *pvParameters)
         }
         last_irrigation_state = irrigation_state;
         context->irrigation_status = irrigation_state;
-        vTaskDelay(pdMSTOTICKS(500));
+        vTaskDelay(500);
     }
 }

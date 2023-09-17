@@ -66,7 +66,7 @@ bool interface_is_connected(void)
 void interface(void *pvParameter)
 {
     context = (main_context_t*)pvParameter; 
-    context->interface_queue_handle = xQueueCreate(10, sizeof(mqtt_message_t));
+    context->interface_queue_handle = xQueueCreate(20, sizeof(mqtt_message_t));
 
     if (ThingsBoard_connect() == THINGSBOARD_CONNECTED) {
         context->interface_status = INTERFACE_CONNECTED;
@@ -91,6 +91,6 @@ void interface(void *pvParameter)
                 interface_send(msg.topic, msg.value);
             }
         }
-        vTaskDelay(10);
+        vTaskDelay(200);
     }
 }
