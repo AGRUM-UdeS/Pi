@@ -113,40 +113,48 @@ void read_soil_humidity(uint8_t pin, float *value)
 #define VREF_INSTRU     (2.51)
 #define VREF_BAT        (2.51)
 
-static float signal2current(float signal)
-{
-    // Do a real conversion here
-    float current = signal;
-    return current;
-}
+#define NB_MEASUREMENT_AVG  (5)
 
 float get_PV_voltage(uint8_t PV_index)
 {
     // Read from ADC
-    uint16_t received_value;
-    ADC_read_pin(ADC_address_2, PV_index + 2, &received_value);
+    uint16_t received_value[NB_MEASUREMENT_AVG];
+    float adc_voltage[NB_MEASUREMENT_AVG];
+    float sum = 0;
 
-    // Convert bits to ADC 5V ref voltage
-    float adc_voltage = ADC_bits2voltage(received_value);
+    for (size_t i = 0; i < NB_MEASUREMENT_AVG; i++) {
+        ADC_read_pin(ADC_address_2, PV_index + 2, &(received_value[i]));
+
+        // Convert bits to ADC 5V ref voltage
+        adc_voltage[i] = ADC_bits2voltage(received_value[i]);
+        sum += adc_voltage[i];
+    }
 
     // Convert voltage to PV voltage
-    return adc_voltage*(100+1500)/100;
+    return (sum/NB_MEASUREMENT_AVG)*(100+1500)/100;
 }
 
 float get_battery_voltage(uint8_t battery_index)
 {
     // Read from ADC
-    uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, battery_index, &received_value);
+    uint16_t received_value[NB_MEASUREMENT_AVG];
+    float adc_voltage[NB_MEASUREMENT_AVG];
+    float sum = 0;
 
-    // Convert bits to ADC 5V ref voltage
-    float adc_voltage = ADC_bits2voltage(received_value);
+    for (size_t i = 0; i < NB_MEASUREMENT_AVG; i++) {
+        ADC_read_pin(ADC_ENERGY_ADDRESS, battery_index, &(received_value[i]));
+
+        // Convert bits to ADC 5V ref voltage
+        adc_voltage[i] = ADC_bits2voltage(received_value[i]);
+        sum += adc_voltage[i];
+    }
+    float avg = sum/NB_MEASUREMENT_AVG;
 
     // Convert voltage to PV voltage
     if (battery_index == 1) {
-        return adc_voltage*(100.0+200)/100.0;
+        return avg*(100.0+200)/100.0;
     } else if (battery_index == 3) {
-        return adc_voltage*(100.0+510)/100.0;
+        return avg*(100.0+510)/100.0;
     }  else {
         return -1.0;
     }
@@ -155,34 +163,57 @@ float get_battery_voltage(uint8_t battery_index)
 float get_PV_current(uint8_t PV_index)
 {
     // Read from ADC
-    uint16_t received_value;
-    ADC_read_pin(ADC_address_2, PV_index, &received_value);
+    uint16_t received_value[NB_MEASUREMENT_AVG];
+    float adc_voltage[NB_MEASUREMENT_AVG];
+    float sum = 0;
 
-    // Convert bits to ADC voltage
-    float adc_voltage = ADC_bits2voltage(received_value);
+    for (size_t i = 0; i < NB_MEASUREMENT_AVG; i++) {
+        ADC_read_pin(ADC_address_2, PV_index, &(received_value[i]));
+
+        // Convert bits to ADC 5V ref voltage
+        adc_voltage[i] = ADC_bits2voltage(received_value[i]);
+        sum += adc_voltage[i];
+    }
+    float avg = sum/NB_MEASUREMENT_AVG;
 
     // Convert voltage to PV current
-    return  (adc_voltage - VREF_PV)*(25/1.15);
+    return  (avg - VREF_PV)*(25/1.15);
 }
 
 float get_instrumentation_current(void)
 {
     // Read from ADC
-    uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, INSTRU_CURRENT_ADC_PIN, &received_value);
+    uint16_t received_value[NB_MEASUREMENT_AVG];
+    float adc_voltage[NB_MEASUREMENT_AVG];
+    float sum = 0;
 
-    // Convert bits to ADC voltage
-    float adc_voltage = ADC_bits2voltage(received_value);
-    return  (adc_voltage - VREF_INSTRU)*(25/1.15);
+    for (size_t i = 0; i < NB_MEASUREMENT_AVG; i++) {
+        ADC_read_pin(ADC_ENERGY_ADDRESS, INSTRU_CURRENT_ADC_PIN, &(received_value[i]));
+
+        // Convert bits to ADC 5V ref voltage
+        adc_voltage[i] = ADC_bits2voltage(received_value[i]);
+        sum += adc_voltage[i];
+    }
+    float avg = sum/NB_MEASUREMENT_AVG;
+
+    return  (avg - VREF_INSTRU)*(25/1.15);
 }
 
 float get_battery_current(void)
 {
     // Read from ADC
-    uint16_t received_value;
-    ADC_read_pin(ADC_ENERGY_ADDRESS, BAT_CURRENT_ADC_PIN, &received_value);
+    uint16_t received_value[NB_MEASUREMENT_AVG];
+    float adc_voltage[NB_MEASUREMENT_AVG];
+    float sum = 0;
 
-    // Convert bits to ADC voltage
-    float adc_voltage = ADC_bits2voltage(received_value);
-    return  (adc_voltage - VREF_BAT)*(25/1.15);
+    for (size_t i = 0; i < NB_MEASUREMENT_AVG; i++) {
+        ADC_read_pin(ADC_ENERGY_ADDRESS, BAT_CURRENT_ADC_PIN, &(received_value[i]));
+
+        // Convert bits to ADC 5V ref voltage
+        adc_voltage[i] = ADC_bits2voltage(received_value[i]);
+        sum += adc_voltage[i];
+    }
+    float avg = sum/NB_MEASUREMENT_AVG;
+
+    return  (avg - VREF_BAT)*(25/1.15);
 }
