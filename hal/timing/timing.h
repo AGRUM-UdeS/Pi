@@ -19,4 +19,10 @@ typedef enum _timing_status_t{
  */
 uint8_t init_timer(void);
 
+/*! \brief Tell if we are between sunrise and sunset
+ * 
+ * \return true if during the day, false if during the night
+ */
+bool daytime(void);
+
 #endif

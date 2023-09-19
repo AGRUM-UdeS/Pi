@@ -1,5 +1,8 @@
 #include "timing.h"
 
+#define SUNRISE_HOUR    (5)
+#define SUNSET_HOUR     (22)
+
 uint8_t init_timer(void)
 {
     printf("\n----- Getting current date & time -----\n");
@@ -16,4 +19,17 @@ uint8_t init_timer(void)
     }
 
     return TIMING_OK;
+}
+
+bool daytime(void)
+{
+    datetime_t datetime;
+    if (get_RTC_time(&datetime) != RTC_OK) {
+        // Assume night time if rtc time invalid
+        return false;
+    }
+
+    if (datetime.hour >= SUNRISE_HOUR && datetime.hour <= SUNSET_HOUR) {
+        return true;
+    }
 }

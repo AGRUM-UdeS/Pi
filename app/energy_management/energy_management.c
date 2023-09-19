@@ -208,15 +208,19 @@ void enery_management(void *pvParameters)
 
         case OVERCHARGED:
             // Connect load
-            gpio_put(LOAD_RELAY_GPIO, true);
+            if (daytime()){
+                gpio_put(LOAD_RELAY_GPIO, true);
+                vTaskDelay(15000); // Let battery discharge
+            } else {
+                // do not discharge during the night
+                gpio_put(LOAD_RELAY_GPIO, false);
+            }
 
             // Enable irrigation
             context->irrigation_enable = true;
 
             // Enable motor drive
             context->motor_drive_enable = true;
-
-            vTaskDelay(15000); // Let battery discharge
 
             energy_state = ENERGY_IDLE;
 
