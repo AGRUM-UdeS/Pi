@@ -31,13 +31,16 @@ char *pv_current_topic[] = {
 
 #define BOTH_BATTERY_VOLTAGE_INDEX  (1)
 
-#define BATTERY_HIGH_VOLTAGE        (26.0) // TODO: Modify voltage
-#define BATTERY_LOW_VOLTAGE         (24.5)
-#define BATTERY_VERY_LOW_VOLTAGE    (24.0)
-#define BATTERY_LOAD_VOLTAGE_DROP   (0.9)
+#define BATTERY_HIGH_VOLTAGE        (26.6)
+#define BATTERY_LOW_VOLTAGE         (25.0)
+#define BATTERY_VERY_LOW_VOLTAGE    (24.5)
+#define BATTERY_LOAD_VOLTAGE_DROP   (1.0)
 
-#define MEASUREMENTS_PERIOD_MS  (1*1000)
-#define PUBLISH_PERIOD_MS       (1*1000)
+#define SUFFICIANT_IRRADIANCE_POWER (1000) // TODO: Adjust this value
+
+#define MEASUREMENTS_PERIOD_MS      (1*1000)
+#define PUBLISH_PERIOD_MS           (5*1000)
+#define MINMUM_DISCHARGE_TIME_MS    (30*1000)
 
 static bool battery_need_discharge(float voltage)
 {
@@ -67,6 +70,14 @@ static bool battery_good(float voltage)
 static bool battery_criticaly_low(float voltage)
 {
     if (voltage <= BATTERY_VERY_LOW_VOLTAGE) {
+        return true;
+    }
+    return false;
+}
+
+static bool sufficient_irradiance(void)
+{
+    if (get_instant_power_PV() >= SUFFICIANT_IRRADIANCE_POWER) {
         return true;
     }
     return false;
@@ -208,9 +219,9 @@ void enery_management(void *pvParameters)
 
         case OVERCHARGED:
             // Connect load
-            if (daytime()){
+            if (morning() || (daytime() && sufficient_irradiance())) {
                 gpio_put(LOAD_RELAY_GPIO, true);
-                vTaskDelay(15000); // Let battery discharge
+                vTaskDelay(MINMUM_DISCHARGE_TIME_MS); // Let battery discharge
             } else {
                 // do not discharge during the night
                 gpio_put(LOAD_RELAY_GPIO, false);

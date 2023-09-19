@@ -25,4 +25,10 @@ uint8_t init_timer(void);
  */
 bool daytime(void);
 
+/*! \brief Tell if we are during the morning
+ * 
+ * \return true if during between 5h and 6h, false if not
+ */
+bool morning(void);
+
 #endif
