@@ -31,11 +31,10 @@ rtc_status_t init_RTC(datetime_t rtc_time) {
 }
 
 rtc_status_t get_RTC_time(datetime_t* datetime) {
-    if (!(RTC_initialized())) {
-        return RTC_FAILED;
-    } else {
-        rtc_get_datetime(datetime);
+    if (RTC_initialized() && rtc_get_datetime(datetime)) {
         return RTC_OK;
+    } else {
+        return RTC_FAILED;
     }
 }
 
