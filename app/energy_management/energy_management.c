@@ -31,8 +31,7 @@ char *pv_current_topic[] = {
 
 #define BOTH_BATTERY_VOLTAGE_INDEX  (1)
 
-// TODO: Modify voltage
-#define BATTERY_HIGH_VOLTAGE        (26.0)
+#define BATTERY_HIGH_VOLTAGE        (26.0) // TODO: Modify voltage
 #define BATTERY_LOW_VOLTAGE         (24.5)
 #define BATTERY_VERY_LOW_VOLTAGE    (24.0)
 #define BATTERY_LOAD_VOLTAGE_DROP   (0.9)
@@ -134,6 +133,9 @@ void enery_management(void *pvParameters)
             interface_publish(BATTERY_CURRENT_TOPIC, battery_current);
         }
 
+
+        /*** Energy state machine ***/
+
         switch (energy_state) {
         case ENERGY_INIT:
 
@@ -168,6 +170,9 @@ void enery_management(void *pvParameters)
 
             // Disable irrigation
             context->irrigation_enable = false;
+            
+            // Enable motor drive
+            context->motor_drive_enable = true;
 
             energy_state = ENERGY_IDLE;
 
@@ -181,6 +186,7 @@ void enery_management(void *pvParameters)
             context->irrigation_enable = true;
 
             // Turn off motor drive
+            context->motor_drive_enable = false; // Will hit limit switch and be turned off
 
             energy_state = ENERGY_IDLE;
 
@@ -189,7 +195,12 @@ void enery_management(void *pvParameters)
         case NORMAL_USE:
             // Disconnect load
             gpio_put(LOAD_RELAY_GPIO, false);
+
+            // Enable irrigation
             context->irrigation_enable = true;
+
+            // Enable motor drive
+            context->motor_drive_enable = true;
 
             energy_state = ENERGY_IDLE;
 
@@ -198,7 +209,13 @@ void enery_management(void *pvParameters)
         case OVERCHARGED:
             // Connect load
             gpio_put(LOAD_RELAY_GPIO, true);
+
+            // Enable irrigation
             context->irrigation_enable = true;
+
+            // Enable motor drive
+            context->motor_drive_enable = true;
+
             vTaskDelay(15000); // Let battery discharge
 
             energy_state = ENERGY_IDLE;

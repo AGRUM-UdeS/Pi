@@ -60,18 +60,16 @@ void PV_management(void *pvParameters)
                 if (morning_pv_calibration()) {   //si entre 5am et 6am
                     clear_pv_calib_flag();
                     PV_state = PV_CALIBRATION;
-                }
-                else if (PV_rotation_flag) {
+                } else if (!context->motor_drive_enable) {
+                    PV_state = PV_MOTOR_SHUTDOWN;
+                } else if (PV_rotation_flag) {
                     PV_rotation_flag = false;
                     PV_state = PV_DAYROTATION;
-                } 
-                else if (weather_status != WEATHER_OK) {
+                } else if (weather_status != WEATHER_OK) {
                     PV_state = PV_BADWEATHER;
-                }
-                else if (PV_power_decreasing_while_moving) {
+                } else if (PV_power_decreasing_while_moving) {
                     PV_state = PV_BACKTRACKING;
-                }
-                else {
+                } else {
                     PV_state = PV_IDLE;
                 }
 
@@ -224,6 +222,19 @@ void PV_management(void *pvParameters)
                 //     PV_power_decreasing_while_moving = 0;
                 // }
 
+                PV_state = PV_IDLE;
+                interface_publish(PV_STATUS_TOPIC, PV_IDLE);
+                break;
+
+            case PV_MOTOR_SHUTDOWN:
+                interface_publish(PV_STATUS_TOPIC, PV_MOTOR_SHUTDOWN);
+                rotate_all_pv(150, COUNTERCLOCKWISE);
+                while(1) { // Critical error, stay here until reboot
+                    vTaskDelay(60000);
+                    interface_publish(PV_STATUS_TOPIC, PV_ERROR);
+                }
+                
+                // Continue normal behavior after this
                 PV_state = PV_IDLE;
                 interface_publish(PV_STATUS_TOPIC, PV_IDLE);
                 break;
