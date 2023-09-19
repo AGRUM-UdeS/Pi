@@ -29,53 +29,48 @@ char *pv_current_topic[] = {
     PV_CURRENT_TOPIC_34
 };
 
+#define BOTH_BATTERY_VOLTAGE_INDEX  (1)
+
 // TODO: Modify voltage
-#define BATTERY_CONNECT_LOAD_VOLTAGE        (26.0)
-#define BATTERY_LOAD_SHEDDING_VOLTAGE       (24.5)
+#define BATTERY_HIGH_VOLTAGE        (26.0)
+#define BATTERY_LOW_VOLTAGE         (24.5)
+#define BATTERY_VERY_LOW_VOLTAGE    (24.0)
+#define BATTERY_LOAD_VOLTAGE_DROP   (0.9)
 
 #define MEASUREMENTS_PERIOD_MS  (1*1000)
 #define PUBLISH_PERIOD_MS       (1*1000)
 
-static bool battery_need_discharge(float voltage[], uint16_t size)
+static bool battery_need_discharge(float voltage)
 {
-    // Detect first overvoltage battery
-    for (size_t i = 0; i < size; i++) {
-        if (voltage[i] >= BATTERY_CONNECT_LOAD_VOLTAGE) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool battery_low_charge(float voltage[], uint16_t size)
-{
-    // Make sure battery voltage is below limit
-    for (size_t i = 0; i < size; i++) {
-        if (voltage[i] <= BATTERY_LOAD_SHEDDING_VOLTAGE) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool battery_good(float voltage[], uint16_t size)
-{
-    for (size_t i = 0; i < size; i++) {
-        if (voltage[i] >= BATTERY_LOAD_SHEDDING_VOLTAGE
-            && voltage[i] <= (BATTERY_CONNECT_LOAD_VOLTAGE - 0.5)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool load_is_connected(void)
-{
-    if (1 /* Read load relay pin state */) {
+    if (voltage >= BATTERY_HIGH_VOLTAGE) {
         return true;
-    } else {
-        return false;
     }
+    return false;
+}
+
+static bool battery_low_charge(float voltage)
+{
+    if (voltage <= BATTERY_LOW_VOLTAGE) {
+            return true;
+    }
+    return false;
+}
+
+static bool battery_good(float voltage)
+{
+    if (voltage >= BATTERY_LOW_VOLTAGE
+        && voltage <= (BATTERY_HIGH_VOLTAGE - BATTERY_LOAD_VOLTAGE_DROP)) {
+        return true;
+    }
+    return false;
+}
+
+static bool battery_criticaly_low(float voltage)
+{
+    if (voltage <= BATTERY_VERY_LOW_VOLTAGE) {
+        return true;
+    }
+    return false;
 }
 
 float get_instant_power_PV(void)
@@ -147,13 +142,16 @@ void enery_management(void *pvParameters)
             break;
 
         case ENERGY_IDLE:
-            if (battery_need_discharge(battery_voltage, NB_BAT)) {
+            if (battery_need_discharge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
                 energy_state = OVERCHARGED;
 
-            } else if (battery_low_charge(battery_voltage, NB_BAT)) {
+            } else if (battery_criticaly_low(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
+                energy_state = POWER_SAVING;
+
+            } else if (battery_low_charge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
                 energy_state = LOAD_SHEDDING;
 
-            } else if (battery_good(battery_voltage, NB_BAT)){
+            } else if (battery_good(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])){
                 energy_state = NORMAL_USE;
             }
 
@@ -178,7 +176,11 @@ void enery_management(void *pvParameters)
         case POWER_SAVING:
             // Disconnect load
             gpio_put(LOAD_RELAY_GPIO, false);
+
+            // Disable irrigation
             context->irrigation_enable = true;
+
+            // Turn off motor drive
 
             energy_state = ENERGY_IDLE;
 
