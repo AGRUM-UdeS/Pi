@@ -1,7 +1,7 @@
 #include "weather.h"
 #include "context.h"
 
-#define WEATHER_REQUEST_DELAY   vTaskDelay(5*60*1000)
+#define WEATHER_REQUEST_DELAY   vTaskDelay(3*60*60*1000)
 
 #define HTTP_PORT   HTTP_DEFAULT_PORT
 
@@ -32,6 +32,10 @@ const char* SUNRISE_STR = "sunrise";
 const char* SUNSET_STR = "sunset";
 const char* PRECIPITATION_STR = "precipitation_sum";
 const char* WINDGUST_STR = "windgusts_10m_max";
+
+#define WEATHER_STATUS          ("Status meteo")
+#define WEATHER_RECEIVED        (1)
+#define WEATHER_FAILED          (-1)
 
 #define MAX_DAILY_PRECIPITATION (1000)
 #define MAX_DAILY_WINDGUST      (1000)
@@ -226,7 +230,7 @@ static void check_weather_limit(weather_forecast_t* weather_forecast)
     }
 }
 
-static weather_forecast_t weather_current_request(main_context_t *context) {
+weather_forecast_t weather_current_request(void) {
     httpc_connection_t settings;
     settings.result_fn = httpc_result_cb;
     settings.headers_done_fn = httpc_headers_cb;
@@ -258,8 +262,10 @@ static weather_forecast_t weather_current_request(main_context_t *context) {
     // printf("Finale string : %s\n", meteo_str);
     weather_forecast_t weather_forecast;
     if (meteo_parse(meteo_str, &weather_forecast)) {
+        interface_publish(WEATHER_STATUS, WEATHER_RECEIVED);
         printf("Weather data received!\n");
     } else {
+        interface_publish(WEATHER_STATUS, WEATHER_FAILED);
         printf("Failed to receive weather data\n");
         printf("Received string : %s\n", meteo_str);
     }
@@ -278,7 +284,7 @@ void weather_task(void *pvParameters)
 
     while(1) {
         WEATHER_REQUEST_DELAY; // Delay before to let time for init
-        context->weather_forecast = weather_current_request(context);
+        context->weather_forecast = weather_current_request();
         context->weather_status = WEATHER_OK;
         //weather_printf(&(context->weather_forecast), PRINT_WEATHER);
     }

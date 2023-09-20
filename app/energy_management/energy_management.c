@@ -39,7 +39,7 @@ char *pv_current_topic[] = {
 #define SUFFICIANT_IRRADIANCE_POWER (1000) // TODO: Adjust this value
 
 #define MEASUREMENTS_PERIOD_MS      (1*1000)
-#define PUBLISH_PERIOD_MS           (5*1000)
+#define PUBLISH_PERIOD_MS           (15*1000)
 #define MINMUM_DISCHARGE_TIME_MS    (30*1000)
 
 static bool battery_need_discharge(float voltage)
