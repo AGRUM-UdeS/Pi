@@ -6,6 +6,10 @@
 
 #define PV_STATUS_TOPIC         ("Status PV")
 
+#define PV_RANGE_DEGREE         (80)
+#define DAY_HOUR                (1)
+#define SHADES_OFFSET_DEGREE    (10)
+
 static repeating_timer_t pv_move_timer;
 
 static bool PV_calibration_flag = false;
@@ -166,8 +170,20 @@ void PV_management(void *pvParameters)
                 }
 
                 // If rotation over, go back to 0 deg
-                if (pv_current_pos >= pv_pos_range/2) {
-                    rotate_all_pv(pv_current_pos, CLOCKWISE);
+                if (pv_current_pos >= pv_pos_range/2 || !(daytime())) {
+                    // Turn of timer
+                    cancel_repeating_timer(&pv_move_timer);
+
+                    // Make sure you are at the end of rotation
+                    rotate_all_pv(180, COUNTERCLOCKWISE);
+                    do {
+                        vTaskDelay(5);
+                        limit_switch_touched(lm_pin_value, NB_PV*2);
+                    } while(!(lm_pin_value[0] && lm_pin_value[2] &&
+                            lm_pin_value[4] && lm_pin_value[6]));
+                    
+                    // Then move back to the middle
+                    rotate_all_pv((PV_RANGE_DEGREE/2) + SHADES_OFFSET_DEGREE, CLOCKWISE);
                     while(all_motor_moving()){
                         limit_switch_touched(lm_pin_value, NB_PV*2);
                     }

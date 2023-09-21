@@ -21,8 +21,8 @@ static datetime_t morning_alarm = {
     .month = -1,
     .day   = -1,
     .dotw  = -1,
-    .hour  = 6,
-    .min   = 30,
+    .hour  = 12,
+    .min   = 00,
     .sec   = 0,
 };
 
