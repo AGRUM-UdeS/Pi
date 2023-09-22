@@ -49,7 +49,20 @@ void PV_management(void *pvParameters)
         switch (PV_state) {
             case PV_INIT:
 
-                PV_state = PV_CALIBRATION;
+                // Calibration if button pressed
+                if (gpio_get(CALIBRATION_BUTTON)) {
+                    PV_state = PV_CALIBRATION;
+                }
+
+                // If during the day, continue rotation
+                if (daytime()) {
+                    if (!add_repeating_timer_ms(-(DAY_HOUR*60*60*1000)/PV_RANGE_DEGREE,
+                            pv_move_callback, NULL, &pv_move_timer)) {
+                        printf("Failed to add pv move timer\n");
+                    }
+                }
+
+                PV_state = PV_IDLE;
                 break;
 
             case PV_IDLE:

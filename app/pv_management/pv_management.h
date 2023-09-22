@@ -10,6 +10,8 @@
 #include "motor.h"
 #include "utils.h"
 
+#define CALIBRATION_BUTTON      (21)
+
 typedef enum _PV_status_t {
     PV_IDLE,
     PV_CALIBRATION,

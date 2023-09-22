@@ -108,6 +108,10 @@ int main() {
 
     init_hardware();
 
+    // Init calibration button as input
+    gpio_init(CALIBRATION_BUTTON);
+    gpio_set_dir(CALIBRATION_BUTTON, GPIO_IN);
+
     // Delay to let the developer open Putty
     usb_delay(5);
 
