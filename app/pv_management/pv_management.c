@@ -45,18 +45,14 @@ void PV_management(void *pvParameters)
 
     weather_status_t weather_status = WEATHER_OK;
 
-    uint8_t lm_pin_value[NB_PV*2] = {0};
+    uint8_t lm_pin_value[NB_LIMIT_SWITCH] = {0};
+    context->motor_drive_enable = true;
 
     while(1) {
         last_PV_state = PV_state;
 
         switch (PV_state) {
             case PV_INIT:
-
-                // Calibration if button pressed
-                if (gpio_get(CALIBRATION_BUTTON)) {
-                    PV_state = PV_CALIBRATION;
-                }
 
                 // If during the day, continue rotation
                 if (daytime()) {
@@ -66,7 +62,13 @@ void PV_management(void *pvParameters)
                     }
                 }
 
-                PV_state = PV_IDLE;
+                // Calibration if button pressed
+                if (!gpio_get(CALIBRATION_BUTTON)) {
+                    PV_state = PV_CALIBRATION;
+                } else {
+                     PV_state = PV_IDLE;
+                }
+
                 break;
 
             case PV_IDLE:
@@ -100,7 +102,7 @@ void PV_management(void *pvParameters)
                 // Stop quand limit switch
                 do {
                     vTaskDelay(5);
-                    limit_switch_touched(lm_pin_value, NB_PV*2);
+                    limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 } while(!(lm_pin_value[0] && lm_pin_value[2] &&
                           lm_pin_value[4] && lm_pin_value[6]));
 
@@ -110,7 +112,7 @@ void PV_management(void *pvParameters)
                 vTaskDelay(10000); // Delay to go away from final limit switches
                 do {
                     vTaskDelay(5);
-                    limit_switch_touched(lm_pin_value, NB_PV*2);
+                    limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 } while(!(lm_pin_value[1] && lm_pin_value[3] &&
                           lm_pin_value[5] && lm_pin_value[7]));
 
@@ -154,7 +156,7 @@ void PV_management(void *pvParameters)
                 // PWM started, wait for motor to stop
                 while(all_motor_moving()){
                     vTaskDelay(5);
-                    limit_switch_touched(lm_pin_value, NB_PV*2);
+                    limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 }
                 interface_publish("PV position", (float)(++pv_current_pos));
 
@@ -178,14 +180,14 @@ void PV_management(void *pvParameters)
                     rotate_all_pv(180, COUNTERCLOCKWISE);
                     do {
                         vTaskDelay(5);
-                        limit_switch_touched(lm_pin_value, NB_PV*2);
+                        limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                     } while(!(lm_pin_value[0] && lm_pin_value[2] &&
                             lm_pin_value[4] && lm_pin_value[6]));
                     
                     // Then move back to the middle
                     rotate_all_pv((PV_RANGE_DEGREE/2) + SHADES_OFFSET_DEGREE, CLOCKWISE);
                     while(all_motor_moving()){
-                        limit_switch_touched(lm_pin_value, NB_PV*2);
+                        limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                     }
                     // Turn of timer
                     cancel_repeating_timer(&pv_move_timer);

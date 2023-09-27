@@ -4,30 +4,30 @@
 #define IRRIGATION_STATUS         ("Status irrigation")
 
 // Thingsboard irrigation measurement topic
-#define TEMP_TOPIC_1              ("Temperature avec PV 1")
-#define HUMIDITY_TOPIC_1          ("Humidite avec PV 1")
-#define TEMP_TOPIC_2              ("Temperature avec PV 2")
-#define HUMIDITY_TOPIC_2          ("Humidite avec PV 2")
-#define TEMP_TOPIC_3              ("Temperature sans PV 1")
-#define HUMIDITY_TOPIC_3          ("Humidite sans PV 1")
-#define TEMP_TOPIC_4              ("Temperature sans PV 2")
-#define HUMIDITY_TOPIC_4          ("Humidite sans PV 2")
-#define HUMIDITY_SOIL_1           ("Humidite sol 1")
-#define HUMIDITY_SOIL_2           ("Humidite sol 2")
-#define HUMIDITY_SOIL_3           ("Humidite sol 3")
+#define TEMP_TOPIC_1              ("Temperature avec PV")
+#define HUMIDITY_TOPIC_1          ("Humidite avec PV")
+// #define TEMP_TOPIC_2              ("Temperature avec PV 2")
+// #define HUMIDITY_TOPIC_2          ("Humidite avec PV 2")
+#define TEMP_TOPIC_2              ("Temperature sans PV")
+#define HUMIDITY_TOPIC_2          ("Humidite sans PV")
+// #define TEMP_TOPIC_4              ("Temperature sans PV 2")
+// #define HUMIDITY_TOPIC_4          ("Humidite sans PV 2")
+#define HUMIDITY_SOIL_1           ("Humidite Sol 1")
+#define HUMIDITY_SOIL_2           ("Humidite Sol 2")
+#define HUMIDITY_SOIL_3           ("Humidite Sol 3")
 
 char *temperature_topic[] = {
     TEMP_TOPIC_1,
-    TEMP_TOPIC_2,
-    TEMP_TOPIC_3,
-    TEMP_TOPIC_4
+    TEMP_TOPIC_2
+    // TEMP_TOPIC_3,
+    // TEMP_TOPIC_4
 };
 
 char *humidity_topic[] = {
     HUMIDITY_TOPIC_1,
     HUMIDITY_TOPIC_2,
-    HUMIDITY_TOPIC_3,
-    HUMIDITY_TOPIC_4
+    // HUMIDITY_TOPIC_3,
+    // HUMIDITY_TOPIC_4
 };
 
 char *soil_humidity_topic[] = {
