@@ -34,7 +34,7 @@ char *pv_current_topic[] = {
 #define BATTERY_HIGH_VOLTAGE        (26.6)
 #define BATTERY_LOW_VOLTAGE         (25.0)
 #define BATTERY_VERY_LOW_VOLTAGE    (24.5)
-#define BATTERY_LOAD_VOLTAGE_DROP   (1.0)
+#define BATTERY_LOAD_VOLTAGE_DROP   (2)
 
 #define SUFFICIANT_IRRADIANCE_POWER (1000) // TODO: Adjust this value
 

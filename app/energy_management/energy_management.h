@@ -24,6 +24,7 @@ typedef enum _energy_status_t {
 } energy_status_t;
 
 #define NB_PV   2
+#define NB_LIMIT_SWITCH     8
 #define NB_BAT  2
 #define LOAD_RELAY_GPIO     0
 
