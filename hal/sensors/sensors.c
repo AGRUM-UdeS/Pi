@@ -84,6 +84,7 @@ void read_soil_humidity(uint8_t pin, float *value)
 #include "ADS7828.h"
 #define ADC_ENERGY_ADDRESS      (ADC_address_0)
 #define ADC_PV_CURRENT_ADDRESS  (ADC_address_1)
+#define ADC_EXTERN_ADDRESS      (ADC_address_1) // TO CHANGE
 // To adjust with real set-up
 #define PV_VOLTAGE1_PIN 0
 #define PV_VOLTAGE2_PIN 1
@@ -111,7 +112,7 @@ float get_PV_voltage(uint8_t PV_index)
     float sum = 0;
 
     for (size_t i = 0; i < NB_MEASUREMENT_AVG; i++) {
-        ADC1_read_pin(ADC_address_0, PV_index*2 + 5, &(received_value[i]));
+        ADC_read_pin(ADC_EXTERN_ADDRESS, PV_index*2 + 5, &(received_value[i])); // TO CHANGE
 
         // Convert bits to ADC 5V ref voltage
         adc_voltage[i] = ADC_bits2voltage(received_value[i]);
@@ -156,7 +157,7 @@ float get_PV_current(uint8_t PV_index)
     float sum = 0;
 
     for (size_t i = 0; i < NB_MEASUREMENT_AVG; i++) {
-        ADC1_read_pin(ADC_address_0, PV_index, &(received_value[i]));
+        ADC_read_pin(ADC_EXTERN_ADDRESS, PV_index, &(received_value[i])); // TO CHANGE
 
         // Convert bits to ADC 5V ref voltage
         adc_voltage[i] = ADC_bits2voltage(received_value[i]);
