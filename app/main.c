@@ -42,7 +42,7 @@ void startUp(void *pvParameters) {
     if (connect_to_interface() == INTERFACE_CONNECTED) {
         init_timer();
     }
-    init_peripherals();
+    init_timing();
 
     // Init energy management
     // enery_management();
@@ -106,10 +106,7 @@ int main() {
     // Init RP2040 peripherals
     stdio_init_all();
 
-    // Open load relay as early as possible
-    gpio_init(LOAD_RELAY_GPIO);
-    gpio_set_dir(LOAD_RELAY_GPIO, GPIO_OUT);
-    gpio_put(LOAD_RELAY_GPIO, false);
+    init_hardware();
 
     // Delay to let the developer open Putty
     usb_delay(5);

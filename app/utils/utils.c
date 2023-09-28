@@ -52,9 +52,8 @@ void usb_delay(uint8_t delay_s)
     printf("\n");
 }
 
-void init_peripherals(void)
+void init_timing(void)
 {
-    init_i2c();
     rtc_set_alarm(&morning_alarm, &morning_alarm_cb);
     // negative timeout means exact delay (rather than delay between callbacks)
     if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
@@ -62,6 +61,18 @@ void init_peripherals(void)
         printf("Failed to add ping timer\n");
     }
     // init_heartbeat_led();
+}
+
+void init_hardware(void)
+{
+    // Open load relay as early as possible
+    init_energy();
+
+    init_i2c();
+
+    init_irrigation();
+
+    init_motor();
 }
 
 #define HOUSEKEEPING_FREQUENCY_MS			( 1000 / portTICK_PERIOD_MS )
