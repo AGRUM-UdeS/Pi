@@ -23,6 +23,7 @@ typedef struct _main_context {
     bool irrigation_enable;
     energy_status_t energy_status;
     bool motor_drive_enable;
+    bool init_calib_pv;
     PV_status_t PV_status;
     weather_forecast_t weather_forecast;
     weather_status_t weather_status;

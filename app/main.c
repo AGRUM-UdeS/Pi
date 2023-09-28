@@ -106,15 +106,7 @@ int main() {
     // Init RP2040 peripherals
     stdio_init_all();
 
-    init_hardware();
-
-    // Init calibration button as input
-    gpio_init(CALIBRATION_BUTTON);
-    gpio_set_dir(CALIBRATION_BUTTON, GPIO_IN);
-
-    // Init calibration button as input
-    gpio_init(CALIBRATION_BUTTON);
-    gpio_set_dir(CALIBRATION_BUTTON, GPIO_IN);
+    init_hardware(&main_context);
 
     // Delay to let the developer open Putty
     usb_delay(5);

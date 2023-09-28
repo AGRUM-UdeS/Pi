@@ -63,7 +63,7 @@ void PV_management(void *pvParameters)
                 }
 
                 // Calibration if button pressed
-                if (!gpio_get(CALIBRATION_BUTTON)) {
+                if (context->init_calib_pv) {
                     PV_state = PV_CALIBRATION;
                 } else {
                      PV_state = PV_IDLE;

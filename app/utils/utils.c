@@ -63,12 +63,22 @@ void init_timing(void)
     // init_heartbeat_led();
 }
 
-void init_hardware(void)
+void init_hardware(void *ptr)
 {
+    main_context_t* context = (main_context_t*)ptr;
     // Open load relay as early as possible
     init_energy();
 
     init_i2c();
+
+    // Init calibration button as input
+    gpio_init(CALIBRATION_BUTTON);
+    gpio_set_dir(CALIBRATION_BUTTON, GPIO_IN);
+    if (!gpio_get(CALIBRATION_BUTTON)) {
+        context->init_calib_pv = true;
+    } else {
+        context->init_calib_pv = false;
+    }
 
     init_irrigation();
 
