@@ -63,6 +63,18 @@ void init_timing(void)
     // init_heartbeat_led();
 }
 
+void init_hardware(void)
+{
+    // Open load relay as early as possible
+    gpio_init(LOAD_RELAY_GPIO);
+    gpio_set_dir(LOAD_RELAY_GPIO, GPIO_OUT);
+    gpio_put(LOAD_RELAY_GPIO, false);
+
+    init_i2c();
+
+    init_irrigation();
+}
+
 #define HOUSEKEEPING_FREQUENCY_MS			( 1000 / portTICK_PERIOD_MS )
 
 void house_keeping(void *pvParameters)

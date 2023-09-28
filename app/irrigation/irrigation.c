@@ -85,11 +85,26 @@ static void watering_alarm_callback(void)
     irrigation_watering_flag = true;
 }
 
+void init_irrigation(void)
+{
+    // Close valves
+    close_all_valve();
+
+    // Close pumps
+    disable_all_pump();
+
+    // Init level sensor as input
+    init_water_level_sensors();
+
+    // Init leds
+    clear_all_irigation_led();
+}
+
 // Irrigation state machine
 void irrigation_management(void *pvParameters)
 {
     main_context_t *context = (main_context_t*)pvParameters;
-    irrigation_status_t irrigation_state = IRRIGATION_INIT;
+    irrigation_status_t irrigation_state = IRRIGATION_MEASUREMENT;
     irrigation_status_t last_irrigation_state = IRRIGATION_ERROR;
 
     // negative timeout means exact delay (rather than delay between callbacks)
@@ -101,22 +116,6 @@ void irrigation_management(void *pvParameters)
         last_irrigation_state = irrigation_state;
 
         switch (irrigation_state) {
-            case IRRIGATION_INIT:
-                // Close valves
-                close_all_valve();
-
-                // Close pumps
-                disable_all_pump();
-
-                // Init level sensor as input
-                init_water_level_sensors();
-
-                // Init leds
-                clear_all_irigation_led();
-
-                irrigation_state = IRRIGATION_MEASUREMENT;
-                break;
-
             case IRRIGATION_IDLE:
                 // interface_publish(IRRIGATION_STATUS, IRRIGATION_IDLE);
                 close_all_valve();
@@ -237,7 +236,6 @@ void irrigation_management(void *pvParameters)
             case IRRIGATION_ERROR:
                 interface_publish(IRRIGATION_STATUS, IRRIGATION_ERROR);
                 // Print error message on thingsboard
-                irrigation_state = IRRIGATION_INIT;
 
             break;
         }

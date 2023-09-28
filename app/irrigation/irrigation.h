@@ -16,7 +16,6 @@
 #include "interface.h"
 
 typedef enum _irrigation_status_t {
-    IRRIGATION_INIT,
     IRRIGATION_IDLE,
     IRRIGATION_MEASUREMENT,
     IRRIGATION_WATERING,
