@@ -42,7 +42,7 @@ void startUp(void *pvParameters) {
     if (connect_to_interface() == INTERFACE_CONNECTED) {
         init_timer();
     }
-    init_peripherals();
+    init_timing();
 
     // Init energy management
     // enery_management();
@@ -106,6 +106,7 @@ int main() {
     // Init RP2040 peripherals
     stdio_init_all();
 
+    init_i2c();
     // Open load relay as early as possible
     gpio_init(LOAD_RELAY_GPIO);
     gpio_set_dir(LOAD_RELAY_GPIO, GPIO_OUT);

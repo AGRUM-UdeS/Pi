@@ -27,10 +27,10 @@ typedef enum _system_status_t{
  */
 void usb_delay(uint8_t delay_s);
 
-/*! \brief Init peripherals pinout and configurations
+/*! \brief Init timer and rtc
  * 
  */
-void init_peripherals(void);
+void init_timing(void);
 
 /*! \brief Some house keeping task. (Watchdog, interface ping, etc)
  * 
