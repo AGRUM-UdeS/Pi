@@ -11,7 +11,6 @@
 #include "utils.h"
 
 typedef enum _PV_status_t {
-    PV_INIT,
     PV_IDLE,
     PV_CALIBRATION,
     PV_DAYROTATION,

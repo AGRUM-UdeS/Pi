@@ -48,7 +48,6 @@ void PV_management(void *pvParameters)
 
         switch (PV_state) {
             case PV_INIT:
-                init_motor();
 
                 PV_state = PV_CALIBRATION;
                 break;

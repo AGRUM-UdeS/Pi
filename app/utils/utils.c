@@ -71,6 +71,8 @@ void init_hardware(void)
     init_i2c();
 
     init_irrigation();
+
+    init_motor();
 }
 
 #define HOUSEKEEPING_FREQUENCY_MS			( 1000 / portTICK_PERIOD_MS )
