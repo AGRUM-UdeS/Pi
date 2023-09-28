@@ -66,9 +66,7 @@ void init_timing(void)
 void init_hardware(void)
 {
     // Open load relay as early as possible
-    gpio_init(LOAD_RELAY_GPIO);
-    gpio_set_dir(LOAD_RELAY_GPIO, GPIO_OUT);
-    gpio_put(LOAD_RELAY_GPIO, false);
+    init_energy();
 
     init_i2c();
 

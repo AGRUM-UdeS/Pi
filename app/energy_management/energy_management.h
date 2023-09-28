@@ -29,13 +29,15 @@ typedef enum _energy_status_t {
 
 float get_instant_power_PV(void);
 
+/*! \brief Init energy related sensors and actuators
+ */
+void init_energy(void);
+
 /*! \brief State-machine managing energy
  *
  *  Take care of energy related measurement
  *  as well as relays controlling the
  *  power flow.
- *
- * \return Last state of state-machine
  */
 void enery_management(void *pvParameters);
 

@@ -95,6 +95,13 @@ float get_instant_power_PV(void)
     return PV_power;
 }
 
+void init_energy(void)
+{
+    gpio_init(LOAD_RELAY_GPIO);
+    gpio_set_dir(LOAD_RELAY_GPIO, GPIO_OUT);
+    gpio_put(LOAD_RELAY_GPIO, false);
+}
+
 void enery_management(void *pvParameters)
 {
     main_context_t *context = (main_context_t*)pvParameters;

@@ -27,6 +27,11 @@ typedef enum _system_status_t{
  */
 void usb_delay(uint8_t delay_s);
 
+/*! \brief Init every hardware not wifi dependent
+ * 
+ */
+void init_hardware(void);
+
 /*! \brief Init timer and rtc
  * 
  */
