@@ -54,22 +54,17 @@ void usb_delay(uint8_t delay_s)
 
 void init_timing(void)
 {
-    rtc_set_alarm(&morning_alarm, &morning_alarm_cb);
-    // negative timeout means exact delay (rather than delay between callbacks)
-    if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
-        interface_publish("GOOD MORNING", 0);
-        printf("Failed to add ping timer\n");
-    }
-    // init_heartbeat_led();
+    
 }
 
 void init_hardware(void *ptr)
 {
     main_context_t* context = (main_context_t*)ptr;
-    // Open load relay as early as possible
-    init_energy();
 
     init_i2c();
+
+    // Open load relay as early as possible
+    init_energy();
 
     // Init calibration button as input
     gpio_init(CALIBRATION_BUTTON);
@@ -90,6 +85,17 @@ void init_hardware(void *ptr)
 void house_keeping(void *pvParameters)
 {
     init_watchdog();
+
+    rtc_set_alarm(&morning_alarm, &morning_alarm_cb);
+
+    // negative timeout means exact delay (rather than delay between callbacks)
+    if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
+        interface_publish("GOOD MORNING", 0);
+        printf("Failed to add ping timer\n");
+    }
+
+    // init_heartbeat_led();
+
     while(1) {
         feed_watchdog();
 
