@@ -121,7 +121,7 @@ void enery_management(void *pvParameters)
     while(1) {
         // Take and publish measurement
         publish_measurements++;
-        for (size_t i = 0; i < NB_PV; i++)
+        for (uint8_t i = 0; i < NB_PV; i++)
         {
             PV_voltage[i] = get_PV_voltage(i);
             PV_current[i] = get_PV_current(i);
@@ -133,7 +133,7 @@ void enery_management(void *pvParameters)
             }
         }
 
-        for (size_t i = 0; i < NB_BAT; i++)
+        for (uint8_t i = 0; i < NB_BAT; i++)
         {
             battery_voltage[i] = get_battery_voltage(i*2 + 1);
 

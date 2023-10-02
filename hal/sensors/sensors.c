@@ -84,7 +84,7 @@ void read_soil_humidity(uint8_t pin, float *value)
 #include "ADS7828.h"
 #define ADC_ENERGY_ADDRESS      (ADC_address_0)
 #define ADC_PV_CURRENT_ADDRESS  (ADC_address_1)
-#define ADC_EXTERN_ADDRESS      (ADC_address_1) // TO CHANGE
+#define ADC_EXTERN_ADDRESS      (ADC_address_2)
 // To adjust with real set-up
 #define PV_VOLTAGE1_PIN 0
 #define PV_VOLTAGE2_PIN 1
@@ -104,6 +104,9 @@ void read_soil_humidity(uint8_t pin, float *value)
 
 #define NB_MEASUREMENT_AVG  (1)
 
+#define INDEX_TO_PV_VOLTAGE(x)  (x)
+#define INDEX_TO_PV_CURRENT(x)  (x+2)
+
 float get_PV_voltage(uint8_t PV_index)
 {
     // Read from ADC
@@ -112,7 +115,7 @@ float get_PV_voltage(uint8_t PV_index)
     float sum = 0;
 
     for (size_t i = 0; i < NB_MEASUREMENT_AVG; i++) {
-        ADC_read_pin(ADC_EXTERN_ADDRESS, PV_index*2 + 5, &(received_value[i])); // TO CHANGE
+        ADC_read_pin(ADC_EXTERN_ADDRESS, INDEX_TO_PV_VOLTAGE(PV_index), &(received_value[i]));
 
         // Convert bits to ADC 5V ref voltage
         adc_voltage[i] = ADC_bits2voltage(received_value[i]);
@@ -120,7 +123,7 @@ float get_PV_voltage(uint8_t PV_index)
     }
 
     // Convert voltage to PV voltage
-    return (sum/NB_MEASUREMENT_AVG)*(75+1500)/75;
+    return sum/(float)(NB_MEASUREMENT_AVG)*(75.0+1500.0)/75.0;
 }
 
 float get_battery_voltage(uint8_t battery_index)
@@ -137,7 +140,7 @@ float get_battery_voltage(uint8_t battery_index)
         adc_voltage[i] = ADC_bits2voltage(received_value[i]);
         sum += adc_voltage[i];
     }
-    float avg = sum/NB_MEASUREMENT_AVG;
+    float avg = sum/(float)NB_MEASUREMENT_AVG;
 
     // Convert voltage to PV voltage
     if (battery_index == 1) {
@@ -157,7 +160,7 @@ float get_PV_current(uint8_t PV_index)
     float sum = 0;
 
     for (size_t i = 0; i < NB_MEASUREMENT_AVG; i++) {
-        ADC_read_pin(ADC_EXTERN_ADDRESS, PV_index, &(received_value[i])); // TO CHANGE
+        ADC_read_pin(ADC_EXTERN_ADDRESS, INDEX_TO_PV_CURRENT(PV_index), &(received_value[i]));
 
         // Convert bits to ADC 5V ref voltage
         adc_voltage[i] = ADC_bits2voltage(received_value[i]);
@@ -166,7 +169,7 @@ float get_PV_current(uint8_t PV_index)
     float avg = sum/NB_MEASUREMENT_AVG;
 
     // Convert voltage to PV current
-    return  (avg - VREF_PV)*(25/1.15);
+    return  (avg - VREF_PV)*(25.0/1.15);
 }
 
 float get_instrumentation_current(void)
