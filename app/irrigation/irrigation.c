@@ -60,7 +60,7 @@ static bool irrigation_measurement_flag = false;
 #define BAC2BARREL_DURATION_MS  pdMSTOTICKS(30*1000)
 #define SOAKING_DURATION_MS     pdMSTOTICKS(10*60*1000)
 
-#define MEASUREMENTS_PERIOD_MS  (2*60*1000)
+#define MEASUREMENTS_PERIOD_MS  (1*60*1000)
 
 static repeating_timer_t measure_timer;
 
