@@ -2,9 +2,10 @@
 
 #include "context.h"
 
-#define PV_MOVE_PERIOD_MS       (60 * 1000)
-
 #define PV_STATUS_TOPIC         ("Status PV")
+
+#define PV_RANGE_DEGREE         (87)
+#define DAY_HOUR                (11)
 
 static repeating_timer_t pv_move_timer;
 
@@ -14,16 +15,8 @@ static bool PV_badweather_flag = false;
 static bool PV_power_decreasing_while_moving = false;
 
 static int16_t pv_current_pos = 0;
-static int16_t pv_pos_range = 0;
+static int16_t pv_pos_range = PV_RANGE_DEGREE;
 static int16_t pv_init_pos = 0;
-
-void calibrate_PV_position(void)
-{
-    // TODO
-
-    // Set total range in deg
-    pv_pos_range = 60;
-}
 
 static bool pv_move_callback(repeating_timer_t *rt)
 {
@@ -41,15 +34,30 @@ void PV_management(void *pvParameters)
 
     weather_status_t weather_status = WEATHER_OK;
 
-    uint8_t lm_pin_value[NB_PV*2] = {0};
+    uint8_t lm_pin_value[NB_LIMIT_SWITCH] = {0};
+    context->motor_drive_enable = true;
 
     while(1) {
         last_PV_state = PV_state;
 
         switch (PV_state) {
             case PV_INIT:
+                // Calibration if button pressed
+                if (context->init_calib_pv) {
+                    PV_state = PV_CALIBRATION;
 
-                PV_state = PV_CALIBRATION;
+                } else if (daytime()) {
+                    // If no calibration and day time, continue day rotation
+                    if (!add_repeating_timer_ms(-(DAY_HOUR*60*60*1000)/PV_RANGE_DEGREE,
+                            pv_move_callback, NULL, &pv_move_timer)) {
+                        printf("Failed to add pv move timer\n");
+                    }
+                    PV_state = PV_IDLE;
+
+                } else {
+                    PV_state = PV_IDLE;
+                }
+
                 break;
 
             case PV_IDLE:
@@ -83,7 +91,7 @@ void PV_management(void *pvParameters)
                 // Stop quand limit switch
                 do {
                     vTaskDelay(5);
-                    limit_switch_touched(lm_pin_value, NB_PV*2);
+                    limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 } while(!(lm_pin_value[0] && lm_pin_value[2] &&
                           lm_pin_value[4] && lm_pin_value[6]));
 
@@ -93,7 +101,7 @@ void PV_management(void *pvParameters)
                 vTaskDelay(10000); // Delay to go away from final limit switches
                 do {
                     vTaskDelay(5);
-                    limit_switch_touched(lm_pin_value, NB_PV*2);
+                    limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 } while(!(lm_pin_value[1] && lm_pin_value[3] &&
                           lm_pin_value[5] && lm_pin_value[7]));
 
@@ -101,7 +109,7 @@ void PV_management(void *pvParameters)
 
                 // Set position and range
                 pv_pos_range = ms2angle(end - start) - 20;
-                pv_current_pos = pv_init_pos = -pv_pos_range/2 + 10;
+                pv_current_pos = pv_init_pos = -pv_pos_range/2;
 
                 interface_publish("PV range", (float)pv_pos_range);
                 rotate_all_pv(10, COUNTERCLOCKWISE);
@@ -113,7 +121,7 @@ void PV_management(void *pvParameters)
                 static bool once = true;
                 if (once) {
                     once = false;
-                    if (!add_repeating_timer_ms(-(12*60*60*1000)/pv_pos_range,
+                    if (!add_repeating_timer_ms(-(DAY_HOUR*60*60*1000)/pv_pos_range,
                             pv_move_callback, NULL, &pv_move_timer)) {
                         printf("Failed to add pv move timer\n");
                     }
@@ -137,7 +145,7 @@ void PV_management(void *pvParameters)
                 // PWM started, wait for motor to stop
                 while(all_motor_moving()){
                     vTaskDelay(5);
-                    limit_switch_touched(lm_pin_value, NB_PV*2);
+                    limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 }
                 interface_publish("PV position", (float)(++pv_current_pos));
 
@@ -153,13 +161,27 @@ void PV_management(void *pvParameters)
                 }
 
                 // If rotation over, go back to 0 deg
-                if (pv_current_pos >= pv_pos_range/2) {
-                    rotate_all_pv(pv_current_pos, CLOCKWISE);
-                    while(all_motor_moving()){
-                        limit_switch_touched(lm_pin_value, NB_PV*2);
-                    }
+                if (pv_current_pos >= pv_pos_range/2 || !(daytime())) {
+                    interface_publish(PV_STATUS_TOPIC, END_OF_DAY);
                     // Turn of timer
                     cancel_repeating_timer(&pv_move_timer);
+
+                    // Make sure you are at the end of rotation
+                    rotate_all_pv(180, COUNTERCLOCKWISE);
+                    do {
+                        vTaskDelay(5);
+                        limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
+                    } while(!(lm_pin_value[0] && lm_pin_value[2] &&
+                            lm_pin_value[4] && lm_pin_value[6]));
+                    
+                    // Then move back to the middle
+                    rotate_all_pv((PV_RANGE_DEGREE/2), CLOCKWISE);
+                    vTaskDelay(10000); // Delay to go away from final limit switches
+                    while(all_motor_moving()){
+                        limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
+                    }
+                    pv_current_pos = 0;
+                    interface_publish("PV position", (float)(pv_current_pos));
                 }
 
                 PV_state = PV_IDLE;

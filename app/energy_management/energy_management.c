@@ -33,14 +33,26 @@ char *pv_current_topic[] = {
 
 #define BATTERY_HIGH_VOLTAGE        (26.6)
 #define BATTERY_LOW_VOLTAGE         (25.0)
-#define BATTERY_VERY_LOW_VOLTAGE    (24.5)
+#define BATTERY_VERY_LOW_VOLTAGE    (24.0)
 #define BATTERY_LOAD_VOLTAGE_DROP   (1.0)
 
-#define SUFFICIANT_IRRADIANCE_POWER (1000) // TODO: Adjust this value
+static bool no_discharge_for_30_min = false;
+#define SUFFICIANT_IRRADIANCE_POWER (800)
 
 #define MEASUREMENTS_PERIOD_MS      (1*1000)
-#define PUBLISH_PERIOD_MS           (5*1000)
+#define PUBLISH_PERIOD_MS           (60*1000)
 #define MINMUM_DISCHARGE_TIME_MS    (30*1000)
+
+#define CONTACTOR_STATUS_TOPIC  ("Status contacteur")
+static void connect_contactor(void) {
+    gpio_put(LOAD_RELAY_GPIO, true);
+    interface_publish(CONTACTOR_STATUS_TOPIC, 1.0);
+}
+
+static void disconnect_contactor(void){
+    gpio_put(LOAD_RELAY_GPIO, false);
+    interface_publish(CONTACTOR_STATUS_TOPIC, 0.0);
+}
 
 static bool battery_need_discharge(float voltage)
 {
@@ -99,7 +111,7 @@ void init_energy(void)
 {
     gpio_init(LOAD_RELAY_GPIO);
     gpio_set_dir(LOAD_RELAY_GPIO, GPIO_OUT);
-    gpio_put(LOAD_RELAY_GPIO, false);
+    disconnect_contactor();
 }
 
 void enery_management(void *pvParameters)
@@ -121,7 +133,7 @@ void enery_management(void *pvParameters)
     while(1) {
         // Take and publish measurement
         publish_measurements++;
-        for (size_t i = 0; i < NB_PV; i++)
+        for (uint8_t i = 0; i < NB_PV; i++)
         {
             PV_voltage[i] = get_PV_voltage(i);
             PV_current[i] = get_PV_current(i);
@@ -133,7 +145,7 @@ void enery_management(void *pvParameters)
             }
         }
 
-        for (size_t i = 0; i < NB_BAT; i++)
+        for (uint8_t i = 0; i < NB_BAT; i++)
         {
             battery_voltage[i] = get_battery_voltage(i*2 + 1);
 
@@ -162,7 +174,7 @@ void enery_management(void *pvParameters)
             break;
 
         case ENERGY_IDLE:
-            if (battery_need_discharge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
+            if (battery_need_discharge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX]) && !no_discharge_for_30_min) {
                 energy_state = OVERCHARGED;
 
             } else if (battery_criticaly_low(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
@@ -171,7 +183,7 @@ void enery_management(void *pvParameters)
             } else if (battery_low_charge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
                 energy_state = LOAD_SHEDDING;
 
-            } else if (battery_good(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])){
+            } else if (battery_good(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX]) || no_discharge_for_30_min){
                 energy_state = NORMAL_USE;
             }
 
@@ -184,7 +196,7 @@ void enery_management(void *pvParameters)
 
         case LOAD_SHEDDING:
             // Disconnect load
-            gpio_put(LOAD_RELAY_GPIO, false);
+            disconnect_contactor();
 
             // Disable irrigation
             context->irrigation_enable = false;
@@ -198,7 +210,7 @@ void enery_management(void *pvParameters)
 
         case POWER_SAVING:
             // Disconnect load
-            gpio_put(LOAD_RELAY_GPIO, false);
+            disconnect_contactor();
 
             // Disable irrigation
             context->irrigation_enable = true;
@@ -212,7 +224,7 @@ void enery_management(void *pvParameters)
 
         case NORMAL_USE:
             // Disconnect load
-            gpio_put(LOAD_RELAY_GPIO, false);
+            disconnect_contactor();
 
             // Enable irrigation
             context->irrigation_enable = true;
@@ -225,22 +237,38 @@ void enery_management(void *pvParameters)
             break;
 
         case OVERCHARGED:
-            // Connect load
-            if (morning() || (daytime() && sufficient_irradiance())) {
-                gpio_put(LOAD_RELAY_GPIO, true);
-                vTaskDelay(MINMUM_DISCHARGE_TIME_MS); // Let battery discharge
-            } else {
-                // do not discharge during the night
-                gpio_put(LOAD_RELAY_GPIO, false);
-            }
-
             // Enable irrigation
             context->irrigation_enable = true;
 
             // Enable motor drive
             context->motor_drive_enable = true;
 
-            energy_state = ENERGY_IDLE;
+            // Connect load
+            if (morning() || daytime()) {
+                connect_contactor();
+                vTaskDelay(MINMUM_DISCHARGE_TIME_MS); // Let battery discharge
+                
+                if (sufficient_irradiance()) {
+                    static uint32_t ten_min_counter = 0;
+                    energy_state = OVERCHARGED;
+                
+                    if (++ten_min_counter >= ((10*60*1000) / MINMUM_DISCHARGE_TIME_MS)) {
+                        ten_min_counter = 0;
+                        disconnect_contactor();
+                        vTaskDelay(MINMUM_DISCHARGE_TIME_MS);
+                        energy_state = ENERGY_IDLE;
+                    }
+
+                } else {
+                    no_discharge_for_30_min = true;
+                    disconnect_contactor();
+                    energy_state = ENERGY_IDLE;
+                }
+            } else {
+                // do not discharge during the night
+                disconnect_contactor();
+                energy_state = ENERGY_IDLE;
+            }
 
             break;
 

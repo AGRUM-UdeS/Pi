@@ -39,10 +39,11 @@ void vApplicationTickHook( void );
 main_context_t main_context;
 
 void startUp(void *pvParameters) {
+    init_hardware(&main_context);
+
     if (connect_to_interface() == INTERFACE_CONNECTED) {
         init_timer();
     }
-    init_timing();
 
     // Init energy management
     // enery_management();
@@ -105,8 +106,6 @@ void startUp(void *pvParameters) {
 int main() {
     // Init RP2040 peripherals
     stdio_init_all();
-
-    init_hardware();
 
     // Delay to let the developer open Putty
     usb_delay(5);

@@ -30,7 +30,7 @@ void usb_delay(uint8_t delay_s);
 /*! \brief Init every hardware not wifi dependent
  * 
  */
-void init_hardware(void);
+void init_hardware(void *ptr);
 
 /*! \brief Init timer and rtc
  * 

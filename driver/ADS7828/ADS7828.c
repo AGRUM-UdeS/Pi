@@ -44,6 +44,23 @@ ADC_status_t ADC_read_pin(uint8_t addr, uint8_t pin_to_read, uint16_t* received_
     return return_ADC_status(nb);
 }
 
+ADC_status_t ADC1_read_pin(uint8_t addr, uint8_t pin_to_read, uint16_t* received_value)
+{
+    ADC_status_t status = ADC_ok;
+    uint8_t send_byte = ADC_pin[pin_to_read];
+
+    // Send the command byte to the ADC
+    i2c1_write(addr, &send_byte, (size_t)1);
+    
+    // Read the bytes from the ADC
+    uint8_t received_byte[ADC_BUF_LEN];
+    int nb = i2c1_read(addr, received_byte, (size_t)ADC_BUF_LEN);
+
+    *received_value = (((received_byte[0] & 0x0F) << 8) + (received_byte[1] & 0xFF));
+
+    return return_ADC_status(nb);
+}
+
 float ADC_bits2voltage(uint16_t bits)
 {
     return ((float)bits * 5.0 / 4096);

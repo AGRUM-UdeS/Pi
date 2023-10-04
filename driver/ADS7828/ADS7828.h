@@ -44,6 +44,8 @@ extern const uint16_t ADC_pin[8];
  */
 ADC_status_t ADC_read_pin(uint8_t addr, uint8_t pin_to_read, uint16_t* received_value);
 
+ADC_status_t ADC1_read_pin(uint8_t addr, uint8_t pin_to_read, uint16_t* received_value);
+
 /*! \brief Convert ADC raw value to a voltage
  *
  * \param bits 12 bits integer to convert

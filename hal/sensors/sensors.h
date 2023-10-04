@@ -8,14 +8,12 @@
 #include "PI4IOE5V9554A.h"
 #include "SHT.h"
 
-#define ENVIRO_SENSOR_NB        (4)
+#define ENVIRO_SENSOR_NB        (2)
 #define SOIL_HUMIDITY_SENSOR_NB (3)
 
 enum enviro_sensor_location_t {
-    UNDER_PV_0,
-    UNDER_PV_1,
-    BESIDE_PV_0,
-    BESIDE_PV_1
+    UNDER_PV,
+    BESIDE_PV
 };
 
 extern uint8_t enviro_sensor_location[ENVIRO_SENSOR_NB];

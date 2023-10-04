@@ -22,7 +22,7 @@ static datetime_t morning_alarm = {
     .day   = -1,
     .dotw  = -1,
     .hour  = 6,
-    .min   = 30,
+    .min   = 0,
     .sec   = 0,
 };
 
@@ -54,21 +54,26 @@ void usb_delay(uint8_t delay_s)
 
 void init_timing(void)
 {
-    rtc_set_alarm(&morning_alarm, &morning_alarm_cb);
-    // negative timeout means exact delay (rather than delay between callbacks)
-    if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
-        interface_publish("GOOD MORNING", 0);
-        printf("Failed to add ping timer\n");
-    }
-    // init_heartbeat_led();
+    
 }
 
-void init_hardware(void)
+void init_hardware(void *ptr)
 {
+    main_context_t* context = (main_context_t*)ptr;
+
+    init_i2c();
+
     // Open load relay as early as possible
     init_energy();
 
-    init_i2c();
+    // Init calibration button as input
+    gpio_init(CALIBRATION_BUTTON);
+    gpio_set_dir(CALIBRATION_BUTTON, GPIO_IN);
+    if (!gpio_get(CALIBRATION_BUTTON)) {
+        context->init_calib_pv = true;
+    } else {
+        context->init_calib_pv = false;
+    }
 
     init_irrigation();
 
@@ -80,12 +85,31 @@ void init_hardware(void)
 void house_keeping(void *pvParameters)
 {
     init_watchdog();
+
+    rtc_set_alarm(&morning_alarm, &morning_alarm_cb);
+
+    // negative timeout means exact delay (rather than delay between callbacks)
+    if (!add_repeating_timer_ms(-PING_PERIOD_MS, ping_callback, NULL, &ping_timer)) {
+        interface_publish("GOOD MORNING", 0);
+        printf("Failed to add ping timer\n");
+    }
+
+    // init_heartbeat_led();
+
     while(1) {
         feed_watchdog();
 
         if (interface_is_connected() && ping_interface_flag) {
             // Send ping to the interface
             interface_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
+            vTaskDelay(500);
+            datetime_t datetime;
+            if (get_RTC_time(&datetime) != RTC_OK) {
+                interface_publish("RTC hour", -1);
+            } else {
+                interface_publish("RTC hour", datetime.hour);
+            }
+            
             ping_interface_flag = false;
         }
         vTaskDelay(500);
