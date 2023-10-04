@@ -20,6 +20,7 @@ typedef enum _PV_status_t {
     PV_BADWEATHER,
     PV_BACKTRACKING,
     PV_MOTOR_SHUTDOWN,
+    END_OF_DAY,
     PV_ERROR
 } PV_status_t;
 
