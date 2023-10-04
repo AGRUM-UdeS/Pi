@@ -1,7 +1,7 @@
 #include "timing.h"
 
-#define SUNRISE_HOUR    (12)
-#define SUNSET_HOUR     (13)
+#define SUNRISE_HOUR    (6)
+#define SUNSET_HOUR     (16)
 
 uint8_t init_timer(void)
 {

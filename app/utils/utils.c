@@ -21,8 +21,8 @@ static datetime_t morning_alarm = {
     .month = -1,
     .day   = -1,
     .dotw  = -1,
-    .hour  = 12,
-    .min   = 00,
+    .hour  = 6,
+    .min   = 0,
     .sec   = 0,
 };
 
@@ -102,6 +102,14 @@ void house_keeping(void *pvParameters)
         if (interface_is_connected() && ping_interface_flag) {
             // Send ping to the interface
             interface_publish(PI_STATUS_TOPIC, PI_STATUS_PING);
+            vTaskDelay(500);
+            datetime_t datetime;
+            if (get_RTC_time(&datetime) != RTC_OK) {
+                interface_publish("RTC hour", -1);
+            } else {
+                interface_publish("RTC hour", datetime.hour);
+            }
+            
             ping_interface_flag = false;
         }
         vTaskDelay(500);
