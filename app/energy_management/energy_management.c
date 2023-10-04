@@ -39,7 +39,7 @@ char *pv_current_topic[] = {
 static bool no_discharge_for_30_min = false;
 #define SUFFICIANT_IRRADIANCE_POWER (800)
 
-#define MEASUREMENTS_PERIOD_MS      (1*1000)
+#define MEASUREMENTS_PERIOD_MS      (15*1000)
 #define PUBLISH_PERIOD_MS           (60*1000)
 #define MINMUM_DISCHARGE_TIME_MS    (30*1000)
 
