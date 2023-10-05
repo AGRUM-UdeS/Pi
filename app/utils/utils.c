@@ -37,7 +37,9 @@ static void morning_alarm_cb(void)
 
 static bool ping_callback(repeating_timer_t *rt)
 {
+    taskENTER_CRITICAL();
     ping_interface_flag = true;
+    taskEXIT_CRITICAL();
     return ping_interface_flag;
 }
 

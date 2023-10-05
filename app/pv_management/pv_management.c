@@ -20,8 +20,10 @@ static int16_t pv_init_pos = 0;
 
 static bool pv_move_callback(repeating_timer_t *rt)
 {
+    taskENTER_CRITICAL();
     printf("PV start moving\n");
     PV_rotation_flag = true;
+    taskEXIT_CRITICAL();
     return PV_rotation_flag;
 }
 
