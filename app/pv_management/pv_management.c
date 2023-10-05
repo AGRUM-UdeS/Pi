@@ -95,7 +95,7 @@ void PV_management(void *pvParameters)
                     vTaskDelay(1);
                     limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 } while(!(lm_pin_value[0] && lm_pin_value[2] &&
-                          lm_pin_value[4] && lm_pin_value[6]));
+                          lm_pin_value[4]));// && lm_pin_value[6]));
 
                 // Rotate the whole range
                 rotate_all_pv(180, CLOCKWISE); // Will stop before 180 deg
@@ -105,7 +105,7 @@ void PV_management(void *pvParameters)
                     vTaskDelay(1);
                     limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 } while(!(lm_pin_value[1] && lm_pin_value[3] &&
-                          lm_pin_value[5] && lm_pin_value[7]));
+                          lm_pin_value[5]));// && lm_pin_value[7]));
 
                 uint32_t end = to_ms_since_boot(get_absolute_time());
 
@@ -174,7 +174,7 @@ void PV_management(void *pvParameters)
                         vTaskDelay(1);
                         limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                     } while(!(lm_pin_value[0] && lm_pin_value[2] &&
-                            lm_pin_value[4] && lm_pin_value[6]));
+                            lm_pin_value[4]));// && lm_pin_value[6]));
                     
                     // Then move back to the middle
                     rotate_all_pv((PV_RANGE_DEGREE/2), CLOCKWISE);
