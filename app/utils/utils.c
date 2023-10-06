@@ -94,6 +94,8 @@ void house_keeping(void *pvParameters)
         printf("Failed to add ping timer\n");
     }
 
+    interface_publish("Version logicielle", SW_VERSION);
+
     // init_heartbeat_led();
 
     while(1) {

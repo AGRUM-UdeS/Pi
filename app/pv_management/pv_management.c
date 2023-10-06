@@ -93,7 +93,7 @@ void PV_management(void *pvParameters)
                     vTaskDelay(5);
                     limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 } while(!(lm_pin_value[0] && lm_pin_value[2] &&
-                          lm_pin_value[4] && lm_pin_value[6]));
+                          lm_pin_value[4]));// && lm_pin_value[6]));
 
                 // Rotate the whole range
                 rotate_all_pv(180, CLOCKWISE); // Will stop before 180 deg
@@ -103,7 +103,7 @@ void PV_management(void *pvParameters)
                     vTaskDelay(5);
                     limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 } while(!(lm_pin_value[1] && lm_pin_value[3] &&
-                          lm_pin_value[5] && lm_pin_value[7]));
+                          lm_pin_value[5]));// && lm_pin_value[7]));
 
                 uint32_t end = to_ms_since_boot(get_absolute_time());
 
@@ -134,10 +134,10 @@ void PV_management(void *pvParameters)
             case PV_DAYROTATION:
                 interface_publish(PV_STATUS_TOPIC, PV_DAYROTATION);
                 // Measure PV output power
-                float before_total_power = 0, after_total_power = 0;
-                for (size_t i = 0; i < NB_PV; i++) {
-                    before_total_power += (get_PV_current(i) * get_PV_voltage(i));
-                }
+                // float before_total_power = 0, after_total_power = 0;
+                // for (size_t i = 0; i < NB_PV; i++) {
+                //     before_total_power += (get_PV_current(i) * get_PV_voltage(i));
+                // }
 
                 // rotate PV 1 deg
                 rotate_all_pv(1, COUNTERCLOCKWISE);
@@ -150,15 +150,15 @@ void PV_management(void *pvParameters)
                 interface_publish("PV position", (float)(++pv_current_pos));
 
                 //Measure PV output power
-                for (size_t i = 0; i < NB_PV; i++) {
-                    after_total_power += (get_PV_current(i) * get_PV_voltage(i));
-                }
+                // for (size_t i = 0; i < NB_PV; i++) {
+                //     after_total_power += (get_PV_current(i) * get_PV_voltage(i));
+                // }
 
                 // backtrack if power reduce
-                if (after_total_power < (before_total_power * 0.80)) {
-                    PV_state = PV_BACKTRACKING;  
-                    break;  
-                }
+                // if (after_total_power < (before_total_power * 0.80)) {
+                //     PV_state = PV_BACKTRACKING;  
+                //     break;  
+                // }
 
                 // If rotation over, go back to 0 deg
                 if (pv_current_pos >= pv_pos_range/2 || !(daytime())) {
@@ -172,7 +172,7 @@ void PV_management(void *pvParameters)
                         vTaskDelay(5);
                         limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                     } while(!(lm_pin_value[0] && lm_pin_value[2] &&
-                            lm_pin_value[4] && lm_pin_value[6]));
+                            lm_pin_value[4]));// && lm_pin_value[6]));
                     
                     // Then move back to the middle
                     rotate_all_pv((PV_RANGE_DEGREE/2), CLOCKWISE);

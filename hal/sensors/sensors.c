@@ -102,7 +102,7 @@ void read_soil_humidity(uint8_t pin, float *value)
 #define VREF_INSTRU     (2.51)
 #define VREF_BAT        (2.51)
 
-#define NB_MEASUREMENT_AVG  (1)
+#define NB_MEASUREMENT_AVG  (5)
 
 #define INDEX_TO_PV_VOLTAGE(x)  (x)
 #define INDEX_TO_PV_CURRENT(x)  (x+2)

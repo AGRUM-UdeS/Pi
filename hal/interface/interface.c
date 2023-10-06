@@ -74,6 +74,9 @@ void interface(void *pvParameter)
     }
 
     while(true){
+        // Make sure interface is up
+        feed_watchdog();
+
         if (!interface_is_connected()) {
             printf("Interface disconnected, reconnecting\n");
             context->interface_status = INTERFACE_DISCONNECTED;
