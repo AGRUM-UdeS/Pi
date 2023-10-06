@@ -66,9 +66,7 @@ static repeating_timer_t measure_timer;
 
 static bool meas_callback(repeating_timer_t *rt)
 {
-    taskENTER_CRITICAL();
     irrigation_measurement_flag = true;
-    taskEXIT_CRITICAL();
     return irrigation_measurement_flag;
 }
 

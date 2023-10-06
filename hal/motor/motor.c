@@ -116,8 +116,8 @@ motor_state_t init_motor(void)
     IO_status_t stat = IO_read_pin(IO_LS_ADDRESS, 0, NULL);
 
     // Init limit switch gpio ext. interrupt pin
-    // gpio_set_irq_enabled_with_callback(28, GPIO_IRQ_EDGE_FALL
-    // , true, &limit_switch_callback);
+    gpio_set_irq_enabled_with_callback(28, GPIO_IRQ_EDGE_FALL
+    , true, &limit_switch_callback);
     
     // Init pins to control motor drives
     if (init_pul_pins() != MOTOR_OK) {
@@ -137,7 +137,6 @@ motor_state_t init_motor(void)
 
 static int64_t stop_rotation(__unused alarm_id_t id, void *user_data)
 {
-    taskENTER_CRITICAL();
     if (user_data == NULL) {
         // Set all duty cycle to 0
         for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
@@ -150,7 +149,6 @@ static int64_t stop_rotation(__unused alarm_id_t id, void *user_data)
         printf("Stop moving (%d)!\n", motor_index);
         disable_pwm(PUL_PIN[motor_index]);
     }
-    taskEXIT_CRITICAL();
 
     return 0;
 }
