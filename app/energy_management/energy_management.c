@@ -38,7 +38,7 @@ char *pv_current_topic[] = {
 #define BATTERY_LOAD_VOLTAGE_DROP   (1.0)
 
 #define NO_DISCHARGE_FOR_30_MIN     (30*60*1000)
-uint32_t no_discharge_start = 0;
+uint32_t discharge_reenable_time = 0;
 
 #define SUFFICIANT_IRRADIANCE_POWER (800)
 
@@ -125,7 +125,7 @@ static float PV_current[NB_PV] = {0};
 static float instru_current = 0;
 static float battery_current = 0;
 
-void take_and_publish_measurement(void) {
+void take_and_publish_measurement(bool bypass) {
     static uint32_t publish_measurements = 0;
     publish_measurements++;
     for (uint8_t i = 0; i < NB_PV; i++)
@@ -133,7 +133,7 @@ void take_and_publish_measurement(void) {
         PV_voltage[i] = get_PV_voltage(i);
         PV_current[i] = get_PV_current(i);
         
-        if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
+        if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS)) || bypass) {
             interface_publish(pv_voltage_topic[i], PV_voltage[i]);
             interface_publish(pv_current_topic[i], PV_current[i]);
             interface_publish(PV_POWER_TOPIC, PV_current[0]*PV_voltage[0] + PV_current[1]*PV_voltage[1]);
@@ -144,7 +144,7 @@ void take_and_publish_measurement(void) {
     {
         battery_voltage[i] = get_battery_voltage(i*2 + 1);
 
-        if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
+        if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS)) || bypass) {
             interface_publish(battery_voltage_topic[i], battery_voltage[i]);
         }
     }
@@ -152,7 +152,7 @@ void take_and_publish_measurement(void) {
     instru_current = get_instrumentation_current();
     battery_current = get_battery_current();
 
-    if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
+    if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS)) || bypass) {
         interface_publish(INTRUMENTATION_CURRENT_TOPIC, instru_current);
         interface_publish(INTRUMENTATION_POWER_TOPIC, instru_current*battery_voltage[1]);
         interface_publish(BATTERY_CURRENT_TOPIC, battery_current);
@@ -168,7 +168,7 @@ void enery_management(void *pvParameters)
     last_energy_state = energy_state;
 
     while(1) {
-        take_and_publish_measurement();
+        take_and_publish_measurement(false);
 
         /*** Energy state machine ***/
 
@@ -181,7 +181,7 @@ void enery_management(void *pvParameters)
 
         case ENERGY_IDLE:
             uint32_t now = to_ms_since_boot(get_absolute_time());
-            if (battery_need_discharge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX]) && (now - no_discharge_start >= NO_DISCHARGE_FOR_30_MIN)) {
+            if (battery_need_discharge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX]) && (now >= discharge_reenable_time)) {
                 energy_state = OVERCHARGED;
 
             } else if (battery_criticaly_low(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
@@ -190,7 +190,7 @@ void enery_management(void *pvParameters)
             } else if (battery_low_charge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
                 energy_state = LOAD_SHEDDING;
 
-            } else if (battery_good(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX]) || (now - no_discharge_start < NO_DISCHARGE_FOR_30_MIN)){
+            } else if (battery_good(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX]) || (now < discharge_reenable_time)){
                 energy_state = NORMAL_USE;
             }
 
@@ -255,7 +255,7 @@ void enery_management(void *pvParameters)
                 connect_contactor();
                 do {
                     vTaskDelay(MINMUM_DISCHARGE_TIME_MS);
-                    take_and_publish_measurement();
+                    take_and_publish_measurement(true);
                 } while (get_PV_voltage(1) > BATTERY_LOW_VOLTAGE);
             } else if (daytime()) {
                 float pv_voltage = get_PV_voltage(1);
@@ -265,17 +265,17 @@ void enery_management(void *pvParameters)
                 // Overcharged
                 if (pv_voltage > BATTERY_OVERVOLTAGE) {
                     do {
-                        take_and_publish_measurement();
+                        take_and_publish_measurement(true);
                         vTaskDelay(MINMUM_DISCHARGE_TIME_MS);
                     } while (get_PV_voltage(1) > BATTERY_HIGH_VOLTAGE - BATTERY_LOAD_VOLTAGE_DROP);
                 } else if (sufficient_irradiance()) {
                     for (size_t i = 0; i < OVERCHARGED_DISCHARGE_TIME_MS/MINMUM_DISCHARGE_TIME_MS; i++)
                     {
-                        take_and_publish_measurement();
+                        take_and_publish_measurement(true);
                         vTaskDelay(MINMUM_DISCHARGE_TIME_MS);
                     }
                 } else {
-                    no_discharge_start = to_ms_since_boot(get_absolute_time());
+                    discharge_reenable_time = to_ms_since_boot(get_absolute_time()) + NO_DISCHARGE_FOR_30_MIN;
                     disconnect_contactor();
                     energy_state = ENERGY_IDLE;
                 }

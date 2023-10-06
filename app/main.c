@@ -108,7 +108,7 @@ int main() {
     stdio_init_all();
 
     // Delay to let the developer open Putty
-    usb_delay(5);
+    //usb_delay(5);
 
     xTaskCreate( startUp,               /* The function that implements the task. */
             "startUp",                  /* The text name assigned to the task - for debug only as it is not used by the kernel. */
