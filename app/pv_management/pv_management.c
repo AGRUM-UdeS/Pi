@@ -136,10 +136,10 @@ void PV_management(void *pvParameters)
             case PV_DAYROTATION:
                 interface_publish(PV_STATUS_TOPIC, PV_DAYROTATION);
                 // Measure PV output power
-                float before_total_power = 0, after_total_power = 0;
-                for (size_t i = 0; i < NB_PV; i++) {
-                    before_total_power += (get_PV_current(i) * get_PV_voltage(i));
-                }
+                // float before_total_power = 0, after_total_power = 0;
+                // for (size_t i = 0; i < NB_PV; i++) {
+                //     before_total_power += (get_PV_current(i) * get_PV_voltage(i));
+                // }
 
                 // rotate PV 1 deg
                 rotate_all_pv(1, COUNTERCLOCKWISE);
@@ -152,15 +152,15 @@ void PV_management(void *pvParameters)
                 interface_publish("PV position", (float)(++pv_current_pos));
 
                 //Measure PV output power
-                for (size_t i = 0; i < NB_PV; i++) {
-                    after_total_power += (get_PV_current(i) * get_PV_voltage(i));
-                }
+                // for (size_t i = 0; i < NB_PV; i++) {
+                //     after_total_power += (get_PV_current(i) * get_PV_voltage(i));
+                // }
 
                 // backtrack if power reduce
-                if (after_total_power < (before_total_power * 0.80)) {
-                    PV_state = PV_BACKTRACKING;  
-                    break;  
-                }
+                // if (after_total_power < (before_total_power * 0.80)) {
+                //     PV_state = PV_BACKTRACKING;  
+                //     break;  
+                // }
 
                 // If rotation over, go back to 0 deg
                 if (pv_current_pos >= pv_pos_range/2 || !(daytime())) {

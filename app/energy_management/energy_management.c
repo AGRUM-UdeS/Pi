@@ -42,7 +42,7 @@ uint32_t no_discharge_start = 0;
 
 #define SUFFICIANT_IRRADIANCE_POWER (800)
 
-#define MEASUREMENTS_PERIOD_MS      (15*1000)
+#define MEASUREMENTS_PERIOD_MS      (5*1000)
 #define PUBLISH_PERIOD_MS           (60*1000)
 #define MINMUM_DISCHARGE_TIME_MS    (30*1000)
 #define OVERCHARGED_DISCHARGE_TIME_MS   (5*60*1000)
