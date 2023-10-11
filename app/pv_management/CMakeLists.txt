@@ -7,6 +7,7 @@ target_link_libraries(pv_management
         utils
         hardware_rtc
         wrap_RTC
+        wrap_FLASH
         motor
         )
 

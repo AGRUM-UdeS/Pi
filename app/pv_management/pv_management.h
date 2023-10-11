@@ -7,6 +7,7 @@
 #include "semphr.h"
 
 #include "wrap_RTC.h"
+#include "wrap_FLASH.h"
 #include "motor.h"
 #include "utils.h"
 
