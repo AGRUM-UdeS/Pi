@@ -94,6 +94,6 @@ void interface(void *pvParameter)
                 interface_send(msg.topic, msg.value);
             }
         }
-        vTaskDelay(200);
+        vTaskDelay(500);
     }
 }
