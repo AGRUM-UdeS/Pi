@@ -37,7 +37,7 @@ char *pv_current_topic[] = {
 #define BATTERY_VERY_LOW_VOLTAGE    (24.0)
 #define BATTERY_LOAD_VOLTAGE_DROP   (1.0)
 
-#define NO_DISCHARGE_FOR_30_MIN     (30*60*1000)
+#define DELAY_30_MIN                (30*60*1000)
 uint32_t discharge_reenable_time = 0;
 
 #define SUFFICIANT_IRRADIANCE_POWER (800)
@@ -157,7 +157,38 @@ void take_and_publish_measurement(bool bypass) {
         interface_publish(INTRUMENTATION_POWER_TOPIC, instru_current*battery_voltage[1]);
         interface_publish(BATTERY_CURRENT_TOPIC, battery_current);
     }
-} 
+}
+
+void discharge_control(discharge_status_t discharge_state)
+{
+    
+    switch (discharge_state) {
+    case UNLIMITED_DISCHARGE:
+        // Keep discharging until state change    
+        connect_contactor();
+        break;
+    case SUNNY_DISCHARGE:
+        // Discharge if sunny and check every 30 minutes
+        static uint32_t keep_load_connected_30_min = 0;
+        uint32_t now = to_ms_since_boot(get_absolute_time());
+        if (sufficient_irradiance() && keep_load_connected_30_min < now) {
+            connect_contactor();
+            keep_load_connected_30_min =  now + DELAY_30_MIN;
+        } else if (keep_load_connected_30_min > now) {
+            // Keep load connected
+            connect_contactor();
+        } else {
+            disconnect_contactor();
+        }
+        
+        break;
+    case NO_DISCHARGE:
+    default:
+        // Disconnect load
+        disconnect_contactor();
+        break;
+    }
+}
 
 void enery_management(void *pvParameters)
 {
@@ -250,41 +281,16 @@ void enery_management(void *pvParameters)
             // Enable motor drive
             context->motor_drive_enable = true;
 
-            // Connect load
-            if (morning()) {
-                connect_contactor();
-                do {
-                    vTaskDelay(MINMUM_DISCHARGE_TIME_MS);
-                    take_and_publish_measurement(true);
-                } while (get_PV_voltage(1) > BATTERY_LOW_VOLTAGE);
+            // Manage load
+            discharge_status_t discharge_state;
+            if (morning() || battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX] > BATTERY_OVERVOLTAGE) {
+                discharge_state = UNLIMITED_DISCHARGE;
             } else if (daytime()) {
-                float pv_voltage = get_PV_voltage(1);
-                connect_contactor();
-                vTaskDelay(MINMUM_DISCHARGE_TIME_MS);
-
-                // Overcharged
-                if (pv_voltage > BATTERY_OVERVOLTAGE) {
-                    do {
-                        take_and_publish_measurement(true);
-                        vTaskDelay(MINMUM_DISCHARGE_TIME_MS);
-                    } while (get_PV_voltage(1) > BATTERY_HIGH_VOLTAGE - BATTERY_LOAD_VOLTAGE_DROP);
-                } else if (sufficient_irradiance()) {
-                    for (size_t i = 0; i < OVERCHARGED_DISCHARGE_TIME_MS/MINMUM_DISCHARGE_TIME_MS; i++)
-                    {
-                        take_and_publish_measurement(true);
-                        vTaskDelay(MINMUM_DISCHARGE_TIME_MS);
-                    }
-                } else {
-                    discharge_reenable_time = to_ms_since_boot(get_absolute_time()) + NO_DISCHARGE_FOR_30_MIN;
-                    disconnect_contactor();
-                    energy_state = ENERGY_IDLE;
-                }
-
+                discharge_state = SUNNY_DISCHARGE;
             } else {
-                // do not discharge during the night
-                disconnect_contactor();
-                energy_state = ENERGY_IDLE;
+                discharge_state = NO_DISCHARGE;
             }
+            discharge_control(discharge_state);
 
             break;
 

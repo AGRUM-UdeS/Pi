@@ -23,6 +23,12 @@ typedef enum _energy_status_t {
     ENERGY_ERROR
 } energy_status_t;
 
+typedef enum _discharge_status_t {
+    UNLIMITED_DISCHARGE,
+    SUNNY_DISCHARGE,
+    NO_DISCHARGE
+} discharge_status_t;
+
 #define NB_PV   2
 #define NB_LIMIT_SWITCH     8
 #define NB_BAT  2
