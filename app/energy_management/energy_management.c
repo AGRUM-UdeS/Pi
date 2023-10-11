@@ -125,7 +125,7 @@ static float PV_current[NB_PV] = {0};
 static float instru_current = 0;
 static float battery_current = 0;
 
-void take_and_publish_measurement(bool bypass) {
+void take_and_publish_measurement() {
     static uint32_t publish_measurements = 0;
     publish_measurements++;
     for (uint8_t i = 0; i < NB_PV; i++)
@@ -133,7 +133,7 @@ void take_and_publish_measurement(bool bypass) {
         PV_voltage[i] = get_PV_voltage(i);
         PV_current[i] = get_PV_current(i);
         
-        if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS)) || bypass) {
+        if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
             interface_publish(pv_voltage_topic[i], PV_voltage[i]);
             interface_publish(pv_current_topic[i], PV_current[i]);
             interface_publish(PV_POWER_TOPIC, PV_current[0]*PV_voltage[0] + PV_current[1]*PV_voltage[1]);
@@ -144,7 +144,7 @@ void take_and_publish_measurement(bool bypass) {
     {
         battery_voltage[i] = get_battery_voltage(i*2 + 1);
 
-        if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS)) || bypass) {
+        if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
             interface_publish(battery_voltage_topic[i], battery_voltage[i]);
         }
     }
@@ -152,7 +152,7 @@ void take_and_publish_measurement(bool bypass) {
     instru_current = get_instrumentation_current();
     battery_current = get_battery_current();
 
-    if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS)) || bypass) {
+    if (!(publish_measurements % (PUBLISH_PERIOD_MS / MEASUREMENTS_PERIOD_MS))) {
         interface_publish(INTRUMENTATION_CURRENT_TOPIC, instru_current);
         interface_publish(INTRUMENTATION_POWER_TOPIC, instru_current*battery_voltage[1]);
         interface_publish(BATTERY_CURRENT_TOPIC, battery_current);
