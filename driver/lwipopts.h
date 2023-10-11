@@ -7,7 +7,7 @@
 // (see https://www.nongnu.org/lwip/2_1_x/group__lwip__opts.html)
 //
 
-#define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 1)
+#define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 3)
 
 #define LWIP_PROVIDE_ERRNO          1
 // allow override in some examples

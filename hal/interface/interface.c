@@ -27,6 +27,7 @@ static bool interface_send(unsigned char *topic, float value)
 #ifdef PROD_BUILD
     if (ThingsBoard_publish(topic, value) != THINGSBOARD_OK) {
         printf("Client not connected...\n");
+        interface_publish("Client not connected", 1.0) 
         return false;
     } else {
         uint32_t time_since_boot = to_ms_since_boot(get_absolute_time());
@@ -38,6 +39,7 @@ static bool interface_send(unsigned char *topic, float value)
     snprintf(test_topic, sizeof(test_topic), "TEST_%s\0", topic);
     if (ThingsBoard_publish(test_topic, value) != THINGSBOARD_OK) {
         printf("Client not connected...\n");
+        interface_publish("Client not connected", 1.0);
         return false;
     } else {
         uint32_t time_since_boot = to_ms_since_boot(get_absolute_time());
