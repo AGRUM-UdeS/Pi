@@ -32,7 +32,7 @@ void vApplicationTickHook( void );
 #define IRRIGATION_TASK_PRIORITY        ( tskIDLE_PRIORITY + 1 )
 #define HOUSEKEEPING_TASK_PRIORITY      ( tskIDLE_PRIORITY + 2 )
 #define STARTUP_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
-#define INTERFACE_TASK_PRIORITY         ( tskIDLE_PRIORITY + 5 )
+#define INTERFACE_TASK_PRIORITY         (configMAX_PRIORITIES - 2)
 #define WEATHER_TASK_PRIORITY           ( tskIDLE_PRIORITY + 4 )
 #define ENERGY_TASK_PRIORITY            ( tskIDLE_PRIORITY + 4 )
 
