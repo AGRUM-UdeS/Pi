@@ -7,7 +7,7 @@
 // (see https://www.nongnu.org/lwip/2_1_x/group__lwip__opts.html)
 //
 
-#define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 1)
+#define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 3)
 
 #define LWIP_PROVIDE_ERRNO          1
 // allow override in some examples
@@ -16,8 +16,9 @@
 #endif
 
 #if !NO_SYS
-#define TCPIP_THREAD_STACKSIZE		1024
-#define DEFAULT_THREAD_STACKSIZE	1024
+#define TCPIP_THREAD_STACKSIZE		2048
+#define DEFAULT_THREAD_STACKSIZE	2048
+#define TCPIP_THREAD_PRIO           (configMAX_PRIORITIES - 2)
 #define DEFAULT_RAW_RECVMBOX_SIZE	8
 #define TCPIP_MBOX_SIZE				8
 #define LWIP_TIMEVAL_PRIVATE		0

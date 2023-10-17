@@ -41,6 +41,7 @@ thingsboard_state_t ThingsBoard_connect(void) {
 
   for (size_t i = 0; i < CONNECTION_TIMEOUT_MS/CONNECTION_TEST_DELAY_MS; i++)
   {
+    feed_watchdog();
     if (ThingsBoard_is_connected()) {
       printf("Connected after %d ms\n", i*CONNECTION_TEST_DELAY_MS);
       return THINGSBOARD_CONNECTED;

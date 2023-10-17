@@ -124,6 +124,9 @@ err_t mqtt_connect(mqtt_client_t** mqtt_client, const struct mqtt_connect_client
         mqtt_connection_cb, LWIP_CONST_CAST(void*, client_info),
         client_info);
 
+      if (ret == ERR_OK)
+        is_thingsboard_connected = true;
+
       return ret;
       
     }
