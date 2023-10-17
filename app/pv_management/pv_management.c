@@ -7,6 +7,8 @@
 #define PV_RANGE_DEGREE         (87)
 #define DAY_HOUR                (11)
 
+#define FLASH_ADDR_PV_POS       (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
+
 static repeating_timer_t pv_move_timer;
 
 static bool PV_calibration_flag = false;
@@ -14,15 +16,25 @@ static bool PV_rotation_flag = false;
 static bool PV_badweather_flag = false;
 static bool PV_power_decreasing_while_moving = false;
 
-static int16_t pv_current_pos = 0;
-static int16_t pv_pos_range = PV_RANGE_DEGREE;
-static int16_t pv_init_pos = 0;
+static int8_t pv_current_pos = 0;
+static int8_t pv_pos_range = PV_RANGE_DEGREE;
+static int8_t pv_init_pos = 0;
 
 static bool pv_move_callback(repeating_timer_t *rt)
 {
     printf("PV start moving\n");
     PV_rotation_flag = true;
     return PV_rotation_flag;
+}
+
+static bool save_pv_pos_in_flash(int8_t* pv_pos)
+{
+    return flash_write(FLASH_ADDR_PV_POS, (uint8_t*)pv_pos);
+}
+
+static bool read_pv_pos_from_flash(int8_t* pv_pos)
+{
+    return flash_read(FLASH_ADDR_PV_POS, (uint8_t*)pv_pos);
 }
 
 void PV_management(void *pvParameters)
@@ -52,6 +64,8 @@ void PV_management(void *pvParameters)
                             pv_move_callback, NULL, &pv_move_timer)) {
                         printf("Failed to add pv move timer\n");
                     }
+                    read_pv_pos_from_flash(&pv_current_pos);
+                    interface_publish("PV position", (float)(pv_current_pos));
                     PV_state = PV_IDLE;
 
                 } else {
@@ -65,7 +79,6 @@ void PV_management(void *pvParameters)
                 weather_status = forecast_is_bad_weather(&(context->weather_forecast));
 
                 if (morning_pv_calibration()) {   //si entre 5am et 6am
-                    clear_pv_calib_flag();
                     PV_state = PV_CALIBRATION;
                 } else if (!context->motor_drive_enable) {
                     PV_state = PV_MOTOR_SHUTDOWN;
@@ -112,15 +125,16 @@ void PV_management(void *pvParameters)
                 pv_current_pos = pv_init_pos = -pv_pos_range/2;
 
                 interface_publish("PV range", (float)pv_pos_range);
+                save_pv_pos_in_flash(&pv_current_pos);
+
                 rotate_all_pv(10, COUNTERCLOCKWISE);
                 while(all_motor_moving()) {
                     vTaskDelay(5);
                 }
 
-                // negative timeout means exact delay (rather than delay between callbacks)
-                static bool once = true;
-                if (once) {
-                    once = false;
+                if (morning_pv_calibration()) {
+                    clear_pv_calib_flag();
+                    // negative timeout means exact delay (rather than delay between callbacks)
                     if (!add_repeating_timer_ms(-(DAY_HOUR*60*60*1000)/pv_pos_range,
                             pv_move_callback, NULL, &pv_move_timer)) {
                         printf("Failed to add pv move timer\n");
@@ -148,6 +162,7 @@ void PV_management(void *pvParameters)
                     limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 }
                 interface_publish("PV position", (float)(++pv_current_pos));
+                save_pv_pos_in_flash(&pv_current_pos);
 
                 //Measure PV output power
                 // for (size_t i = 0; i < NB_PV; i++) {
@@ -182,6 +197,7 @@ void PV_management(void *pvParameters)
                     }
                     pv_current_pos = 0;
                     interface_publish("PV position", (float)(pv_current_pos));
+                    save_pv_pos_in_flash(&pv_current_pos);
                 }
 
                 PV_state = PV_IDLE;

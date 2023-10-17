@@ -15,6 +15,7 @@ add_subdirectory(wrap_I2C)
 add_subdirectory(wrap_NTP)
 add_subdirectory(wrap_PWM)
 add_subdirectory(wrap_RTC)
+add_subdirectory(wrap_FLASH)
 add_subdirectory(wrap_WATCHDOG)
 add_subdirectory(wrap_WIFI)
 
