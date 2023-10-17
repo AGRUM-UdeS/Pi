@@ -37,10 +37,9 @@ char *pv_current_topic[] = {
 #define BATTERY_VERY_LOW_VOLTAGE    (24.0)
 #define BATTERY_LOAD_VOLTAGE_DROP   (1.0)
 
-#define DELAY_30_MIN                (30*60*1000)
-uint32_t discharge_reenable_time = 0;
+#define DELAY_10_MIN                (10*60*1000)
 
-#define SUFFICIANT_IRRADIANCE_POWER (800)
+#define SUFFICIANT_IRRADIANCE_POWER (500)
 
 #define MEASUREMENTS_PERIOD_MS      (5*1000)
 #define PUBLISH_PERIOD_MS           (60*1000)
@@ -168,13 +167,13 @@ void discharge_control(discharge_status_t discharge_state)
         connect_contactor();
         break;
     case SUNNY_DISCHARGE:
-        // Discharge if sunny and check every 30 minutes
-        static uint32_t keep_load_connected_30_min = 0;
+        // Discharge if sunny and check every 10 minutes
+        static uint32_t keep_load_connected = 0;
         uint32_t now = to_ms_since_boot(get_absolute_time());
-        if (sufficient_irradiance() && keep_load_connected_30_min < now) {
+        if (sufficient_irradiance() && keep_load_connected < now) {
             connect_contactor();
-            keep_load_connected_30_min =  now + DELAY_30_MIN;
-        } else if (keep_load_connected_30_min > now) {
+            keep_load_connected =  now + DELAY_10_MIN;
+        } else if (keep_load_connected > now) {
             // Keep load connected
             connect_contactor();
         } else {
@@ -212,7 +211,7 @@ void enery_management(void *pvParameters)
 
         case ENERGY_IDLE:
             uint32_t now = to_ms_since_boot(get_absolute_time());
-            if (battery_need_discharge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX]) && (now >= discharge_reenable_time)) {
+            if (battery_need_discharge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
                 energy_state = OVERCHARGED;
 
             } else if (battery_criticaly_low(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
@@ -221,9 +220,10 @@ void enery_management(void *pvParameters)
             } else if (battery_low_charge(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])) {
                 energy_state = LOAD_SHEDDING;
 
-            } else if (battery_good(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX]) || (now < discharge_reenable_time)){
+            } else if (battery_good(battery_voltage[BOTH_BATTERY_VOLTAGE_INDEX])){
                 energy_state = NORMAL_USE;
             }
+            // else stay in the same state
 
             // Publish on state change
             if (last_energy_state != energy_state) {

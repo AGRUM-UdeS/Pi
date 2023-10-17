@@ -27,7 +27,7 @@ bool daytime(void);
 
 /*! \brief Tell if we are during the morning
  * 
- * \return true if during between 5h and 6h, false if not
+ * \return true if during between 6h and 7h, false if not
  */
 bool morning(void);
 
