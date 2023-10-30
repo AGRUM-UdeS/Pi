@@ -14,15 +14,15 @@ void init_i2c(void) {
     i2c_init(i2c0, i2c_baudrate);
     gpio_set_function(i2c0_SDA_pin, GPIO_FUNC_I2C);
     gpio_set_function(i2c0_SCL_pin, GPIO_FUNC_I2C);
-    gpio_pull_up(i2c0_SDA_pin);
-    gpio_pull_up(i2c0_SCL_pin);
+    // gpio_pull_up(i2c0_SDA_pin);
+    // gpio_pull_up(i2c0_SCL_pin);
 
     // Init i2c1
     i2c_init(i2c1, i2c_baudrate);
     gpio_set_function(i2c1_SDA_pin, GPIO_FUNC_I2C);
     gpio_set_function(i2c1_SCL_pin, GPIO_FUNC_I2C);
-    gpio_pull_up(i2c1_SDA_pin);
-    gpio_pull_up(i2c1_SCL_pin);
+    // gpio_pull_up(i2c1_SDA_pin);
+    // gpio_pull_up(i2c1_SCL_pin);
     printf("I2C initialized\n");
     // Add IO extender interupt pin
 }

@@ -57,6 +57,7 @@ void PV_management(void *pvParameters)
                 // Calibration if button pressed
                 if (context->init_calib_pv) {
                     PV_state = PV_CALIBRATION;
+                    vTaskDelay(5000);
 
                 } else if (daytime()) {
                     // If no calibration and day time, continue day rotation
@@ -106,7 +107,7 @@ void PV_management(void *pvParameters)
                     vTaskDelay(5);
                     limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 } while(!(lm_pin_value[0] && lm_pin_value[2] &&
-                          lm_pin_value[4]));// && lm_pin_value[6]));
+                          lm_pin_value[4] && lm_pin_value[6]));
 
                 // Rotate the whole range
                 rotate_all_pv(180, CLOCKWISE); // Will stop before 180 deg
@@ -116,7 +117,7 @@ void PV_management(void *pvParameters)
                     vTaskDelay(5);
                     limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                 } while(!(lm_pin_value[1] && lm_pin_value[3] &&
-                          lm_pin_value[5]));// && lm_pin_value[7]));
+                          lm_pin_value[5] && lm_pin_value[7]));
 
                 uint32_t end = to_ms_since_boot(get_absolute_time());
 
@@ -187,7 +188,7 @@ void PV_management(void *pvParameters)
                         vTaskDelay(5);
                         limit_switch_touched(lm_pin_value, NB_LIMIT_SWITCH);
                     } while(!(lm_pin_value[0] && lm_pin_value[2] &&
-                            lm_pin_value[4]));// && lm_pin_value[6]));
+                            lm_pin_value[4] && lm_pin_value[6]));
                     
                     // Then move back to the middle
                     rotate_all_pv((PV_RANGE_DEGREE/2), CLOCKWISE);

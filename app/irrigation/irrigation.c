@@ -130,13 +130,13 @@ void irrigation_management(void *pvParameters)
 
                 if (time_to_measure()) {
                     irrigation_state = IRRIGATION_MEASUREMENT;
-                } else if (morning_irrigation() && !barrel_is_empty() && context->irrigation_enable) {
-                    clear_irrigation_flag();
-                    irrigation_state = IRRIGATION_WATERING;
-                } else if (bac_is_full() && context->irrigation_enable) {
-                    irrigation_state = IRRIGATION_RESERVOIR2BARREL;
-                } else if (irrigation_soaking_flag && context->irrigation_enable) {
-                    irrigation_state = IRRIGATION_SOAKING;
+                // } else if (morning_irrigation() && !barrel_is_empty() && context->irrigation_enable) {
+                //     clear_irrigation_flag();
+                //     irrigation_state = IRRIGATION_WATERING;
+                // } else if (bac_is_full() && context->irrigation_enable) {
+                //     irrigation_state = IRRIGATION_RESERVOIR2BARREL;
+                // } else if (irrigation_soaking_flag && context->irrigation_enable) {
+                //     irrigation_state = IRRIGATION_SOAKING;
                 } else {
                     irrigation_state = IRRIGATION_IDLE;
                 }
@@ -241,6 +241,6 @@ void irrigation_management(void *pvParameters)
         }
         last_irrigation_state = irrigation_state;
         context->irrigation_status = irrigation_state;
-        vTaskDelay(500);
+        vTaskDelay(5000);
     }
 }
