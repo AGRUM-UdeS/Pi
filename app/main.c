@@ -41,9 +41,9 @@ main_context_t main_context;
 void startUp(void *pvParameters) {
     init_hardware(&main_context);
 
-    if (connect_to_interface() == INTERFACE_CONNECTED) {
-        init_timer();
-    }
+    // if (connect_to_interface() == INTERFACE_CONNECTED) {
+    //     init_timer();
+    // }
 
     // Init energy management
     // enery_management();
@@ -52,40 +52,40 @@ void startUp(void *pvParameters) {
     // printf("\n-------- Getting weather data\n");
     // weather_current_request();
 
-    xTaskCreate( irrigation_management,
-            "irrigation_management",
-            configMINIMAL_STACK_SIZE,
-            &main_context,
-            IRRIGATION_TASK_PRIORITY,
-            NULL );
+    // xTaskCreate( irrigation_management,
+    //         "irrigation_management",
+    //         configMINIMAL_STACK_SIZE,
+    //         &main_context,
+    //         IRRIGATION_TASK_PRIORITY,
+    //         NULL );
 
-    xTaskCreate( interface,
-            "interface",
-            configMINIMAL_STACK_SIZE,
-            &main_context,
-            INTERFACE_TASK_PRIORITY,
-            NULL );
+    // xTaskCreate( interface,
+    //         "interface",
+    //         configMINIMAL_STACK_SIZE,
+    //         &main_context,
+    //         INTERFACE_TASK_PRIORITY,
+    //         NULL );
 
-    xTaskCreate( house_keeping,
-            "house_keeping",
-            configMINIMAL_STACK_SIZE,
-            &main_context,
-            HOUSEKEEPING_TASK_PRIORITY,
-            NULL );
+    // xTaskCreate( house_keeping,
+    //         "house_keeping",
+    //         configMINIMAL_STACK_SIZE,
+    //         &main_context,
+    //         HOUSEKEEPING_TASK_PRIORITY,
+    //         NULL );
 
-    xTaskCreate( PV_management,
-            "PV_management",
-            configMINIMAL_STACK_SIZE,
-            &main_context,
-            PV_MANAGEMENT_TASK_PRIORITY,
-            NULL );
+    // xTaskCreate( PV_management,
+    //         "PV_management",
+    //         configMINIMAL_STACK_SIZE,
+    //         &main_context,
+    //         PV_MANAGEMENT_TASK_PRIORITY,
+    //         NULL );
 
-    xTaskCreate( enery_management,
-            "enery_management",
-            configMINIMAL_STACK_SIZE,
-            &main_context,
-            ENERGY_TASK_PRIORITY,
-            NULL );
+    // xTaskCreate( enery_management,
+    //         "enery_management",
+    //         configMINIMAL_STACK_SIZE,
+    //         &main_context,
+    //         ENERGY_TASK_PRIORITY,
+    //         NULL );
 
         // xTaskCreate( weather_task,
         //     "weather_task",
@@ -93,13 +93,20 @@ void startUp(void *pvParameters) {
         //     &main_context,
         //     WEATHER_TASK_PRIORITY,
         //     NULL );
+    
+    // rotate PV 20 deg
+    bool dir = true;
+    rotate_all_pv(20, dir);
+
+    while(all_motor_moving()){}
 
     while(1) {
-        // irrigation_status_t status_irrigation = irrigation_sm();
-        // energy_status_t status_energy = enery_management();
-        //send_system_status(status_interface, status_irrigation, status_energy);
-        //develop_test();
-        vTaskDelay(portMAX_DELAY);
+        dir = !dir;
+        rotate_all_pv(40, dir);
+        while(all_motor_moving()){
+            vTaskDelay(5);
+        }
+        vTaskDelay(1000);
     }
 }
 

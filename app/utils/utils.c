@@ -60,24 +60,26 @@ void init_timing(void)
 void init_hardware(void *ptr)
 {
     main_context_t* context = (main_context_t*)ptr;
+    gpio_init(DIR_PIN);
+    gpio_set_dir(DIR_PIN, GPIO_OUT);
 
-    init_i2c();
+    // init_i2c();
 
     // Open load relay as early as possible
-    init_energy();
+    // init_energy();
 
     // Init calibration button as input
-    gpio_init(CALIBRATION_BUTTON);
-    gpio_set_dir(CALIBRATION_BUTTON, GPIO_IN);
-    if (!gpio_get(CALIBRATION_BUTTON)) {
-        context->init_calib_pv = true;
-    } else {
-        context->init_calib_pv = false;
-    }
+    // gpio_init(CALIBRATION_BUTTON);
+    // gpio_set_dir(CALIBRATION_BUTTON, GPIO_IN);
+    // if (!gpio_get(CALIBRATION_BUTTON)) {
+    //     context->init_calib_pv = true;
+    // } else {
+    //     context->init_calib_pv = false;
+    // }
 
-    init_irrigation();
+    // init_irrigation();
 
-    init_motor();
+    // init_motor();
 }
 
 #define HOUSEKEEPING_FREQUENCY_MS			( 1000 / portTICK_PERIOD_MS )

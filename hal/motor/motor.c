@@ -160,13 +160,15 @@ motor_state_t rotate_all_pv(uint16_t angle, bool clockwise)
     }
 
     if (clockwise) {
-        for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
-            IO_clear_pin(IO_MOTOR_ADDRESS, DIR_PIN[i]);
-        }
+        gpio_put(DIR_PIN, false);
+        // for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
+            // IO_clear_pin(IO_MOTOR_ADDRESS, DIR_PIN[i]);
+        // }
     } else {
-        for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
-            IO_set_pin(IO_MOTOR_ADDRESS, DIR_PIN[i]);
-        }
+        gpio_put(DIR_PIN, true);
+        // for (size_t i = 0; i < sizeof(MOTOR_NUM); i++) {
+            // IO_set_pin(IO_MOTOR_ADDRESS, DIR_PIN[i]);
+        // }
     }
     
     // Start moving the motor

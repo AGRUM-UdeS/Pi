@@ -10,6 +10,8 @@
 #include "irrigation.h"
 #include "energy_management.h"
 
+#define DIR_PIN (9)
+
 // TODO: Add more states.
 typedef enum _system_status_t{
     SYSTEM_IDLE,
